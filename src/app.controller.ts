@@ -7,7 +7,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  // @UseInterceptors(TransactionInterceptor)
+  @UseInterceptors(TransactionInterceptor)
   async getHello(): Promise<string> {
     return this.appService.getHello();
   }
