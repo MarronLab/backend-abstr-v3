@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { CreateOrderDto } from './dto/createOrder.dto';
 import { Order } from 'hft-limit-order-book/dist/types/order';
 import { HttpService } from '@nestjs/axios';
 import { PrismaService } from 'src/services/prisma.service';
+import { BaseService } from 'src/common/base.service';
+import { Request } from 'express';
+import { REQUEST } from '@nestjs/core';
 
 export interface IProcessOrder {
   done: Order[];
@@ -19,8 +22,8 @@ interface ReturnOrderI {
   timestamp: string;
 }
 
-@Injectable()
-export class OrderService {
+@Injectable({ scope: Scope.REQUEST })
+export class OrderService extends BaseService {
   private readonly config = {
     headers: {
       Authorization: `Bearer ${process.env.MODULUS_AUTH_TOKEN}`,
@@ -30,7 +33,10 @@ export class OrderService {
   constructor(
     private readonly httpService: HttpService,
     private readonly prismaService: PrismaService,
-  ) {}
+    @Inject(REQUEST) req: Request,
+  ) {
+    super(prismaService, req);
+  }
 
   async createOrder(createOrderDto: CreateOrderDto) {
     // console.log(createOrderDto);
@@ -90,7 +96,7 @@ export class OrderService {
             (order) => order.OrderID === newTrade.MakerOrderID,
           );
 
-          console.log({ extraData: matchingOrder.extraData })
+          console.log({ extraData: matchingOrder.extraData });
 
           if (matchingOrder) {
             orders.push({
@@ -124,7 +130,7 @@ export class OrderService {
 
       const promise = Promise.all(
         modulusOrderResponse.data.data.rows.map(async (modulusOrder: any) => {
-          const storedOrder = await this.prismaService.orderBook.findFirst({
+          const storedOrder = await this.getClient().orderBook.findFirst({
             where: { orderId: modulusOrder.orderId },
           });
 
