@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { UserActivityInterceptor } from './common/user-activity.interceptor';
+import { PrismaService } from './services/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -8,6 +10,10 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
+
+  app.useGlobalInterceptors(
+    new UserActivityInterceptor(app.get(PrismaService)),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Maroon POC API')

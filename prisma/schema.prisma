@@ -25,11 +25,12 @@ model OrderBook {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  safeAddress String   @unique
-  userAddress String   @unique
-  createdAt   DateTime @default(now()) @db.Timestamp(6)
-  updateAt    DateTime @updatedAt @db.Timestamp(6)
+  id          String         @id @default(cuid())
+  safeAddress String         @unique
+  userAddress String         @unique
+  activities  UserActivity[]
+  createdAt   DateTime       @default(now()) @db.Timestamp(6)
+  updateAt    DateTime       @updatedAt @db.Timestamp(6)
 
   @@map("user")
 }
@@ -43,4 +44,16 @@ model AuditLog {
   createdAt DateTime @default(now()) @db.Timestamp(6)
 
   @@map("auditLog")
+}
+
+model UserActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  response  Json
+  success   Boolean
+  timestamp DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("userActivity")
 }
