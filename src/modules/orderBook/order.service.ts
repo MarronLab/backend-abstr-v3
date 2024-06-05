@@ -33,7 +33,6 @@ export class OrderService {
   ) {}
 
   async createOrder(createOrderDto: CreateOrderDto) {
-    // console.log(createOrderDto);
     try {
       const orderId = Math.floor(Date.now() / 1000);
 
@@ -90,7 +89,7 @@ export class OrderService {
             (order) => order.OrderID === newTrade.MakerOrderID,
           );
 
-          console.log({ extraData: matchingOrder.extraData })
+          console.log({ extraData: matchingOrder.extraData });
 
           if (matchingOrder) {
             orders.push({

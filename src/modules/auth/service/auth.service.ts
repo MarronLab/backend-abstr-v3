@@ -26,7 +26,7 @@ export class AuthService {
         else return null;
       } else return null;
     } catch (error) {
-      console.log(error);
+      console.log('hey', error);
     }
   }
 }
