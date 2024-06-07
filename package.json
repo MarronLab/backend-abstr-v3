@@ -40,6 +40,8 @@
     "@safe-global/api-kit": "^2.1.0",
     "@safe-global/protocol-kit": "^3.0.0",
     "@safe-global/safe-core-sdk-types": "^4.0.0",
+    "@sentry/node": "^8.8.0",
+    "@sentry/tracing": "^7.114.0",
     "axios": "^1.6.8",
     "class-validator": "^0.14.1",
     "ethers": "^6.7.1",
