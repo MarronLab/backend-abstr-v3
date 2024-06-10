@@ -33,7 +33,7 @@ export class PrismaService
             $allOperations: async ({ operation, model, args, query }) => {
               const result = await query(args);
 
-              if (model !== 'AuditLog') {
+              if (model !== 'AuditLog' && result) {
                 await this.auditLog.create({
                   data: {
                     action: operation,
