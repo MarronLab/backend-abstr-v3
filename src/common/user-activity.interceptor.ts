@@ -4,7 +4,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { PrismaService } from '../services/prisma.service';
 
@@ -30,19 +30,19 @@ export class UserActivityInterceptor implements NestInterceptor {
           });
         }
       }),
-      catchError(async (error) => {
+      catchError(async (e) => {
         if (user) {
           await this.prisma.userActivity.create({
             data: {
               userId: user.id,
               action,
-              response: JSON.stringify(error),
+              response: JSON.stringify(e),
               success: false,
             },
           });
         }
 
-        return throwError(() => error);
+        throw e;
       }),
     );
   }
