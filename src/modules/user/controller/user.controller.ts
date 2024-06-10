@@ -11,7 +11,6 @@ export class UserController {
   @Get('find-safe-detail/:userAddress')
   @UsePipes(ValidateRequestPipe)
   async getSafeAddress(@Param('userAddress') userAddress: string) {
-    console.log('Parameter received in controller:', userAddress);
     return await this.userService.getSafeAddress(userAddress);
   }
 }
