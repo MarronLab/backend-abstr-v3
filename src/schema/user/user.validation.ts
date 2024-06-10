@@ -1,6 +1,17 @@
-import { Injectable, PipeTransform, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  PipeTransform,
+  BadRequestException,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
 import Ajv from 'ajv';
-import { getSafeAddressSchema } from './user.schema';
+import {
+  getSafeAddressSchema,
+  getSafeAddressResponseSchema,
+} from './user.schema';
+import { Observable, map } from 'rxjs';
 
 @Injectable()
 export class ValidateRequestPipe implements PipeTransform {
@@ -33,5 +44,32 @@ export class ValidateRequestPipe implements PipeTransform {
     }
 
     return value;
+  }
+}
+
+@Injectable()
+export class ValidateResponseInterceptor implements NestInterceptor {
+  private ajv;
+
+  constructor() {
+    this.ajv = new Ajv({ allErrors: true });
+  }
+
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next.handle().pipe(
+      map((data) => {
+        const validate = this.ajv.compile(getSafeAddressResponseSchema);
+        const valid = validate(data);
+
+        if (!valid) {
+          throw new BadRequestException(
+            'Response validation failed: ' +
+              this.ajv.errorsText(validate.errors),
+          );
+        }
+
+        return data;
+      }),
+    );
   }
 }

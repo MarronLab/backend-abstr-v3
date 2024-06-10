@@ -1,7 +1,16 @@
-import { Controller, Get, Param, UsePipes } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  UsePipes,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import { ApiTags } from '@nestjs/swagger';
-import { ValidateRequestPipe } from '../../../schema/user/user.validation';
+import {
+  ValidateRequestPipe,
+  ValidateResponseInterceptor,
+} from '../../../schema/user/user.validation';
 
 @ApiTags('user')
 @Controller('user')
@@ -10,6 +19,7 @@ export class UserController {
 
   @Get('find-safe-detail/:userAddress')
   @UsePipes(ValidateRequestPipe)
+  @UseInterceptors(ValidateResponseInterceptor)
   async getSafeAddress(@Param('userAddress') userAddress: string) {
     return await this.userService.getSafeAddress(userAddress);
   }
