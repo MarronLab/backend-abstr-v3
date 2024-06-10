@@ -55,14 +55,13 @@ export class AuthService {
         );
       }
     } catch (error) {
-      console.log(error);
       throw new HttpException(
         {
           success: false,
-          message: 'An error occurred during login',
+          message: error.response?.data?.Message,
           details: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

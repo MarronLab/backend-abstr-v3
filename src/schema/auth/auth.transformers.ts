@@ -10,6 +10,7 @@ import { validateOrReject } from 'class-validator';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import AuthResponseDto from '../../modules/auth/dto/auth.response.dto';
+import ErrorResponseDto from 'src/modules/auth/dto/error.esponse.dto';
 
 @Injectable()
 export class AuthTransformInterceptor<T> implements NestInterceptor<T, any> {
@@ -27,7 +28,6 @@ export class AuthTransformInterceptor<T> implements NestInterceptor<T, any> {
 }
 
 // Response Validation for login
-
 @Injectable()
 export class ResponseTransformInterceptor implements NestInterceptor {
   async intercept(
@@ -40,8 +40,11 @@ export class ResponseTransformInterceptor implements NestInterceptor {
           const responseDto = plainToClass(AuthResponseDto, data);
           await validateOrReject(responseDto);
           return responseDto;
+        } else {
+          const errorResponse = plainToClass(ErrorResponseDto, data); // Transform error data into ErrorResponseDto
+          await validateOrReject(errorResponse); // Validate if needed
+          return errorResponse; // Return error response
         }
-        return data;
       }),
     );
   }
