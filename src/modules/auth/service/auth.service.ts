@@ -19,8 +19,6 @@ export class AuthService {
           password,
         },
       );
-
-      console.log('logging response', loginResponse.data);
       if (loginResponse.data.status === 'success') {
         const authResponse = await this.httpService.axiosRef.post('/token', {
           grant_type: 'password',

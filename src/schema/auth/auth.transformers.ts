@@ -41,9 +41,9 @@ export class ResponseTransformInterceptor implements NestInterceptor {
           await validateOrReject(responseDto);
           return responseDto;
         } else {
-          const errorResponse = plainToClass(ErrorResponseDto, data); // Transform error data into ErrorResponseDto
-          await validateOrReject(errorResponse); // Validate if needed
-          return errorResponse; // Return error response
+          const errorResponse = plainToClass(ErrorResponseDto, data);
+          await validateOrReject(errorResponse);
+          return errorResponse;
         }
       }),
     );
