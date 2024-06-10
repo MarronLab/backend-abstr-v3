@@ -6,8 +6,10 @@ import {
   Type,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import AuthResponseDto from '../../modules/auth/dto/auth.response.dto';
 
 @Injectable()
 export class AuthTransformInterceptor<T> implements NestInterceptor<T, any> {
@@ -20,6 +22,27 @@ export class AuthTransformInterceptor<T> implements NestInterceptor<T, any> {
           excludeExtraneousValues: true,
         }),
       ),
+    );
+  }
+}
+
+// Response Validation for login
+
+@Injectable()
+export class ResponseTransformInterceptor implements NestInterceptor {
+  async intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Promise<Observable<any>> {
+    return next.handle().pipe(
+      map(async (data) => {
+        if (data.success) {
+          const responseDto = plainToClass(AuthResponseDto, data);
+          await validateOrReject(responseDto);
+          return responseDto;
+        }
+        return data;
+      }),
     );
   }
 }
