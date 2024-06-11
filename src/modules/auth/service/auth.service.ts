@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import RegisterDto from '../dto/auth.register.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +28,28 @@ export class AuthService {
       } else return null;
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  // registration
+
+  async register(registerDto: RegisterDto) {
+    try {
+      const registerResponse = await this.httpService.axiosRef.post(
+        '/api/SignUp',
+        registerDto,
+      );
+
+      console.log('logging', registerResponse);
+      if (registerResponse.data.status === 'success') {
+        console.log('logging success', registerResponse.data);
+        return registerResponse.data;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
     }
   }
 }
