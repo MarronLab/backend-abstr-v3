@@ -40,9 +40,7 @@ export class AuthService {
         registerDto,
       );
 
-      console.log('logging', registerResponse);
       if (registerResponse.data.status === 'success') {
-        console.log('logging success', registerResponse.data);
         return registerResponse.data;
       } else {
         return null;

@@ -12,7 +12,6 @@ export default class RegisterDto {
 
   @ApiProperty({
     description: 'The middle name of the user',
-    required: true,
   })
   @IsNotEmpty()
   @IsString()
@@ -62,7 +61,7 @@ export default class RegisterDto {
     description: 'The referral ID, if any',
   })
   @IsNumber()
-  referralId: number;
+  referralId: string;
 
   @ApiProperty({
     description: 'The mobile OTP for verification',
