@@ -11,6 +11,7 @@ import {
   PlaceOrderResponse,
   PlaceOrderResponseData,
 } from 'src/services/modulus/modulus.type';
+import { CancelOrderDto } from './dto/CancelOrder.dto';
 
 export interface IProcessOrder {
   done: Order[];
@@ -193,6 +194,23 @@ export class OrderService {
       }
 
       return data.data;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+
+  async cancelOrder(cancelOrderDto: CancelOrderDto): Promise<any> {
+    try {
+      const { data } = await this.modulusService.cancelOrder({
+        orderId: cancelOrderDto.id,
+        pair: cancelOrderDto.pair,
+      });
+
+      if (!data) {
+        throw new UnprocessableEntityException('Could not cancel order');
+      }
+
+      return data;
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }

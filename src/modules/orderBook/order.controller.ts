@@ -13,6 +13,7 @@ import {
   PlaceOrderPricedResponseDto,
   PlaceOrderResponseDto,
 } from './dto/placeOrderResponse.dto';
+import { CancelOrderDto } from './dto/CancelOrder.dto';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -50,5 +51,12 @@ export class OrderController {
       status: response.orderStatus,
       remaining: response.remaining,
     });
+  }
+
+  @Post('/cancel-order')
+  async cancelOrder(@Body() cancelOrderDto: CancelOrderDto) {
+    const response = await this.orderService.cancelOrder(cancelOrderDto);
+
+    return response;
   }
 }

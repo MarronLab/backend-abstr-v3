@@ -46,3 +46,8 @@ export type PlaceOrderPricedResponseData = {
 export type PlaceOrderPricedResponse = {
   data: null | PlaceOrderPricedResponseData;
 } & Pick<PlaceOrderResponse, 'status' | 'message'>;
+
+export type CancelOrderRequest = {
+  orderId: number;
+  pair: string;
+};
