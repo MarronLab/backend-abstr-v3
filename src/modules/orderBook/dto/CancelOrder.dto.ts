@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDefined, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsDefined,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 
 export class CancelOrderDto {
   @ApiProperty()
@@ -12,5 +18,6 @@ export class CancelOrderDto {
   @IsDefined()
   @IsNotEmpty()
   @IsString()
-  pair: string;
+  @ValidateIf((_, value) => ['ALL', 'SELL', 'BUY'].includes(value))
+  side: 'ALL' | 'SELL' | 'BUY';
 }

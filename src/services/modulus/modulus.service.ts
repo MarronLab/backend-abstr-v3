@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {
   CancelOrderRequest,
+  CancelOrderResponse,
   PlaceOrderPricedRequest,
   PlaceOrderPricedResponse,
   PlaceOrderRequest,
@@ -47,6 +48,6 @@ export class ModulusService {
 
   async cancelOrder(request: CancelOrderRequest) {
     console.log(request);
-    return await this.postOrder('/CancelOrder', request);
+    return await this.postOrder<CancelOrderResponse>('/CancelOrder', request);
   }
 }

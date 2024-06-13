@@ -14,6 +14,7 @@ import {
   PlaceOrderResponseDto,
 } from './dto/placeOrderResponse.dto';
 import { CancelOrderDto } from './dto/CancelOrder.dto';
+import { OrderSideEnum } from 'src/services/modulus/modulus.enum';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -30,7 +31,17 @@ export class OrderController {
   async placeOrder(@Body() placeOrderDto: PlaceOrderDto) {
     const response = await this.orderService.placeOrder(placeOrderDto);
 
-    return new PlaceOrderResponseDto({ id: response.orderId });
+    return new PlaceOrderResponseDto({
+      id: response.orderId,
+      side: response.side === 'Buy' ? OrderSideEnum.BUY : OrderSideEnum.SELL,
+      size: response.size,
+      type: response.orderType,
+      price: response.price,
+      filled: response.filled,
+      filledPrice: response.filledPrice,
+      remaining: response.remaining,
+      metadata: response.metadata,
+    });
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -50,6 +61,7 @@ export class OrderController {
       filledPrice: response.filledPrice,
       status: response.orderStatus,
       remaining: response.remaining,
+      metadata: response.metadata,
     });
   }
 

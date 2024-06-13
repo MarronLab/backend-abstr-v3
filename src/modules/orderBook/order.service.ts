@@ -152,7 +152,7 @@ export class OrderService {
 
   async placeOrder(
     placeOrderDto: PlaceOrderDto,
-  ): Promise<PlaceOrderResponseData> {
+  ): Promise<PlaceOrderResponseData & { metadata: string }> {
     console.log(placeOrderDto);
     try {
       const { data } = await this.modulusService.placeOrder({
@@ -167,11 +167,19 @@ export class OrderService {
         type: placeOrderDto.type,
       });
 
-      if (!data.data) {
-        throw new UnprocessableEntityException('Could not place an order');
+      if (typeof data.data === 'string') {
+        throw new UnprocessableEntityException(data.data);
       }
 
-      return data.data;
+      //Store metadata
+      await this.prismaService.orderMetadata.create({
+        data: {
+          orderId: data.data.orderId,
+          metadata: placeOrderDto.metadata,
+        },
+      });
+
+      return { ...data.data, metadata: placeOrderDto.metadata };
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }
@@ -179,7 +187,7 @@ export class OrderService {
 
   async placeOrderPriced(
     placeOrderPricedDto: PlaceOrderPricedDto,
-  ): Promise<PlaceOrderPricedResponseData> {
+  ): Promise<PlaceOrderPricedResponseData & { metadata: string }> {
     console.log(placeOrderPricedDto);
     try {
       const { data } = await this.modulusService.placeOrderPriced({
@@ -189,11 +197,19 @@ export class OrderService {
         amount: placeOrderPricedDto.amount,
       });
 
-      if (!data.data) {
-        throw new UnprocessableEntityException('Could not place an order');
+      if (typeof data.data === 'string') {
+        throw new UnprocessableEntityException(data.data);
       }
 
-      return data.data;
+      //Store metadata
+      await this.prismaService.orderMetadata.create({
+        data: {
+          orderId: data.data.orderId,
+          metadata: placeOrderPricedDto.metadata,
+        },
+      });
+
+      return { ...data.data, metadata: placeOrderPricedDto.metadata };
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }
@@ -203,14 +219,19 @@ export class OrderService {
     try {
       const { data } = await this.modulusService.cancelOrder({
         orderId: cancelOrderDto.id,
-        pair: cancelOrderDto.pair,
+        side: cancelOrderDto.side,
       });
 
-      if (!data) {
-        throw new UnprocessableEntityException('Could not cancel order');
+      if (typeof data.data === 'string') {
+        throw new UnprocessableEntityException(data.data);
       }
 
-      return data;
+      //Remove metadata
+      await this.prismaService.orderMetadata.delete({
+        where: { orderId: cancelOrderDto.id },
+      });
+
+      return data.data;
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }

@@ -5,6 +5,14 @@ import {
 
 export class PlaceOrderResponseDto {
   id: number;
+  side: OrderSideEnum;
+  type: OrderTypeEnum;
+  size: number;
+  filled: number;
+  remaining: number;
+  price: number;
+  filledPrice: number;
+  metadata: string;
 
   constructor(partial: Partial<PlaceOrderResponseDto>) {
     Object.assign(this, partial);
@@ -22,6 +30,7 @@ export class PlaceOrderPricedResponseDto {
   filledPrice: number;
   status: boolean;
   ooc: number;
+  metadata: string;
 
   constructor(partial: Partial<PlaceOrderPricedResponseDto>) {
     Object.assign(this, partial);

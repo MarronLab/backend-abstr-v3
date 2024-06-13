@@ -11,26 +11,35 @@ datasource db {
 }
 
 model OrderBook {
-  id            String           @id @default(cuid())
-  orderId       String           @unique
-  metadata      String     
-  side          String     
-  price         Int     
-  size          Int     
-  userId        String     
-  createdAt     DateTime     @default(now()) @db.Timestamp(6)
-  updateAt      DateTime     @updatedAt @db.Timestamp(6)
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  metadata  String
+  side      String
+  price     Int
+  size      Int
+  userId    String
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updateAt  DateTime @updatedAt @db.Timestamp(6)
 
   @@map("orderBook")
 }
 
 model User {
-  id                String           @id              @default(cuid())
-  safeAddress       String           @unique
-  userAddress       String           @unique
-  createdAt         DateTime         @default(now())  @db.Timestamp(6)
-  updateAt          DateTime         @updatedAt       @db.Timestamp(6)
+  id          String   @id @default(cuid())
+  safeAddress String   @unique
+  userAddress String   @unique
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updateAt    DateTime @updatedAt @db.Timestamp(6)
 
   @@map("user")
 }
 
+model OrderMetadata {
+  id        String   @id @default(cuid())
+  orderId   Int      @unique
+  metadata  Json
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updateAt  DateTime @updatedAt @db.Timestamp(6)
+
+  @@map("orderMetadata")
+}

@@ -22,12 +22,19 @@ export type PlaceOrderPricedRequest = {
 
 export type PlaceOrderResponseData = {
   orderId: number;
+  side: 'Buy' | 'Sell';
+  orderType: OrderTypeEnum;
+  size: number;
+  filled: number;
+  remaining: number;
+  price: number;
+  filledPrice: number;
 };
 
 export type PlaceOrderResponse = {
   status: 'Success' | 'Error';
-  message: null | string;
-  data: null | PlaceOrderResponseData;
+  message: string;
+  data: string | PlaceOrderResponseData;
 };
 
 export type PlaceOrderPricedResponseData = {
@@ -44,10 +51,20 @@ export type PlaceOrderPricedResponseData = {
 };
 
 export type PlaceOrderPricedResponse = {
-  data: null | PlaceOrderPricedResponseData;
+  data: string | PlaceOrderPricedResponseData;
 } & Pick<PlaceOrderResponse, 'status' | 'message'>;
 
 export type CancelOrderRequest = {
   orderId: number;
-  pair: string;
+  side: 'ALL' | 'SELL' | 'BUY';
 };
+
+export type CancelOrderResponseData = {
+  orderId: number;
+  et: number;
+  etm: number;
+};
+
+export type CancelOrderResponse = {
+  data: string | CancelOrderResponseData;
+} & Pick<PlaceOrderResponse, 'status' | 'message'>;

@@ -2,6 +2,7 @@ import { ApiProperty, PickType } from '@nestjs/swagger';
 import {
   IsDefined,
   IsEnum,
+  IsJSON,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -78,12 +79,18 @@ export class PlaceOrderDto {
       o.type === OrderTypeEnum.STOPLIMIT && o.type === OrderTypeEnum.STOPMARKET,
   )
   stop: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsJSON()
+  metadata: string;
 }
 
 export class PlaceOrderPricedDto extends PickType(PlaceOrderDto, [
   'side',
   'market',
   'trade',
+  'metadata',
 ] as const) {
   @ApiProperty()
   @IsNotEmpty()
