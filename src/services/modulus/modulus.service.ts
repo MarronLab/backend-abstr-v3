@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {
   CancelOrderRequest,
@@ -18,6 +18,26 @@ export class ModulusService {
   };
 
   constructor(private readonly httpService: HttpService) {}
+
+  async login(email: string, password: string) {
+    try {
+      const response = await this.httpService.axiosRef.post(
+        '/api/AuthenticateUser',
+        {
+          email,
+          password,
+        },
+      );
+
+      if (response.data.status === 'Error') {
+        throw new UnauthorizedException();
+      }
+
+      return response.data;
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+  }
 
   private async postOrder<T>(endpoint: string, request: any) {
     console.log(request);
