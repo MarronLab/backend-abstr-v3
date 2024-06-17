@@ -1,6 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {
+  AuthenticateUserResponse,
   CancelOrderRequest,
   CancelOrderResponse,
   PlaceOrderPricedRequest,
@@ -11,36 +12,9 @@ import {
 
 @Injectable()
 export class ModulusService {
-  private readonly config = {
-    headers: {
-      Authorization: `Bearer ${process.env.MODULUS_AUTH_TOKEN}`,
-    },
-  };
-
   constructor(private readonly httpService: HttpService) {}
 
-  async login(email: string, password: string) {
-    try {
-      const response = await this.httpService.axiosRef.post(
-        '/api/AuthenticateUser',
-        {
-          email,
-          password,
-        },
-      );
-
-      if (response.data.status === 'Error') {
-        throw new UnauthorizedException();
-      }
-
-      return response.data;
-    } catch (error) {
-      throw new UnauthorizedException();
-    }
-  }
-
-  private async postOrder<T>(endpoint: string, request: any) {
-    console.log(request);
+  private async request<T>(endpoint: string, request: any) {
     try {
       const response = await this.httpService.axiosRef.post<T>(
         endpoint,
@@ -49,18 +23,29 @@ export class ModulusService {
 
       return response;
     } catch (error) {
-      throw new Error('Could not place an order');
+      console.log('Error: ', error);
+      throw new Error(error);
     }
   }
 
+  async login(email: string, password: string) {
+    return await this.request<AuthenticateUserResponse>(
+      '/api/AuthenticateUser',
+      {
+        email,
+        password,
+      },
+    );
+  }
+
   async placeOrder(request: PlaceOrderRequest) {
-    console.log(request);
-    return await this.postOrder<PlaceOrderResponse>('/PlaceOrder', request);
+    console.log('request: ', request);
+    return await this.request<PlaceOrderResponse>('/api/PlaceOrder', request);
   }
 
   async placeOrderPriced(request: PlaceOrderPricedRequest) {
     console.log(request);
-    return await this.postOrder<PlaceOrderPricedResponse>(
+    return await this.request<PlaceOrderPricedResponse>(
       '/PlaceOrder_Priced',
       request,
     );
@@ -68,6 +53,6 @@ export class ModulusService {
 
   async cancelOrder(request: CancelOrderRequest) {
     console.log(request);
-    return await this.postOrder<CancelOrderResponse>('/CancelOrder', request);
+    return await this.request<CancelOrderResponse>('/CancelOrder', request);
   }
 }

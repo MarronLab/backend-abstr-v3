@@ -3,11 +3,12 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Post,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/createOrder.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PlaceOrderDto, PlaceOrderPricedDto } from './dto/placeOrder.dto';
 import {
   PlaceOrderPricedResponseDto,
@@ -15,6 +16,7 @@ import {
 } from './dto/placeOrderResponse.dto';
 import { CancelOrderDto } from './dto/CancelOrder.dto';
 import { OrderSideEnum } from 'src/services/modulus/modulus.enum';
+import { AuthGuard } from '../auth/auth.guard';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -26,6 +28,8 @@ export class OrderController {
     return await this.orderService.createOrder(createOrderDto);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('/place-order')
   async placeOrder(@Body() placeOrderDto: PlaceOrderDto) {
@@ -44,6 +48,7 @@ export class OrderController {
     });
   }
 
+  @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('/place-order-priced')
   async placeOrderPriced(@Body() placeOrderPricedDto: PlaceOrderPricedDto) {
@@ -65,6 +70,7 @@ export class OrderController {
     });
   }
 
+  @UseGuards(AuthGuard)
   @Post('/cancel-order')
   async cancelOrder(@Body() cancelOrderDto: CancelOrderDto) {
     const response = await this.orderService.cancelOrder(cancelOrderDto);

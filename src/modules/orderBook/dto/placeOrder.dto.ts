@@ -81,6 +81,7 @@ export class PlaceOrderDto {
   stop: number;
 
   @ApiProperty()
+  @IsDefined()
   @IsNotEmpty()
   @IsJSON()
   metadata: string;

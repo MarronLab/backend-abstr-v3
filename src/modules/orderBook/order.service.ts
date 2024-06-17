@@ -153,7 +153,6 @@ export class OrderService {
   async placeOrder(
     placeOrderDto: PlaceOrderDto,
   ): Promise<PlaceOrderResponseData & { metadata: string }> {
-    console.log(placeOrderDto);
     try {
       const { data } = await this.modulusService.placeOrder({
         side: placeOrderDto.side,
@@ -172,15 +171,16 @@ export class OrderService {
       }
 
       //Store metadata
-      await this.prismaService.orderMetadata.create({
+      await this.prismaService.orderBook.create({
         data: {
-          orderId: data.data.orderId,
+          orderId: String(data.data.orderId),
           metadata: placeOrderDto.metadata,
         },
       });
 
       return { ...data.data, metadata: placeOrderDto.metadata };
     } catch (error) {
+      console.log('ERROR: ', error);
       throw new UnprocessableEntityException(error);
     }
   }
@@ -188,7 +188,6 @@ export class OrderService {
   async placeOrderPriced(
     placeOrderPricedDto: PlaceOrderPricedDto,
   ): Promise<PlaceOrderPricedResponseData & { metadata: string }> {
-    console.log(placeOrderPricedDto);
     try {
       const { data } = await this.modulusService.placeOrderPriced({
         side: placeOrderPricedDto.side,
@@ -202,9 +201,9 @@ export class OrderService {
       }
 
       //Store metadata
-      await this.prismaService.orderMetadata.create({
+      await this.prismaService.orderBook.create({
         data: {
-          orderId: data.data.orderId,
+          orderId: String(data.data.orderId),
           metadata: placeOrderPricedDto.metadata,
         },
       });
@@ -227,8 +226,8 @@ export class OrderService {
       }
 
       //Remove metadata
-      await this.prismaService.orderMetadata.delete({
-        where: { orderId: cancelOrderDto.id },
+      await this.prismaService.orderBook.delete({
+        where: { orderId: String(cancelOrderDto.id) },
       });
 
       return data.data;

@@ -3,15 +3,17 @@ import { AuthService } from '../service/auth.service';
 import { AuthController } from '../controller/auth.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ModulusService } from 'src/services/modulus/modulus.service';
+import { AuthGuard } from '../auth.guard';
+import { HttpConfigService } from 'src/services/http-config.service';
 
 @Module({
   imports: [
-    HttpModule.register({
-      baseURL: 'https://api.maroon.io',
+    HttpModule.registerAsync({
+      useClass: HttpConfigService,
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, ModulusService],
-  exports: [AuthService],
+  providers: [AuthService, ModulusService, AuthGuard],
+  exports: [AuthService, AuthGuard],
 })
 export class AuthModule {}

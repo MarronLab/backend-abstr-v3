@@ -4,6 +4,12 @@ import {
   OrderTypeEnum,
 } from './modulus.enum';
 
+export type AuthenticateUserResponse = {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+};
+
 export type PlaceOrderRequest = {
   side: OrderSideEnum;
   market: string;
