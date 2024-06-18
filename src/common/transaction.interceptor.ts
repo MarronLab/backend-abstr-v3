@@ -38,7 +38,7 @@ export class TransactionInterceptor implements NestInterceptor {
               return data;
             }),
             catchError(async (e) => {
-              return throwError(() => new Error(e));
+              throw e;
             }),
           ),
         );

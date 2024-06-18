@@ -39,7 +39,6 @@ export class OrderService extends BaseService {
   }
 
   async createOrder(createOrderDto: CreateOrderDto) {
-    // console.log(createOrderDto);
     try {
       const orderId = Math.floor(Date.now() / 1000);
 
