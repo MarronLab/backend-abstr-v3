@@ -180,7 +180,6 @@ export class OrderService {
 
       return { ...data.data, metadata: placeOrderDto.metadata };
     } catch (error) {
-      console.log('ERROR: ', error);
       throw new UnprocessableEntityException(error);
     }
   }
