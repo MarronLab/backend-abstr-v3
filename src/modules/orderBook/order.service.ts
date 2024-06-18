@@ -6,9 +6,7 @@ import { PrismaService } from 'src/services/prisma.service';
 import { PlaceOrderDto, PlaceOrderPricedDto } from './dto/placeOrder.dto';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import {
-  PlaceOrderPricedResponse,
   PlaceOrderPricedResponseData,
-  PlaceOrderResponse,
   PlaceOrderResponseData,
 } from 'src/services/modulus/modulus.type';
 import { CancelOrderDto } from './dto/CancelOrder.dto';
@@ -43,7 +41,6 @@ export class OrderService {
   ) {}
 
   async createOrder(createOrderDto: CreateOrderDto) {
-    // console.log(createOrderDto);
     try {
       const orderId = Math.floor(Date.now() / 1000);
 

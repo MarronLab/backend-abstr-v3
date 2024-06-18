@@ -5,6 +5,7 @@ import {
   Post,
   UseGuards,
   UseInterceptors,
+  UsePipes,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/createOrder.dto';
@@ -17,6 +18,8 @@ import {
 import { CancelOrderDto } from './dto/CancelOrder.dto';
 import { OrderSideEnum } from 'src/services/modulus/modulus.enum';
 import { AuthGuard } from '../auth/auth.guard';
+import { OrderValidationPipe } from '../../schema/order/order.validation';
+import { OrderTransformInterceptor } from 'src/schema/order/order.transformers';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -24,6 +27,8 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post('/create-order')
+  @UsePipes(OrderValidationPipe)
+  @UseInterceptors(new OrderTransformInterceptor(CreateOrderDto))
   async createOrder(@Body() createOrderDto: CreateOrderDto) {
     return await this.orderService.createOrder(createOrderDto);
   }
