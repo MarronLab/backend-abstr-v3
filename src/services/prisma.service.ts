@@ -25,6 +25,32 @@ export class PrismaService
       console.log('Duration: ' + event.duration + 'ms');
     });
 
+    Object.assign(
+      this,
+      this.$extends({
+        query: {
+          $allModels: {
+            $allOperations: async ({ operation, model, args, query }) => {
+              const result = await query(args);
+
+              if (model !== 'AuditLog' && result) {
+                await this.auditLog.create({
+                  data: {
+                    action: operation,
+                    recordId: (result as any).id,
+                    changes: JSON.stringify(args),
+                    tableName: model,
+                  },
+                });
+              }
+
+              return result;
+            },
+          },
+        },
+      }),
+    );
+
     await this.$connect();
   }
 
