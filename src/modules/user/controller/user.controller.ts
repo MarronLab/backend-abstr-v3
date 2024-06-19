@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import { ApiTags } from '@nestjs/swagger';
-import { TransactionInterceptor } from 'src/common/transaction.interceptor';
 import {
   ValidateRequestPipe,
   ValidateResponseInterceptor,
@@ -21,7 +20,6 @@ export class UserController {
   @Get('find-safe-detail/:userAddress')
   @UsePipes(ValidateRequestPipe)
   @UseInterceptors(ValidateResponseInterceptor)
-  @UseInterceptors(TransactionInterceptor)
   async getSafeAddress(@Param('userAddress') userAddress: string) {
     return await this.userService.getSafeAddress(userAddress);
   }
