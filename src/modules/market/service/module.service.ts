@@ -48,7 +48,6 @@ export class MarketService {
   }
 
   private handleError(error: any): void {
-    console.error('Error fetching market data:', error.message);
     throw new HttpException(
       error.response?.data?.message || error.message,
       error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
