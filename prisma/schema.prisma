@@ -11,26 +11,36 @@ datasource db {
 }
 
 model OrderBook {
-  id            String           @id @default(cuid())
-  orderId       String           @unique
-  metadata      String     
-  side          String     
-  price         Int     
-  size          Int     
-  userId        String     
-  createdAt     DateTime     @default(now()) @db.Timestamp(6)
-  updateAt      DateTime     @updatedAt @db.Timestamp(6)
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  metadata  String
+  side      String
+  price     Int
+  size      Int
+  userId    String
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updateAt  DateTime @updatedAt @db.Timestamp(6)
 
   @@map("orderBook")
 }
 
 model User {
-  id                String           @id              @default(cuid())
-  safeAddress       String           @unique
-  userAddress       String           @unique
-  createdAt         DateTime         @default(now())  @db.Timestamp(6)
-  updateAt          DateTime         @updatedAt       @db.Timestamp(6)
+  id          String   @id @default(cuid())
+  safeAddress String   @unique
+  userAddress String   @unique
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updateAt    DateTime @updatedAt @db.Timestamp(6)
 
   @@map("user")
 }
 
+model AuditLog {
+  id        String   @id @default(cuid())
+  tableName String
+  recordId  String
+  action    String
+  changes   Json
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("auditLog")
+}

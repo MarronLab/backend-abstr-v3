@@ -2,8 +2,8 @@ import {
   Controller,
   Get,
   Param,
-  UsePipes,
   UseInterceptors,
+  UsePipes,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import { ApiTags } from '@nestjs/swagger';
