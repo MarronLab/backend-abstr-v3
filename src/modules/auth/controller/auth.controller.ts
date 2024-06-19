@@ -21,7 +21,7 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(AuthValidationPipe)
-  @UseInterceptors(new AuthTransformInterceptor(LoginDto))
+  // @UseInterceptors(new AuthTransformInterceptor(LoginDto))
   @UseInterceptors(ResponseTransformInterceptor)
   async login(@Body() account: LoginDto) {
     return await this.authService.login(account.email, account.password);

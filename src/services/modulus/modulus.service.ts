@@ -39,20 +39,17 @@ export class ModulusService {
   }
 
   async placeOrder(request: PlaceOrderRequest) {
-    console.log('request: ', request);
     return await this.request<PlaceOrderResponse>('/api/PlaceOrder', request);
   }
 
   async placeOrderPriced(request: PlaceOrderPricedRequest) {
-    console.log(request);
     return await this.request<PlaceOrderPricedResponse>(
-      '/PlaceOrder_Priced',
+      '/api/PlaceOrder_Priced',
       request,
     );
   }
 
   async cancelOrder(request: CancelOrderRequest) {
-    console.log(request);
-    return await this.request<CancelOrderResponse>('/CancelOrder', request);
+    return await this.request<CancelOrderResponse>('/api/CancelOrder', request);
   }
 }

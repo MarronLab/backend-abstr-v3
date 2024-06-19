@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsBoolean } from 'class-validator';
+import { IsString, IsBoolean, IsNumber } from 'class-validator';
 
 export default class AuthResponseDto {
   @ApiProperty({
@@ -20,6 +20,6 @@ export default class AuthResponseDto {
     description: 'Indicates if the login was successful',
     required: true,
   })
-  @IsBoolean()
-  success: boolean;
+  @IsNumber()
+  expires_in: number;
 }

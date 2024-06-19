@@ -7,7 +7,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from './dto/createOrder.dto';
+import { CancelOrderResponseDto, CreateOrderDto } from './dto/createOrder.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PlaceOrderDto, PlaceOrderPricedDto } from './dto/placeOrder.dto';
 import {
@@ -17,8 +17,12 @@ import {
 import { CancelOrderDto } from './dto/CancelOrder.dto';
 import { OrderSideEnum } from 'src/services/modulus/modulus.enum';
 import { AuthGuard } from '../auth/auth.guard';
-import { ResponseValidationInterceptor } from './order.interceptor';
-import { placeOrderResponseSchema } from './order.schema';
+import { ResponseValidationInterceptor } from '../../common/response-validator.interceptor';
+import {
+  cancelOrderResponseSchema,
+  placeOrderPricedResponseSchema,
+  placeOrderResponseSchema,
+} from './order.schema';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -51,8 +55,12 @@ export class OrderController {
     });
   }
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(placeOrderPricedResponseSchema),
+  )
   @Post('/place-order-priced')
   async placeOrderPriced(@Body() placeOrderPricedDto: PlaceOrderPricedDto) {
     const response =
@@ -60,24 +68,29 @@ export class OrderController {
 
     return new PlaceOrderPricedResponseDto({
       id: response.orderId,
-      ooc: response.ooc,
       side: response.side,
       size: response.size,
       type: response.orderType,
       price: response.price,
       filled: response.filled,
       filledPrice: response.filledPrice,
-      status: response.orderStatus,
       remaining: response.remaining,
       metadata: response.metadata,
     });
   }
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(new ResponseValidationInterceptor(cancelOrderResponseSchema))
   @Post('/cancel-order')
   async cancelOrder(@Body() cancelOrderDto: CancelOrderDto) {
     const response = await this.orderService.cancelOrder(cancelOrderDto);
 
-    return response;
+    return new CancelOrderResponseDto({
+      id: response.orderId,
+      et: response.et,
+      etm: response.etm,
+    });
   }
 }

@@ -68,8 +68,6 @@ export const placeOrderPricedResponseSchema: JSONSchemaType<{
   remaining: number;
   price: number;
   filledPrice: number;
-  status: boolean;
-  ooc: number;
   metadata: string;
 }> = {
   type: 'object',
@@ -98,12 +96,6 @@ export const placeOrderPricedResponseSchema: JSONSchemaType<{
     filledPrice: {
       type: 'number',
     },
-    status: {
-      type: 'boolean',
-    },
-    ooc: {
-      type: 'number',
-    },
     metadata: {
       type: 'string',
     },
@@ -117,9 +109,28 @@ export const placeOrderPricedResponseSchema: JSONSchemaType<{
     'remaining',
     'price',
     'filledPrice',
-    'status',
-    'ooc',
     'metadata',
   ],
+  additionalProperties: false,
+};
+
+export const cancelOrderResponseSchema: JSONSchemaType<{
+  id: number;
+  et: number;
+  etm: number;
+}> = {
+  type: 'object',
+  properties: {
+    id: {
+      type: 'number',
+    },
+    et: {
+      type: 'number',
+    },
+    etm: {
+      type: 'number',
+    },
+  },
+  required: ['id', 'et', 'etm'],
   additionalProperties: false,
 };

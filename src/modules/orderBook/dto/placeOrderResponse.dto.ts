@@ -28,8 +28,6 @@ export class PlaceOrderPricedResponseDto {
   remaining: number;
   price: number;
   filledPrice: number;
-  status: boolean;
-  ooc: number;
   metadata: string;
 
   constructor(partial: Partial<PlaceOrderPricedResponseDto>) {

@@ -46,11 +46,11 @@ export class PlaceOrderDto {
   volume: number;
 
   @ApiProperty()
-  @IsDefined()
   @IsNotEmpty()
   @IsNumber()
+  @IsDefined()
   @ValidateIf(
-    (o) => o.type === OrderTypeEnum.LIMIT && o.type === OrderTypeEnum.STOPLIMIT,
+    (o) => o.type === OrderTypeEnum.LIMIT || o.type === OrderTypeEnum.STOPLIMIT,
   )
   rate: number;
 
@@ -58,7 +58,7 @@ export class PlaceOrderDto {
   @IsEnum(OrderTimeInForceEnum)
   @ValidateIf(
     (o) =>
-      o.type === OrderTypeEnum.LIMIT && o.type === OrderTypeEnum.STOPMARKET,
+      o.type === OrderTypeEnum.LIMIT || o.type === OrderTypeEnum.STOPMARKET,
   )
   timeInForce: OrderTimeInForceEnum = OrderTimeInForceEnum.GTC;
 
@@ -67,7 +67,7 @@ export class PlaceOrderDto {
   @IsString()
   @ValidateIf(
     (o) =>
-      o.type === OrderTypeEnum.STOPLIMIT && o.type === OrderTypeEnum.STOPMARKET,
+      o.type === OrderTypeEnum.STOPLIMIT || o.type === OrderTypeEnum.STOPMARKET,
   )
   clientOrderId: string;
 
@@ -76,7 +76,7 @@ export class PlaceOrderDto {
   @IsNumber()
   @ValidateIf(
     (o) =>
-      o.type === OrderTypeEnum.STOPLIMIT && o.type === OrderTypeEnum.STOPMARKET,
+      o.type === OrderTypeEnum.STOPLIMIT || o.type === OrderTypeEnum.STOPMARKET,
   )
   stop: number;
 
@@ -94,6 +94,7 @@ export class PlaceOrderPricedDto extends PickType(PlaceOrderDto, [
   'metadata',
 ] as const) {
   @ApiProperty()
+  @IsDefined()
   @IsNotEmpty()
   @IsNumber()
   amount: number;
