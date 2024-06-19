@@ -10,6 +10,12 @@ export type AuthenticateUserResponse = {
   expires_in: number;
 };
 
+export type ModulusBaseErrorResponseData = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
 export type PlaceOrderRequest = {
   side: OrderSideEnum;
   market: string;
@@ -26,51 +32,59 @@ export type PlaceOrderPricedRequest = {
   amount: number;
 } & Pick<PlaceOrderRequest, 'side' | 'trade' | 'market'>;
 
-export type PlaceOrderResponseData = {
-  orderId: number;
-  side: 'Buy' | 'Sell';
-  orderType: OrderTypeEnum;
-  size: number;
-  filled: number;
-  remaining: number;
-  price: number;
-  filledPrice: number;
-};
-
-export type PlaceOrderResponse = {
-  status: 'Success' | 'Error';
+export type PlaceOrderSuccessResponseData = {
+  status: 'Success';
   message: string;
-  data: string | PlaceOrderResponseData;
+  data: {
+    orderId: number;
+    side: 'Buy' | 'Sell';
+    orderType: OrderTypeEnum;
+    size: number;
+    filled: number;
+    remaining: number;
+    price: number;
+    filledPrice: number;
+  };
 };
 
-export type PlaceOrderPricedResponseData = {
-  orderId: number;
-  side: OrderSideEnum;
-  orderType: OrderTypeEnum;
-  size: number;
-  filled: number;
-  remaining: number;
-  price: number;
-  filledPrice: number;
-  orderStatus: boolean;
-  ooc: number;
+export type PlaceOrderResponse =
+  | ModulusBaseErrorResponseData
+  | PlaceOrderSuccessResponseData;
+
+export type PlaceOrderPricedSuccessResponseData = {
+  status: 'Success';
+  message: string;
+  data: {
+    orderId: number;
+    side: OrderSideEnum;
+    orderType: OrderTypeEnum;
+    size: number;
+    filled: number;
+    remaining: number;
+    price: number;
+    filledPrice: number;
+  };
 };
 
-export type PlaceOrderPricedResponse = {
-  data: string | PlaceOrderPricedResponseData;
-} & Pick<PlaceOrderResponse, 'status' | 'message'>;
+export type PlaceOrderPricedResponse =
+  | ModulusBaseErrorResponseData
+  | PlaceOrderPricedSuccessResponseData;
 
 export type CancelOrderRequest = {
   orderId: number;
   side: 'ALL' | 'SELL' | 'BUY';
 };
 
-export type CancelOrderResponseData = {
-  orderId: number;
-  et: number;
-  etm: number;
+export type CancelOrderSuccessResponseData = {
+  status: 'Success';
+  message: string;
+  data: {
+    orderId: number;
+    et: number;
+    etm: number;
+  };
 };
 
-export type CancelOrderResponse = {
-  data: string | CancelOrderResponseData;
-} & Pick<PlaceOrderResponse, 'status' | 'message'>;
+export type CancelOrderResponse =
+  | ModulusBaseErrorResponseData
+  | CancelOrderSuccessResponseData;

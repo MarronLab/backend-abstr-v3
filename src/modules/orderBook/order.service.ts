@@ -1,15 +1,19 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  UnprocessableEntityException,
+  Inject,
+  Scope,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/createOrder.dto';
 import { Order } from 'hft-limit-order-book/dist/types/order';
 import { HttpService } from '@nestjs/axios';
 import { PrismaService } from 'src/services/prisma.service';
 import { PlaceOrderDto, PlaceOrderPricedDto } from './dto/placeOrder.dto';
 import { ModulusService } from 'src/services/modulus/modulus.service';
-import {
-  PlaceOrderPricedResponseData,
-  PlaceOrderResponseData,
-} from 'src/services/modulus/modulus.type';
 import { CancelOrderDto } from './dto/CancelOrder.dto';
+import { BaseService } from 'src/common/base.service';
+import { Request } from 'express';
+import { REQUEST } from '@nestjs/core';
 
 export interface IProcessOrder {
   done: Order[];
@@ -26,19 +30,16 @@ interface ReturnOrderI {
   timestamp: string;
 }
 
-@Injectable()
-export class OrderService {
-  private readonly config = {
-    headers: {
-      Authorization: `Bearer ${process.env.MODULUS_AUTH_TOKEN}`,
-    },
-  };
-
+@Injectable({ scope: Scope.REQUEST })
+export class OrderService extends BaseService {
   constructor(
     private readonly httpService: HttpService,
     private readonly prismaService: PrismaService,
     private readonly modulusService: ModulusService,
-  ) {}
+    @Inject(REQUEST) req: Request,
+  ) {
+    super(prismaService, req);
+  }
 
   async createOrder(createOrderDto: CreateOrderDto) {
     try {
@@ -120,7 +121,6 @@ export class OrderService {
     try {
       const modulusOrderResponse = await this.httpService.axiosRef.get(
         '/api/OrderHistory?side=ALL&pair=ALL',
-        this.config,
       );
 
       if (modulusOrderResponse.data.status === 'Error') {
@@ -131,7 +131,7 @@ export class OrderService {
 
       const promise = Promise.all(
         modulusOrderResponse.data.data.rows.map(async (modulusOrder: any) => {
-          const storedOrder = await this.prismaService.orderBook.findFirst({
+          const storedOrder = await this.getClient().orderBook.findFirst({
             where: { orderId: modulusOrder.orderId },
           });
 
@@ -147,9 +147,7 @@ export class OrderService {
     }
   }
 
-  async placeOrder(
-    placeOrderDto: PlaceOrderDto,
-  ): Promise<PlaceOrderResponseData & { metadata: string }> {
+  async placeOrder(placeOrderDto: PlaceOrderDto) {
     try {
       const { data } = await this.modulusService.placeOrder({
         side: placeOrderDto.side,
@@ -163,12 +161,12 @@ export class OrderService {
         type: placeOrderDto.type,
       });
 
-      if (typeof data.data === 'string') {
+      if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);
       }
 
       //Store metadata
-      await this.prismaService.orderBook.create({
+      await this.getClient().orderBook.create({
         data: {
           orderId: String(data.data.orderId),
           metadata: placeOrderDto.metadata,
@@ -181,9 +179,7 @@ export class OrderService {
     }
   }
 
-  async placeOrderPriced(
-    placeOrderPricedDto: PlaceOrderPricedDto,
-  ): Promise<PlaceOrderPricedResponseData & { metadata: string }> {
+  async placeOrderPriced(placeOrderPricedDto: PlaceOrderPricedDto) {
     try {
       const { data } = await this.modulusService.placeOrderPriced({
         side: placeOrderPricedDto.side,
@@ -192,12 +188,12 @@ export class OrderService {
         amount: placeOrderPricedDto.amount,
       });
 
-      if (typeof data.data === 'string') {
+      if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);
       }
 
       //Store metadata
-      await this.prismaService.orderBook.create({
+      await this.getClient().orderBook.create({
         data: {
           orderId: String(data.data.orderId),
           metadata: placeOrderPricedDto.metadata,
@@ -210,19 +206,19 @@ export class OrderService {
     }
   }
 
-  async cancelOrder(cancelOrderDto: CancelOrderDto): Promise<any> {
+  async cancelOrder(cancelOrderDto: CancelOrderDto) {
     try {
       const { data } = await this.modulusService.cancelOrder({
         orderId: cancelOrderDto.id,
         side: cancelOrderDto.side,
       });
 
-      if (typeof data.data === 'string') {
+      if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);
       }
 
       //Remove metadata
-      await this.prismaService.orderBook.delete({
+      await this.getClient().orderBook.delete({
         where: { orderId: String(cancelOrderDto.id) },
       });
 

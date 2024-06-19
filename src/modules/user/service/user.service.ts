@@ -3,10 +3,11 @@ import { SafeService } from 'src/services/safe.service';
 
 @Injectable()
 export class UserService {
+  constructor(private readonly safeService: SafeService) {}
+
   async getSafeAddress(userAddress: string) {
     try {
-      const safeService = new SafeService();
-      return await safeService.getSafeAddress({
+      return await this.safeService.getSafeAddress({
         userAddress,
       });
     } catch (error) {

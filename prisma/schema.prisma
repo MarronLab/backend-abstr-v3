@@ -33,3 +33,14 @@ model User {
 
   @@map("user")
 }
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  tableName String
+  recordId  String
+  action    String
+  changes   Json
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("auditLog")
+}
