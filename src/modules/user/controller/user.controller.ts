@@ -20,8 +20,8 @@ export class UserController {
 
   @Get('find-safe-detail/:userAddress')
   @UsePipes(ValidateRequestPipe)
-  @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ValidateResponseInterceptor)
+  @UseInterceptors(TransactionInterceptor)
   async getSafeAddress(@Param('userAddress') userAddress: string) {
     return await this.userService.getSafeAddress(userAddress);
   }

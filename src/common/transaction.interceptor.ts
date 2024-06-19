@@ -5,14 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Request } from 'express';
-import {
-  Observable,
-  catchError,
-  concatMap,
-  from,
-  lastValueFrom,
-  throwError,
-} from 'rxjs';
+import { Observable, catchError, concatMap, from, lastValueFrom } from 'rxjs';
 import { PrismaService } from 'src/services/prisma.service';
 
 export const PRISMA_TRANSACTION_KEY = 'PRISMA_TRANSACTION';
