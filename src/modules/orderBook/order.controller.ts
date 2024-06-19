@@ -24,6 +24,7 @@ import {
   placeOrderResponseSchema,
 } from './order.schema';
 
+@ApiBearerAuth()
 @ApiTags('orders')
 @Controller('orders')
 export class OrderController {
@@ -34,7 +35,6 @@ export class OrderController {
     return await this.orderService.createOrder(createOrderDto);
   }
 
-  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(placeOrderResponseSchema))
@@ -55,7 +55,6 @@ export class OrderController {
     });
   }
 
-  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(
@@ -79,7 +78,6 @@ export class OrderController {
     });
   }
 
-  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(cancelOrderResponseSchema))
