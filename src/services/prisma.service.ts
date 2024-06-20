@@ -1,9 +1,56 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
+export class PrismaService
+  extends PrismaClient<
+    Prisma.PrismaClientOptions,
+    'query' | 'info' | 'warn' | 'error'
+  >
+  implements OnModuleInit
+{
+  constructor() {
+    super({
+      log: [
+        {
+          emit: 'event',
+          level: 'query',
+        },
+      ],
+    });
+  }
   async onModuleInit() {
+    this.$on('query', (event: Prisma.QueryEvent) => {
+      console.log('Query: ' + event.query);
+      console.log('Duration: ' + event.duration + 'ms');
+    });
+
+    Object.assign(
+      this,
+      this.$extends({
+        query: {
+          $allModels: {
+            $allOperations: async ({ operation, model, args, query }) => {
+              const result = await query(args);
+
+              if (model !== 'AuditLog' && result) {
+                await this.auditLog.create({
+                  data: {
+                    action: operation,
+                    recordId: (result as any).id,
+                    changes: JSON.stringify(args),
+                    tableName: model,
+                  },
+                });
+              }
+
+              return result;
+            },
+          },
+        },
+      }),
+    );
+
     await this.$connect();
   }
 
