@@ -5,11 +5,11 @@ import { ResponseValidationInterceptor } from '../../../schema/market/market.val
 
 @ApiTags('market')
 @Controller('market')
-@UseInterceptors(ResponseValidationInterceptor)
 export class MarketController {
   constructor(private marketService: MarketService) {}
 
   @Get('coins')
+  @UseInterceptors(ResponseValidationInterceptor)
   async getMarketData() {
     return await this.marketService.getMarketData();
   }
