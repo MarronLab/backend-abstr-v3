@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { MarketService } from '../service/module.service';
+import { MarketService } from '../service/market.service';
 import { MarketController } from '../controller/market.controller';
-import { ValidationService } from '../../../schema/market/market.validation';
+import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
@@ -11,7 +11,7 @@ import { HttpModule } from '@nestjs/axios';
     }),
   ],
   controllers: [MarketController],
-  providers: [MarketService, ValidationService],
+  providers: [MarketService, ResponseValidationInterceptor],
   exports: [MarketService],
 })
 export class MarketModule {}

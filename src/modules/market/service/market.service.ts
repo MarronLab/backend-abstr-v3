@@ -1,7 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { ValidationService } from '../../../schema/market/market.validation';
 
 @Injectable()
 export class MarketService {
@@ -14,21 +13,14 @@ export class MarketService {
     sparkline: true,
   };
 
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly validationService: ValidationService,
-  ) {}
+  constructor(private readonly httpService: HttpService) {}
 
   async getMarketData() {
     try {
       const response = await firstValueFrom(
         this.httpService.get(this.endpoint, { params: this.params }),
       );
-      const transformedData = this.transformResponse(response.data);
-
-      this.validationService.validateData(transformedData);
-
-      return transformedData;
+      return this.transformResponse(response.data);
     } catch (error) {
       this.handleError(error);
     }

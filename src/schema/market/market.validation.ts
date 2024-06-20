@@ -1,18 +1,34 @@
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import Ajv from 'ajv';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { marketDataSchema } from '../../schema/market/market.schema';
+import { marketDataSchema } from './market.schema';
 
 const ajv = new Ajv();
 
 @Injectable()
-export class ValidationService {
+export class ResponseValidationInterceptor implements NestInterceptor {
   private validate = ajv.compile(marketDataSchema);
 
-  validateData(data: any) {
-    if (!this.validate(data)) {
-      const errorMessage = this.formatValidationErrors(this.validate.errors);
-      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
-    }
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next.handle().pipe(
+      map((data) => {
+        if (!this.validate(data)) {
+          const errorMessage = this.formatValidationErrors(
+            this.validate.errors,
+          );
+          throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
+        }
+        return data;
+      }),
+    );
   }
 
   private formatValidationErrors(errors: any[] | null | undefined): string {
