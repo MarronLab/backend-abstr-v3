@@ -36,7 +36,7 @@ export class ResponseTransformInterceptor implements NestInterceptor {
   ): Promise<Observable<any>> {
     return next.handle().pipe(
       map(async (data) => {
-        if (data.success) {
+        if (data.access_token) {
           const responseDto = plainToClass(AuthResponseDto, data);
           await validateOrReject(responseDto);
           return responseDto;
