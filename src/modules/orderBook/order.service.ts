@@ -1,8 +1,16 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import {
+  Injectable,
+  UnprocessableEntityException,
+  Inject,
+  Scope,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/createOrder.dto';
 import { Order } from 'hft-limit-order-book/dist/types/order';
 import { HttpService } from '@nestjs/axios';
 import { PrismaService } from 'src/services/prisma.service';
+import { PlaceOrderDto, PlaceOrderPricedDto } from './dto/placeOrder.dto';
+import { ModulusService } from 'src/services/modulus/modulus.service';
+import { CancelOrderDto } from './dto/CancelOrder.dto';
 import { BaseService } from 'src/common/base.service';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
@@ -24,15 +32,10 @@ interface ReturnOrderI {
 
 @Injectable({ scope: Scope.REQUEST })
 export class OrderService extends BaseService {
-  private readonly config = {
-    headers: {
-      Authorization: `Bearer ${process.env.MODULUS_AUTH_TOKEN}`,
-    },
-  };
-
   constructor(
     private readonly httpService: HttpService,
     private readonly prismaService: PrismaService,
+    private readonly modulusService: ModulusService,
     @Inject(REQUEST) req: Request,
   ) {
     super(prismaService, req);
@@ -118,7 +121,6 @@ export class OrderService extends BaseService {
     try {
       const modulusOrderResponse = await this.httpService.axiosRef.get(
         '/api/OrderHistory?side=ALL&pair=ALL',
-        this.config,
       );
 
       if (modulusOrderResponse.data.status === 'Error') {
@@ -142,6 +144,87 @@ export class OrderService extends BaseService {
       return response;
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async placeOrder(placeOrderDto: PlaceOrderDto) {
+    try {
+      const { data } = await this.modulusService.placeOrder({
+        side: placeOrderDto.side,
+        market: placeOrderDto.market,
+        trade: placeOrderDto.trade,
+        volume: placeOrderDto.volume,
+        rate: placeOrderDto.rate,
+        timeInForce: placeOrderDto.timeInForce,
+        clientOrderId: placeOrderDto.clientOrderId,
+        stop: placeOrderDto.stop,
+        type: placeOrderDto.type,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      //Store metadata
+      await this.getClient().orderBook.create({
+        data: {
+          orderId: String(data.data.orderId),
+          metadata: placeOrderDto.metadata,
+        },
+      });
+
+      return { ...data.data, metadata: placeOrderDto.metadata };
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+
+  async placeOrderPriced(placeOrderPricedDto: PlaceOrderPricedDto) {
+    try {
+      const { data } = await this.modulusService.placeOrderPriced({
+        side: placeOrderPricedDto.side,
+        market: placeOrderPricedDto.market,
+        trade: placeOrderPricedDto.trade,
+        amount: placeOrderPricedDto.amount,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      //Store metadata
+      await this.getClient().orderBook.create({
+        data: {
+          orderId: String(data.data.orderId),
+          metadata: placeOrderPricedDto.metadata,
+        },
+      });
+
+      return { ...data.data, metadata: placeOrderPricedDto.metadata };
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+
+  async cancelOrder(cancelOrderDto: CancelOrderDto) {
+    try {
+      const { data } = await this.modulusService.cancelOrder({
+        orderId: cancelOrderDto.id,
+        side: cancelOrderDto.side,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      //Remove metadata
+      await this.getClient().orderBook.delete({
+        where: { orderId: String(cancelOrderDto.id) },
+      });
+
+      return data.data;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
     }
   }
 }
