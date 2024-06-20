@@ -32,3 +32,13 @@ export class CreateOrderDto {
   @IsNumber()
   UserID: number;
 }
+
+export class CancelOrderResponseDto {
+  id: number;
+  et: number;
+  etm: number;
+
+  constructor(partial: Partial<CancelOrderResponseDto>) {
+    Object.assign(this, partial);
+  }
+}
