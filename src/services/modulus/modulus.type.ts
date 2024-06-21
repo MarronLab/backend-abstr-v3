@@ -1,5 +1,6 @@
 import {
   OrderSideEnum,
+  OrderSideExtendedEnum,
   OrderTimeInForceEnum,
   OrderTypeEnum,
 } from './modulus.enum';
@@ -93,8 +94,8 @@ export type CancelOrderResponse =
 export type TradeHistoryRequest = {
   side: 'ALL' | 'SELL' | 'BUY';
   pair: string;
-  count: number;
-  page: number;
+  count?: number;
+  page?: number;
 };
 
 export type TradeHistoryResponse = {
@@ -122,10 +123,10 @@ export type TradeHistoryResponse = {
 
 //TradeHistory
 export type OrderHistoryRequest = {
-  side: 'ALL' | 'SELL' | 'BUY';
+  side: OrderSideExtendedEnum;
   pair: string;
-  count: number;
-  page: number;
+  count?: number;
+  page?: number;
 };
 
 export type OrderHistoryResponse = {

@@ -134,3 +134,49 @@ export const cancelOrderResponseSchema: JSONSchemaType<{
   required: ['id', 'et', 'etm'],
   additionalProperties: false,
 };
+
+export const orderHistoryResponseSchema: JSONSchemaType<{
+  pageInfo: {
+    totalRows: number;
+    currentPage: number;
+    pageSize: number;
+  };
+  result: {
+    id: number;
+    date: string;
+    currencyPair: string;
+    side: OrderSideEnum;
+    tradeType: OrderTypeEnum;
+    tradePrice: string;
+    averagePrice: string;
+    size: string;
+    filled: string;
+    feePaid: string;
+    totalExecutedValue: string;
+    stopPrice: string;
+    orderStatus: 'Filled' | 'Cancelled' | 'Pending';
+    mOrders: {
+      id: number;
+      volume: number;
+      rate: number;
+      trade: string;
+      market: string;
+      amount: number;
+      serviceCharge: number;
+      date: string;
+      side: 'BUY' | 'SELL';
+    }[];
+  };
+}> = {
+  type: 'object',
+  properties: {
+    pageInfo: {
+      type: 'object',
+    },
+    result: {
+      type: 'object',
+    },
+  },
+  required: ['pageInfo', 'result'],
+  additionalProperties: false,
+};

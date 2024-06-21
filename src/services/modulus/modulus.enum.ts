@@ -3,6 +3,12 @@ export enum OrderSideEnum {
   SELL = 'SELL',
 }
 
+export enum OrderSideExtendedEnum {
+  ALL = 'ALL',
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
 export enum OrderTypeEnum {
   MARKET = 'MARKET',
   LIMIT = 'LIMIT',

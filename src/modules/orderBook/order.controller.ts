@@ -2,6 +2,7 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Get,
   Post,
   UseGuards,
   UseInterceptors,
@@ -23,6 +24,11 @@ import {
   placeOrderPricedResponseSchema,
   placeOrderResponseSchema,
 } from './order.schema';
+import { OrderHistoryDto } from './dto/orderHistory.dto';
+import {
+  MatchedOrdersResponseDto,
+  OrderHistoryResponseDto,
+} from './dto/orderHistoryResponse.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -90,5 +96,51 @@ export class OrderController {
       et: response.et,
       etm: response.etm,
     });
+  }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(new ResponseValidationInterceptor(cancelOrderResponseSchema))
+  @Get('/order-history')
+  async orderHistory(@Body() orderHistoryDto: OrderHistoryDto) {
+    const response = await this.orderService.getOrderHistory(orderHistoryDto);
+
+    const { pageInfo, rows } = response;
+
+    const result = rows.map((row) => {
+      const matcheOrders = row.mOrders.map(
+        (mOrder) =>
+          new MatchedOrdersResponseDto({
+            side: mOrder.side,
+            id: mOrder.orderId,
+            date: mOrder.date,
+            rate: mOrder.rate,
+            trade: mOrder.trade,
+            amount: mOrder.amount,
+            market: mOrder.market,
+            volume: mOrder.volume,
+            serviceCharge: mOrder.serviceCharge,
+          }),
+      );
+
+      return new OrderHistoryResponseDto({
+        id: row.orderId,
+        date: row.date,
+        side: row.side,
+        mOrders: matcheOrders,
+        filled: row.filled,
+        size: row.size,
+        feePaid: row.feePaid,
+        stopPrice: row.stopPrice,
+        tradeType: row.tradeType,
+        tradePrice: row.tradePrice,
+        orderStatus: row.orderStatus,
+        averagePrice: row.averagePrice,
+        currencyPair: row.currencyPair,
+        totalExecutedValue: row.totalExecutedValue,
+      });
+    });
+
+    return { pageInfo, result };
   }
 }
