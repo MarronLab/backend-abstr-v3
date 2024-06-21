@@ -88,3 +88,96 @@ export type CancelOrderSuccessResponseData = {
 export type CancelOrderResponse =
   | ModulusBaseErrorResponseData
   | CancelOrderSuccessResponseData;
+
+//TradeHistory
+export type TradeHistoryRequest = {
+  side: 'ALL' | 'SELL' | 'BUY';
+  pair: string;
+  count: number;
+  page: number;
+};
+
+export type TradeHistoryResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: {
+      orderId: number;
+      volume: number;
+      rate: number;
+      trade: string;
+      market: string;
+      amount: number;
+      serviceCharge: number;
+      date: string;
+      side: 'BUY' | 'SELL';
+    }[];
+  };
+};
+
+//TradeHistory
+export type OrderHistoryRequest = {
+  side: 'ALL' | 'SELL' | 'BUY';
+  pair: string;
+  count: number;
+  page: number;
+};
+
+export type OrderHistoryResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: {
+      orderId: number;
+      date: string;
+      currencyPair: string;
+      side: OrderSideEnum;
+      tradeType: OrderTypeEnum;
+      tradePrice: string;
+      averagePrice: string;
+      size: string;
+      filled: string;
+      feePaid: string;
+      totalExecutedValue: string;
+      stopPrice: string;
+      orderStatus: 'Filled' | 'Cancelled' | 'Pending';
+      mOrders: {
+        orderId: number;
+        volume: number;
+        rate: number;
+        trade: string;
+        market: string;
+        amount: number;
+        serviceCharge: number;
+        date: string;
+        side: 'BUY' | 'SELL';
+      }[];
+    }[];
+  };
+};
+
+//GetBalance
+export type GetBalanceSuccessResponseData = {
+  status: 'Success';
+  message: string;
+  data: {
+    currency: string;
+    balance: number;
+    balanceInTrade: number;
+    holdDeposits: number;
+  }[];
+};
+
+export type GetBalanceResponse =
+  | ModulusBaseErrorResponseData
+  | GetBalanceSuccessResponseData;
