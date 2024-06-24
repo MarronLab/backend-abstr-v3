@@ -1,4 +1,4 @@
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, UseInterceptors, Param } from '@nestjs/common';
 import { MarketService } from '../service/market.service';
 import { ApiTags } from '@nestjs/swagger';
 import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
@@ -12,5 +12,10 @@ export class MarketController {
   @UseInterceptors(ResponseValidationInterceptor)
   async getMarketData() {
     return await this.marketService.getMarketData();
+  }
+
+  @Get(':id')
+  getCoinInfo(@Param('id') id: string) {
+    return this.marketService.getCoinById(id);
   }
 }

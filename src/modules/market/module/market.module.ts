@@ -7,7 +7,10 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     HttpModule.register({
-      baseURL: 'https://api.coingecko.com/api/v3/',
+      baseURL: 'https://pro-api.coingecko.com/api/v3/',
+      headers: {
+        'X-CG-Pro-API-Key': process.env.COINGECKO_API_KEY,
+      },
     }),
   ],
   controllers: [MarketController],
