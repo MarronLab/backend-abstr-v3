@@ -21,14 +21,18 @@ import { AuthGuard } from '../auth/auth.guard';
 import { ResponseValidationInterceptor } from '../../common/response-validator.interceptor';
 import {
   cancelOrderResponseSchema,
+  orderHistoryResponseSchema,
   placeOrderPricedResponseSchema,
   placeOrderResponseSchema,
+  tradeHistoryResponseSchema,
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
   MatchedOrdersResponseDto,
   OrderHistoryResponseDto,
 } from './dto/orderHistoryResponse.dto';
+import { TradeHistoryDto } from './dto/tradeHistory.dto';
+import { TradeHistoryResponseDto } from './dto/tradeHistoryResponse.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -100,7 +104,9 @@ export class OrderController {
 
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseInterceptors(new ResponseValidationInterceptor(cancelOrderResponseSchema))
+  @UseInterceptors(
+    new ResponseValidationInterceptor(orderHistoryResponseSchema),
+  )
   @Get('/order-history')
   async orderHistory(@Body() orderHistoryDto: OrderHistoryDto) {
     const response = await this.orderService.getOrderHistory(orderHistoryDto);
@@ -138,6 +144,34 @@ export class OrderController {
         averagePrice: row.averagePrice,
         currencyPair: row.currencyPair,
         totalExecutedValue: row.totalExecutedValue,
+      });
+    });
+
+    return { pageInfo, result };
+  }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(tradeHistoryResponseSchema),
+  )
+  @Get('/trade-history')
+  async tradeHistory(@Body() tradeHistoryDto: TradeHistoryDto) {
+    const response = await this.orderService.getTradeHistory(tradeHistoryDto);
+
+    const { pageInfo, rows } = response;
+
+    const result = rows.map((row) => {
+      return new TradeHistoryResponseDto({
+        id: row.orderId,
+        date: row.date,
+        side: row.side,
+        serviceCharge: row.serviceCharge,
+        volume: row.volume,
+        market: row.market,
+        amount: row.amount,
+        trade: row.trade,
+        rate: row.rate,
       });
     });
 

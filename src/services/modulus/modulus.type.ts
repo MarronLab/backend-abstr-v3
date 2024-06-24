@@ -121,7 +121,7 @@ export type TradeHistoryResponse = {
   };
 };
 
-//TradeHistory
+//OrderHistory
 export type OrderHistoryRequest = {
   side: OrderSideExtendedEnum;
   pair: string;
@@ -168,6 +168,10 @@ export type OrderHistoryResponse = {
 };
 
 //GetBalance
+export type GetBalanceRequest = {
+  currency: string;
+};
+
 export type GetBalanceSuccessResponseData = {
   status: 'Success';
   message: string;
@@ -182,3 +186,43 @@ export type GetBalanceSuccessResponseData = {
 export type GetBalanceResponse =
   | ModulusBaseErrorResponseData
   | GetBalanceSuccessResponseData;
+
+export type GetCoinStatsResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    [key: string]: {
+      exchangeTicker: string;
+      dataSource: string;
+      coinName: null | string;
+      symbol: null | string;
+      slug: string;
+      image: null | string;
+      rank: number;
+      price: string;
+      volume24h: null | string;
+      marketCap: null | string;
+      priceChangePercent24hr: null | string;
+      circulatingSupply: null | string;
+      sparkline: null | string;
+      sparklineGraph: null | number[];
+      maxSupply: null | string;
+      priceChangePercent1h: null | string;
+      priceChangePercent7d: null | string;
+      priceChangePercent30: null | string;
+      issueDate: string;
+      lastUpdated: string;
+      tags: null | string;
+      tagsObject: null | string[];
+      description: null | string;
+      links_website: null | string;
+      links_reddit: null | string;
+      links_forum: null | string;
+      links_explorer: null | string;
+      links_sourceCode: null | string;
+      objectlinks_sourceCode: null | Record<string, string[]>;
+      links_technicalDoc: null | string;
+      last_updatedon: string;
+    };
+  };
+};

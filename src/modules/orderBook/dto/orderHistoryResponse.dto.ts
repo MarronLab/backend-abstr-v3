@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   OrderSideEnum,
   OrderTypeEnum,
@@ -33,6 +34,8 @@ export class OrderHistoryResponseDto {
   totalExecutedValue: string;
   stopPrice: string;
   orderStatus: 'Filled' | 'Cancelled' | 'Pending';
+
+  @Type(() => MatchedOrdersResponseDto)
   mOrders: MatchedOrdersResponseDto[];
 
   constructor(partial: Partial<OrderHistoryResponseDto>) {

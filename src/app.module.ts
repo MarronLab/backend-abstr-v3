@@ -3,10 +3,10 @@ import { OrderModule } from './modules/orderBook/order.module';
 import { AuthModule } from './modules/auth/module/auth.module';
 import { UserModule } from './modules/user/module/user.module';
 import { MarketModule } from './modules/market/module/market.module';
-import { HttpModule, HttpService } from '@nestjs/axios';
+import { WalletModule } from './modules/wallet/wallet.module';
 
 @Module({
-  imports: [OrderModule, AuthModule, UserModule, MarketModule],
+  imports: [OrderModule, AuthModule, UserModule, MarketModule, WalletModule],
   controllers: [],
   providers: [],
   exports: [],

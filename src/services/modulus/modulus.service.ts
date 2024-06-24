@@ -4,7 +4,9 @@ import {
   AuthenticateUserResponse,
   CancelOrderRequest,
   CancelOrderResponse,
+  GetBalanceRequest,
   GetBalanceResponse,
+  GetCoinStatsResponse,
   OrderHistoryRequest,
   OrderHistoryResponse,
   PlaceOrderPricedRequest,
@@ -76,7 +78,11 @@ export class ModulusService {
     return await this.get<OrderHistoryResponse>('/api/OrderHistory', request);
   }
 
-  async getBalance() {
-    return await this.post<GetBalanceResponse>('/api/GetBalance');
+  async getBalance(request: GetBalanceRequest = { currency: 'ALL' }) {
+    return await this.post<GetBalanceResponse>('/api/GetBalance', request);
+  }
+
+  async getCoinStats() {
+    return await this.post<GetCoinStatsResponse>('/api/get_coin_stats');
   }
 }
