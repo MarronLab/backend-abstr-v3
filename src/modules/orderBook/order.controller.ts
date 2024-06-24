@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -108,7 +109,7 @@ export class OrderController {
     new ResponseValidationInterceptor(orderHistoryResponseSchema),
   )
   @Get('/order-history')
-  async orderHistory(@Body() orderHistoryDto: OrderHistoryDto) {
+  async orderHistory(@Query() orderHistoryDto: OrderHistoryDto) {
     const response = await this.orderService.getOrderHistory(orderHistoryDto);
 
     const { pageInfo, rows } = response;
@@ -156,7 +157,7 @@ export class OrderController {
     new ResponseValidationInterceptor(tradeHistoryResponseSchema),
   )
   @Get('/trade-history')
-  async tradeHistory(@Body() tradeHistoryDto: TradeHistoryDto) {
+  async tradeHistory(@Query() tradeHistoryDto: TradeHistoryDto) {
     const response = await this.orderService.getTradeHistory(tradeHistoryDto);
 
     const { pageInfo, rows } = response;
