@@ -1,0 +1,33 @@
+-- CreateTable
+CREATE TABLE "market_data" (
+    "id" TEXT NOT NULL,
+    "symbol" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "image" TEXT NOT NULL,
+    "current_price" DOUBLE PRECISION NOT NULL,
+    "market_cap" DOUBLE PRECISION,
+    "market_cap_rank" INTEGER NOT NULL,
+    "fully_diluted_valuation" DOUBLE PRECISION,
+    "total_volume" DOUBLE PRECISION,
+    "high_24h" DOUBLE PRECISION,
+    "low_24h" DOUBLE PRECISION,
+    "price_change_24h" DOUBLE PRECISION,
+    "price_change_percentage_24h" DOUBLE PRECISION,
+    "market_cap_change_24h" DOUBLE PRECISION,
+    "market_cap_change_percentage_24h" DOUBLE PRECISION,
+    "circulating_supply" DOUBLE PRECISION,
+    "total_supply" DOUBLE PRECISION,
+    "max_supply" DOUBLE PRECISION,
+    "ath" DOUBLE PRECISION,
+    "ath_change_percentage" DOUBLE PRECISION,
+    "ath_date" TIMESTAMP(3) NOT NULL,
+    "atl" DOUBLE PRECISION,
+    "atl_change_percentage" DOUBLE PRECISION,
+    "atl_date" TIMESTAMP(3) NOT NULL,
+    "last_updated" TIMESTAMP(3) NOT NULL,
+    "sparkline_in_7d" DOUBLE PRECISION[],
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(6) NOT NULL,
+
+    CONSTRAINT "market_data_pkey" PRIMARY KEY ("id")
+);
