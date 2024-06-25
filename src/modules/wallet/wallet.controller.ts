@@ -2,6 +2,7 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -10,7 +11,14 @@ import { AuthGuard } from '../auth/auth.guard';
 import { ResponseValidationInterceptor } from '../../common/response-validator.interceptor';
 import { WalletService } from './wallet.service';
 import { GetBalancesResponseDto } from './dto/getBalances.dto';
-import { getBalancesResponseSchema } from './wallet.schema';
+import {
+  getBalancesResponseSchema,
+  walletPerformanceResponseSchema,
+} from './wallet.schema';
+import {
+  WalletPerformanceDto,
+  WalletPerformanceResponseDto,
+} from './dto/performance.dto';
 
 @ApiBearerAuth()
 @ApiTags('wallets')
@@ -33,6 +41,24 @@ export class WalletController {
         balanceInTrade: row.balanceInTrade,
         priceChangePercent24hr: row.priceChangePercent24hr,
       });
+    });
+  }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(walletPerformanceResponseSchema),
+  )
+  @Get('/performance')
+  async performance(@Query() walletPerformanceDto: WalletPerformanceDto) {
+    const response =
+      await this.walletService.getWalletPerformance(walletPerformanceDto);
+
+    return new WalletPerformanceResponseDto({
+      graph: response.graph,
+      finalBalance: response.finalBalance,
+      balanceChange: response.balanceChange,
+      balanceChangePercentage: response.balanceChangePercentage,
     });
   }
 }
