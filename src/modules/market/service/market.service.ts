@@ -21,7 +21,6 @@ export class MarketService {
       const response = await firstValueFrom(
         this.httpService.get(this.endpoint, { params: this.params }),
       );
-      console.log('logging market', response);
       const transformResponse = (data: any[]) => {
         return data.map((coin) => ({
           id: coin.id,

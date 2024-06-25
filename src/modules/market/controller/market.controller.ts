@@ -14,7 +14,7 @@ export class MarketController {
     return await this.marketService.getMarketData();
   }
 
-  @Get(':id')
+  @Get('coin/:id')
   getCoinInfo(@Param('id') id: string) {
     return this.marketService.getCoinById(id);
   }
