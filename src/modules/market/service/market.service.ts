@@ -1,9 +1,20 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  Scope,
+  Inject,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
-@Injectable()
-export class MarketService {
+import { BaseService } from '../../../common/base.service';
+import { PrismaService } from '../../../services/prisma.service';
+
+@Injectable({ scope: Scope.REQUEST })
+export class MarketService extends BaseService {
   private readonly endpoint = 'coins/markets';
   private readonly coinEndpoint = 'coins';
   private readonly params = {
@@ -14,13 +25,38 @@ export class MarketService {
     sparkline: true,
   };
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly prismaService: PrismaService,
+    @Inject(REQUEST) req: Request,
+  ) {
+    super(prismaService, req);
+  }
 
   async getMarketData() {
     try {
+      const lastUpdated = await this.getClient().marketData.findFirst({
+        orderBy: {
+          last_updated: 'desc',
+        },
+      });
+
+      if (lastUpdated) {
+        const now = new Date();
+        const lastUpdatedDate = new Date(lastUpdated.last_updated);
+        const timeDiff = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = timeDiff / (1000 * 3600);
+
+        if (diffHours < 1) {
+          const cachedData = await this.getClient().marketData.findMany();
+          return this.transformMarketData(cachedData);
+        }
+      }
+
       const response = await firstValueFrom(
         this.httpService.get(this.endpoint, { params: this.params }),
       );
+
       const transformResponse = (data: any[]) => {
         return data.map((coin) => ({
           id: coin.id,
@@ -64,9 +100,44 @@ export class MarketService {
         }));
       };
 
-      return transformResponse(response.data);
+      const marketData = transformResponse(response.data);
+
+      await this.saveMarketData(marketData);
+
+      return marketData;
     } catch (error) {
       this.handleError(error);
+    }
+  }
+
+  private transformMarketData(data: any[]) {
+    return data.map((coin) => ({
+      ...coin,
+      ath_date: this.formatDate(coin.ath_date),
+      atl_date: this.formatDate(coin.atl_date),
+      last_updated: new Date(coin.last_updated).toISOString(),
+    }));
+  }
+
+  private formatDate(date: string): string {
+    return new Date(date).toISOString();
+  }
+
+  private async saveMarketData(data: any[]) {
+    try {
+      const now = new Date();
+
+      await Promise.all(
+        data.map(async (coin) => {
+          await this.getClient().marketData.upsert({
+            where: { id: coin.id },
+            update: { ...coin, last_updated: now },
+            create: { ...coin, last_updated: now },
+          });
+        }),
+      );
+    } catch (error) {
+      throw error;
     }
   }
 
