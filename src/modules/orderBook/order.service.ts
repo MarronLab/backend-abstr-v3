@@ -14,6 +14,8 @@ import { CancelOrderDto } from './dto/CancelOrder.dto';
 import { BaseService } from 'src/common/base.service';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
+import { OrderHistoryDto } from './dto/orderHistory.dto';
+import { TradeHistoryDto } from './dto/tradeHistory.dto';
 
 export interface IProcessOrder {
   done: Order[];
@@ -117,33 +119,33 @@ export class OrderService extends BaseService {
     }
   }
 
-  async getOrder() {
+  async getOrderHistory(orderHistoryDto: OrderHistoryDto) {
     try {
-      const modulusOrderResponse = await this.httpService.axiosRef.get(
-        '/api/OrderHistory?side=ALL&pair=ALL',
-      );
+      const { data } = await this.modulusService.orderHistory({
+        side: orderHistoryDto.side,
+        pair: orderHistoryDto.pair,
+        page: orderHistoryDto.page,
+        count: orderHistoryDto.count,
+      });
 
-      if (modulusOrderResponse.data.status === 'Error') {
-        return modulusOrderResponse.data;
-      }
-
-      console.log(modulusOrderResponse.data);
-
-      const promise = Promise.all(
-        modulusOrderResponse.data.data.rows.map(async (modulusOrder: any) => {
-          const storedOrder = await this.getClient().orderBook.findFirst({
-            where: { orderId: modulusOrder.orderId },
-          });
-
-          return { modulusOrder, storedOrder };
-        }),
-      );
-
-      const response = await promise;
-
-      return response;
+      return data.data;
     } catch (error) {
-      console.log(error);
+      throw new UnprocessableEntityException(error);
+    }
+  }
+
+  async getTradeHistory(tradeHistoryDto: TradeHistoryDto) {
+    try {
+      const { data } = await this.modulusService.tradeHistory({
+        side: tradeHistoryDto.side,
+        pair: tradeHistoryDto.pair,
+        page: tradeHistoryDto.page,
+        count: tradeHistoryDto.count,
+      });
+
+      return data.data;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
     }
   }
 

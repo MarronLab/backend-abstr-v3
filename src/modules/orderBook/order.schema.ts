@@ -134,3 +134,179 @@ export const cancelOrderResponseSchema: JSONSchemaType<{
   required: ['id', 'et', 'etm'],
   additionalProperties: false,
 };
+
+export const orderHistoryResponseSchema: JSONSchemaType<{
+  pageInfo: {
+    totalRows: number;
+    currentPage: number;
+    pageSize: number;
+  };
+  result: {
+    id: number;
+    date: string;
+    currencyPair: string;
+    side: string;
+    tradeType: string;
+    tradePrice: string;
+    averagePrice: string;
+    size: string;
+    filled: string;
+    feePaid: string;
+    totalExecutedValue: string;
+    stopPrice: string;
+    orderStatus: string;
+    mOrders: {
+      id: number;
+      volume: number;
+      rate: number;
+      trade: string;
+      market: string;
+      amount: number;
+      serviceCharge: number;
+      date: string;
+      side: string;
+    }[];
+  }[];
+}> = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['pageInfo', 'result'],
+  properties: {
+    pageInfo: {
+      type: 'object',
+      properties: {
+        totalRows: { type: 'number' },
+        currentPage: { type: 'number' },
+        pageSize: { type: 'number' },
+      },
+      required: ['totalRows', 'currentPage', 'pageSize'],
+    },
+    result: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: [
+          'id',
+          'date',
+          'currencyPair',
+          'side',
+          'tradeType',
+          'tradePrice',
+          'averagePrice',
+          'size',
+          'filled',
+          'feePaid',
+          'totalExecutedValue',
+          'stopPrice',
+          'orderStatus',
+          'mOrders',
+        ],
+        properties: {
+          id: { type: 'number' },
+          date: { type: 'string' },
+          currencyPair: { type: 'string' },
+          side: { type: 'string' },
+          tradeType: { type: 'string' },
+          tradePrice: { type: 'string' },
+          averagePrice: { type: 'string' },
+          size: { type: 'string' },
+          filled: { type: 'string' },
+          feePaid: { type: 'string' },
+          totalExecutedValue: { type: 'string' },
+          stopPrice: { type: 'string' },
+          orderStatus: { type: 'string' },
+          mOrders: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'number' },
+                volume: { type: 'number' },
+                rate: { type: 'number' },
+                trade: { type: 'string' },
+                market: { type: 'string' },
+                amount: { type: 'number' },
+                serviceCharge: { type: 'number' },
+                date: { type: 'string' },
+                side: { type: 'string' },
+              },
+              required: [
+                'id',
+                'volume',
+                'rate',
+                'trade',
+                'market',
+                'amount',
+                'serviceCharge',
+                'date',
+                'side',
+              ],
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const tradeHistoryResponseSchema: JSONSchemaType<{
+  pageInfo: {
+    totalRows: number;
+    currentPage: number;
+    pageSize: number;
+  };
+  result: {
+    id: number;
+    volume: number;
+    rate: number;
+    trade: string;
+    market: string;
+    amount: number;
+    serviceCharge: number;
+    date: string;
+    side: string;
+  }[];
+}> = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['pageInfo', 'result'],
+  properties: {
+    pageInfo: {
+      type: 'object',
+      properties: {
+        totalRows: { type: 'number' },
+        currentPage: { type: 'number' },
+        pageSize: { type: 'number' },
+      },
+      required: ['totalRows', 'currentPage', 'pageSize'],
+    },
+    result: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: [
+          'id',
+          'volume',
+          'rate',
+          'trade',
+          'market',
+          'amount',
+          'serviceCharge',
+          'date',
+          'side',
+        ],
+        properties: {
+          id: { type: 'number' },
+          volume: { type: 'number' },
+          rate: { type: 'number' },
+          trade: { type: 'string' },
+          market: { type: 'string' },
+          amount: { type: 'number' },
+          serviceCharge: { type: 'number' },
+          date: { type: 'string' },
+          side: { type: 'string' },
+        },
+      },
+    },
+  },
+};
