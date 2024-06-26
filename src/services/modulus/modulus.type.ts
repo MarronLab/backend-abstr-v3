@@ -281,7 +281,12 @@ export type NotificationData = {
   AddedOn: string;
 };
 
-export type GetAllNotificationsResponse = {
+export type GetAllNotificationsErrorResponse = {
+  status: 'Error';
+  message: string;
+};
+
+export type GetAllNotificationsSuccessResponse = {
   status: 'Success';
   message: string;
   data: {
@@ -293,3 +298,7 @@ export type GetAllNotificationsResponse = {
     rows: NotificationData[];
   };
 };
+
+export type GetAllNotificationsResponse =
+  | GetAllNotificationsErrorResponse
+  | GetAllNotificationsSuccessResponse;

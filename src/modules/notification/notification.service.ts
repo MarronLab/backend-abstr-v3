@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { GetAllNotificationsDto } from './dto/notification.dto';
 
@@ -11,6 +15,10 @@ export class NotificationService {
         page: getAllNotificationsDto.page,
         count: getAllNotificationsDto.count,
       });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.message);
+      }
 
       return data.data;
     } catch (error) {
