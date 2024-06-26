@@ -25,4 +25,34 @@ export class NotificationService {
       throw new InternalServerErrorException(error);
     }
   }
+
+  async notificationsMarkRead(notificationId: number) {
+    try {
+      const { data } =
+        await this.modulusService.notificationsMarkRead(notificationId);
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.message);
+      }
+
+      return true;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async notificationsMarkDelete(notificationId: number) {
+    try {
+      const { data } =
+        await this.modulusService.notificationsMarkDelete(notificationId);
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.message);
+      }
+
+      return true;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 }

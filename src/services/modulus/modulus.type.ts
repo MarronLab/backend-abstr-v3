@@ -302,3 +302,13 @@ export type GetAllNotificationsSuccessResponse = {
 export type GetAllNotificationsResponse =
   | GetAllNotificationsErrorResponse
   | GetAllNotificationsSuccessResponse;
+
+export type NotificationsMarkReadResponse = {
+  status: 'Error' | 'Success';
+  message: string;
+};
+
+export type NotificationsMarkDeleteResponse = {
+  status: 'Error' | 'Success';
+  message: string;
+};

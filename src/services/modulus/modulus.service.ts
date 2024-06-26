@@ -11,6 +11,8 @@ import {
   GetBalanceRequest,
   GetBalanceResponse,
   GetCoinStatsResponse,
+  NotificationsMarkDeleteResponse,
+  NotificationsMarkReadResponse,
   OrderHistoryRequest,
   OrderHistoryResponse,
   PlaceOrderPricedRequest,
@@ -105,6 +107,18 @@ export class ModulusService {
     return await this.get<GetAllNotificationsResponse>(
       '/notification/get-notification/all',
       request,
+    );
+  }
+
+  async notificationsMarkRead(id: number) {
+    return await this.post<NotificationsMarkReadResponse>(
+      `/notification/mark-read/${id}`,
+    );
+  }
+
+  async notificationsMarkDelete(id: number) {
+    return await this.post<NotificationsMarkDeleteResponse>(
+      `/notification/mark-delete/${id}`,
     );
   }
 }
