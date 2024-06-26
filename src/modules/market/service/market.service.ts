@@ -18,6 +18,8 @@ import { MarketDataQueryParams } from '../dto/marketQueryParam.dto';
 export class MarketService extends BaseService {
   private readonly endpoint = 'coins/markets';
   private readonly coinEndpoint = 'coins';
+  private readonly cacheTTL = 3600;
+
 
   constructor(
     private readonly httpService: HttpService,
@@ -148,14 +150,74 @@ export class MarketService extends BaseService {
     }
   }
 
+  // async getCoinById(id: string) {
+  //   const endpoint = `${this.coinEndpoint}/${id}`;
+  //   try {
+  //     const response = await firstValueFrom(this.httpService.get(endpoint));
+  //     console.log('logging response', response);
+  //     return response.data;
+  //   } catch (error) {
+  //     this.handleError(error);
+  //   }
+  // }
+
   async getCoinById(id: string) {
-    const endpoint = `${this.coinEndpoint}/${id}`;
+    const cachedData = await this.getCachedCoinData(id);
+
+    if (cachedData) {
+      console.log('Retrieving coin data from cache');
+      return cachedData;
+    }
+
+    console.log('Fetching coin data from CoinGecko');
     try {
-      const response = await firstValueFrom(this.httpService.get(endpoint));
-      console.log('logging response', response);
-      return response.data;
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.coinEndpoint}/${id}`),
+      );
+      const coinData = response.data;
+
+      // Save fetched data to cache (database)
+      await this.saveCoinDataToCache(id, coinData);
+
+      return coinData;
     } catch (error) {
       this.handleError(error);
+    }
+  }
+
+  private async getCachedCoinData(id: string): Promise<any | null> {
+    const cachedCoin = await this.getClient().marketData.findUnique({
+      where: { id },
+    });
+
+    if (cachedCoin) {
+      const now = new Date();
+      const lastUpdated = new Date(cachedCoin.last_updated);
+      const diffSeconds = (now.getTime() - lastUpdated.getTime()) / 1000;
+
+      // Check if cached data is within TTL
+      if (diffSeconds < this.cacheTTL) {
+        return cachedCoin;
+      }
+    }
+
+    return null;
+  }
+
+  private async saveCoinDataToCache(id: string, data: any): Promise<void> {
+    try {
+      const now = new Date();
+
+      await this.getClient().marketData.upsert({
+        where: { id },
+        update: { ...data, last_updated: now },
+        create: { ...data, last_updated: now },
+      });
+    } catch (error) {
+      throw new HttpException(
+        'Failed to save coin data to cache',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
