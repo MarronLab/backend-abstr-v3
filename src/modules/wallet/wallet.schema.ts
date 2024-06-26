@@ -40,3 +40,46 @@ export const getBalancesResponseSchema: JSONSchemaType<
     additionalProperties: false,
   },
 };
+
+export const walletPerformanceResponseSchema: JSONSchemaType<{
+  graph: Record<string, number>[];
+  finalBalance: number;
+  balanceChange: number;
+  balanceChangePercentage: string;
+}> = {
+  type: 'object',
+  properties: {
+    graph: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          timestamp: {
+            type: 'number',
+          },
+          balance: {
+            type: 'number',
+          },
+        },
+        required: ['timestamp', 'balance'],
+        additionalProperties: false,
+      },
+    },
+    finalBalance: {
+      type: 'number',
+    },
+    balanceChange: {
+      type: 'number',
+    },
+    balanceChangePercentage: {
+      type: 'string',
+    },
+  },
+  required: [
+    'graph',
+    'finalBalance',
+    'balanceChange',
+    'balanceChangePercentage',
+  ],
+  additionalProperties: false,
+};
