@@ -1,7 +1,9 @@
-import { Controller, Get, UseInterceptors, Param } from '@nestjs/common';
+import { Controller, Get, UseInterceptors, Param, Query } from '@nestjs/common';
 import { MarketService } from '../service/market.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
+import { MarketResponseDto } from '../dto/marketcoinsResponse.dto';
+import { MarketDataQueryParams } from '../dto/marketQueryParam.dto';
 
 @ApiTags('market')
 @Controller('market')
@@ -10,8 +12,10 @@ export class MarketController {
 
   @Get('coins')
   @UseInterceptors(ResponseValidationInterceptor)
-  async getMarketData() {
-    return await this.marketService.getMarketData();
+  @ApiOkResponse({ type: [MarketResponseDto] })
+  @ApiQuery({ type: MarketDataQueryParams, required: false })
+  async getMarketData(@Query() queryParams: MarketDataQueryParams) {
+    return await this.marketService.getMarketData(queryParams);
   }
 
   @Get('coin/:id')

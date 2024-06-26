@@ -12,18 +12,12 @@ import { Request } from 'express';
 
 import { BaseService } from '../../../common/base.service';
 import { PrismaService } from '../../../services/prisma.service';
+import { MarketDataQueryParams } from '../dto/marketQueryParam.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
   private readonly endpoint = 'coins/markets';
   private readonly coinEndpoint = 'coins';
-  private readonly params = {
-    vs_currency: 'usd',
-    order: 'market_cap_desc',
-    per_page: 10,
-    page: 1,
-    sparkline: true,
-  };
 
   constructor(
     private readonly httpService: HttpService,
@@ -33,7 +27,7 @@ export class MarketService extends BaseService {
     super(prismaService, req);
   }
 
-  async getMarketData() {
+  async getMarketData(queryParams: MarketDataQueryParams) {
     try {
       const lastUpdated = await this.getClient().marketData.findFirst({
         orderBy: {
@@ -53,8 +47,21 @@ export class MarketService extends BaseService {
         }
       }
 
+      const params: any = {
+        vs_currency: queryParams.vs_currency || 'usd',
+        ids: queryParams.ids,
+        category: queryParams.category,
+        order: queryParams.order || 'market_cap_desc',
+        per_page: queryParams.per_page || 100,
+        page: queryParams.page || 1,
+        sparkline: queryParams.sparkline || false,
+        price_change_percentage: queryParams.price_change_percentage,
+        locale: queryParams.locale || 'en',
+        precision: queryParams.precision,
+      };
+
       const response = await firstValueFrom(
-        this.httpService.get(this.endpoint, { params: this.params }),
+        this.httpService.get(this.endpoint, { params }),
       );
 
       const transformResponse = (data: any[]) => {
