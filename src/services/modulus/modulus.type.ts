@@ -1,5 +1,6 @@
 import {
   OrderSideEnum,
+  OrderSideExtendedEnum,
   OrderTimeInForceEnum,
   OrderTypeEnum,
 } from './modulus.enum';
@@ -88,3 +89,140 @@ export type CancelOrderSuccessResponseData = {
 export type CancelOrderResponse =
   | ModulusBaseErrorResponseData
   | CancelOrderSuccessResponseData;
+
+//TradeHistory
+export type TradeHistoryRequest = {
+  side: 'ALL' | 'SELL' | 'BUY';
+  pair: string;
+  count?: number;
+  page?: number;
+};
+
+export type TradeHistoryResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: {
+      orderId: number;
+      volume: number;
+      rate: number;
+      trade: string;
+      market: string;
+      amount: number;
+      serviceCharge: number;
+      date: string;
+      side: 'BUY' | 'SELL';
+    }[];
+  };
+};
+
+//OrderHistory
+export type OrderHistoryRequest = {
+  side: OrderSideExtendedEnum;
+  pair: string;
+  count?: number;
+  page?: number;
+};
+
+export type OrderHistoryResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: {
+      orderId: number;
+      date: string;
+      currencyPair: string;
+      side: OrderSideEnum;
+      tradeType: OrderTypeEnum;
+      tradePrice: string;
+      averagePrice: string;
+      size: string;
+      filled: string;
+      feePaid: string;
+      totalExecutedValue: string;
+      stopPrice: string;
+      orderStatus: 'Filled' | 'Cancelled' | 'Pending';
+      mOrders: {
+        orderId: number;
+        volume: number;
+        rate: number;
+        trade: string;
+        market: string;
+        amount: number;
+        serviceCharge: number;
+        date: string;
+        side: 'BUY' | 'SELL';
+      }[];
+    }[];
+  };
+};
+
+//GetBalance
+export type GetBalanceRequest = {
+  currency: string;
+};
+
+export type GetBalanceSuccessResponseData = {
+  status: 'Success';
+  message: string;
+  data: {
+    currency: string;
+    balance: number;
+    balanceInTrade: number;
+    holdDeposits: number;
+  }[];
+};
+
+export type GetBalanceResponse =
+  | ModulusBaseErrorResponseData
+  | GetBalanceSuccessResponseData;
+
+export type GetCoinStatsResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    [key: string]: {
+      exchangeTicker: string;
+      dataSource: string;
+      coinName: null | string;
+      symbol: null | string;
+      slug: string;
+      image: null | string;
+      rank: number;
+      price: string;
+      volume24h: null | string;
+      marketCap: null | string;
+      priceChangePercent24hr: null | string;
+      circulatingSupply: null | string;
+      sparkline: null | string;
+      sparklineGraph: null | number[];
+      maxSupply: null | string;
+      priceChangePercent1h: null | string;
+      priceChangePercent7d: null | string;
+      priceChangePercent30: null | string;
+      issueDate: string;
+      lastUpdated: string;
+      tags: null | string;
+      tagsObject: null | string[];
+      description: null | string;
+      links_website: null | string;
+      links_reddit: null | string;
+      links_forum: null | string;
+      links_explorer: null | string;
+      links_sourceCode: null | string;
+      objectlinks_sourceCode: null | Record<string, string[]>;
+      links_technicalDoc: null | string;
+      last_updatedon: string;
+    };
+  };
+};
