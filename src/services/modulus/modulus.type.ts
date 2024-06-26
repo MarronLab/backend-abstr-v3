@@ -266,3 +266,30 @@ export type GetAllTransactionsResponse = {
     rows: TransactionData[];
   };
 };
+
+//Notifications
+export type GetAllNotificationsRequest = {
+  count?: number;
+  page?: number;
+};
+
+export type NotificationData = {
+  Id: number;
+  CID: number;
+  MessageTitle: string;
+  MessageBody: string;
+  AddedOn: string;
+};
+
+export type GetAllNotificationsResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: NotificationData[];
+  };
+};

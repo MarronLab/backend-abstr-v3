@@ -4,6 +4,8 @@ import {
   AuthenticateUserResponse,
   CancelOrderRequest,
   CancelOrderResponse,
+  GetAllNotificationsRequest,
+  GetAllNotificationsResponse,
   GetAllTransactionsRequest,
   GetAllTransactionsResponse,
   GetBalanceRequest,
@@ -93,6 +95,15 @@ export class ModulusService {
   ) {
     return await this.get<GetAllTransactionsResponse>(
       '/api/Get_All_Transactions',
+      request,
+    );
+  }
+
+  async getAllNotifications(
+    request: GetAllNotificationsRequest = { page: 1, count: 100 },
+  ) {
+    return await this.get<GetAllNotificationsResponse>(
+      '/notification/get-notification/all',
       request,
     );
   }
