@@ -9,7 +9,7 @@ export class WalletPerformanceDto {
 }
 
 export class WalletPerformanceResponseDto {
-  graph: Record<string, number>[];
+  graph: Record<string, number | string>[];
   finalBalance: number;
   balanceChange: number;
   balanceChangePercentage: string;
