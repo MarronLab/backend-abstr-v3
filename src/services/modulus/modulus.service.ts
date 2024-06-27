@@ -11,6 +11,7 @@ import {
   GetBalanceRequest,
   GetBalanceResponse,
   GetCoinStatsResponse,
+  GetProfileResponse,
   NotificationsMarkDeleteResponse,
   NotificationsMarkReadResponse,
   OrderHistoryRequest,
@@ -120,5 +121,9 @@ export class ModulusService {
     return await this.post<NotificationsMarkDeleteResponse>(
       `/notification/mark-delete/${id}`,
     );
+  }
+
+  async getProfile() {
+    return await this.get<GetProfileResponse>('/api/GetProfile', {});
   }
 }
