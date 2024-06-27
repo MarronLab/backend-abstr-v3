@@ -307,3 +307,52 @@ export type NotificationsMarkReadResponse = {
   status: 'Error' | 'Success';
   message: string;
 };
+
+//GetProfile
+export type ProfileData = {
+  customerID: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  email: string;
+  loginName: string;
+  joinedOn: string;
+  is2FAEnabled: boolean;
+  isMobileVerified: boolean;
+  kycStatus: string;
+  kycApprovedBy: null | string;
+  country: string;
+  mobileNumber: string;
+  kycRejectReason: string;
+  kycRequestInfo: string;
+  kycApprovedLevel: null | string;
+  currentStatus: null | string;
+  isUserBlocked: boolean;
+  corporateName: string;
+  priceChangeAlert: boolean;
+  priceChangePercentage: string;
+  discounts: {
+    token_discount: number;
+    fee_groups: number;
+    volume_discount: number;
+    total_discount: number;
+  };
+  customFields: [];
+  kycType: string;
+};
+
+export type GetProfileErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type GetProfileSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: ProfileData;
+};
+
+export type GetProfileResponse =
+  | GetProfileErrorResponse
+  | GetProfileSuccessResponse;
