@@ -72,13 +72,8 @@ export class ApiController {
 
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  // @UseInterceptors(
-  //   new ResponseValidationInterceptor(orderHistoryResponseSchema),
-  // )
   @Delete('/:key')
   async deleteApiKey(@Param('key') deleteApiKeyDto: DeleteApiKeyDto) {
-    const response = await this.apiService.deleteApiKey(deleteApiKeyDto);
-
-    return response;
+    await this.apiService.deleteApiKey(deleteApiKeyDto);
   }
 }
