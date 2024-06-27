@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import { TransactionInterceptor } from './common/transaction.interceptor';
+import { PrismaService } from './services/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,10 +12,19 @@ async function bootstrap() {
     origin: '*',
   });
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
+  app.useGlobalInterceptors(new TransactionInterceptor(new PrismaService()));
+
   const config = new DocumentBuilder()
     .setTitle('Maroon POC API')
     .setDescription('Maroon POC backend API')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const doc = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, doc);

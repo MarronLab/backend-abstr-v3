@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { HttpService } from '@nestjs/axios';
 <<<<<<< HEAD
 import { Injectable } from '@nestjs/common';
@@ -5,67 +6,31 @@ import RegisterDto from '../dto/auth.register.dto';
 =======
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 >>>>>>> 8ae80350913dd1dd91d4828f465af50d27e4c003
+=======
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ModulusService } from 'src/services/modulus/modulus.service';
 
-import AuthResponseDto from '../dto/auth.response.dto';
-import ErrorResponseDto from '../dto/error.esponse.dto';
+import { AuthenticateUserResponse } from 'src/services/modulus/modulus.type';
+>>>>>>> cd3fc5f27879af17c1955bd375354da42eae07ba
+
 @Injectable()
 export class AuthService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly modulusService: ModulusService) {}
 
   async login(
     email: string,
     password: string,
-  ): Promise<AuthResponseDto | ErrorResponseDto> {
+  ): Promise<AuthenticateUserResponse> {
     try {
-      const loginResponse = await this.httpService.axiosRef.post(
-        '/api/AuthenticateUser/v2',
-        {
-          email,
-          password,
-        },
-      );
-      if (loginResponse.data.status === 'success') {
-        const authResponse = await this.httpService.axiosRef.post('/token', {
-          grant_type: 'password',
-          username: loginResponse.data.tempAuthToken,
-          password,
-        });
+      const response = await this.modulusService.login(email, password);
 
-        if (authResponse.status === 200) {
-          return {
-            access_token: authResponse.data.access_token,
-            token_type: authResponse.data.token_type,
-            success: true,
-          };
-        } else {
-          throw new HttpException(
-            {
-              success: false,
-              message: 'Failed to retrieve token',
-              details: `Status code: ${authResponse.status}`,
-            },
-            HttpStatus.BAD_REQUEST,
-          );
-        }
-      } else {
-        throw new HttpException(
-          {
-            success: false,
-            message: loginResponse.data.message || 'Login failed',
-            details: loginResponse.data.data || 'Unknown error',
-          },
-          HttpStatus.UNAUTHORIZED,
-        );
+      if (!response.data.access_token) {
+        throw new UnauthorizedException();
       }
+
+      return response.data;
     } catch (error) {
-      throw new HttpException(
-        {
-          success: false,
-          message: error.response?.data?.Message,
-          details: error.message,
-        },
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new UnauthorizedException();
     }
   }
 

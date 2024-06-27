@@ -5,8 +5,17 @@ import { platformSigner } from 'src/utils/privateKeyProvider';
 import { safeProxyFactoryCreationCode } from 'src/utils/safe4337/utils/execution';
 import { Safe4337 } from 'src/utils/safe4337/utils/safe';
 import { PrismaService } from './prisma.service';
+import { BaseService } from 'src/common/base.service';
+import { Inject, Injectable, Scope } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
-export class SafeService {
+@Injectable({ scope: Scope.REQUEST })
+export class SafeService extends BaseService {
+  constructor(prisma: PrismaService, @Inject(REQUEST) req: Request) {
+    super(prisma, req);
+  }
+
   private safeGlobalConfig = {
     safeSingleton: ConstantProvider.SAFE_SINGLETON_ADDRESS,
     entryPoint: ConstantProvider.ENTRY_POINT_ADDRESS,
@@ -40,13 +49,11 @@ export class SafeService {
 
     const initCode = safe.getInitCode();
 
-    const prismaService = new PrismaService();
-
     let safeAddress = await this.callGetSenderAddress(initCode);
 
     const isSafeDeployed = safeAddress === ethers.ZeroAddress;
 
-    const user = await prismaService.user.findFirst({
+    const user = await this.getClient().user.findFirst({
       where: {
         userAddress: {
           mode: 'insensitive',
@@ -58,7 +65,7 @@ export class SafeService {
     if (user) {
       safeAddress = user.safeAddress;
     } else {
-      await prismaService.user.create({
+      await this.getClient().user.create({
         data: {
           userAddress,
           safeAddress,

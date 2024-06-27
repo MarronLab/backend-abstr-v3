@@ -10,10 +10,7 @@ import { ApiTags } from '@nestjs/swagger';
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
-import {
-  AuthTransformInterceptor,
-  ResponseTransformInterceptor,
-} from 'src/schema/auth/auth.transformers';
+import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -22,7 +19,6 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(AuthValidationPipe)
-  @UseInterceptors(new AuthTransformInterceptor(LoginDto))
   @UseInterceptors(ResponseTransformInterceptor)
   async login(@Body() account: LoginDto) {
     return await this.authService.login(account.email, account.password);
