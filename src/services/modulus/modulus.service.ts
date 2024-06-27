@@ -4,9 +4,15 @@ import {
   AuthenticateUserResponse,
   CancelOrderRequest,
   CancelOrderResponse,
+  GetAllNotificationsRequest,
+  GetAllNotificationsResponse,
+  GetAllTransactionsRequest,
+  GetAllTransactionsResponse,
   GetBalanceRequest,
   GetBalanceResponse,
   GetCoinStatsResponse,
+  NotificationsMarkDeleteResponse,
+  NotificationsMarkReadResponse,
   OrderHistoryRequest,
   OrderHistoryResponse,
   PlaceOrderPricedRequest,
@@ -84,5 +90,35 @@ export class ModulusService {
 
   async getCoinStats() {
     return await this.post<GetCoinStatsResponse>('/api/get_coin_stats');
+  }
+
+  async getAllTransactions(
+    request: GetAllTransactionsRequest = { page: 1, count: 100 },
+  ) {
+    return await this.get<GetAllTransactionsResponse>(
+      '/api/Get_All_Transactions',
+      request,
+    );
+  }
+
+  async getAllNotifications(
+    request: GetAllNotificationsRequest = { page: 1, count: 100 },
+  ) {
+    return await this.get<GetAllNotificationsResponse>(
+      '/notification/get-notification/all',
+      request,
+    );
+  }
+
+  async notificationsMarkRead(id: number) {
+    return await this.post<NotificationsMarkReadResponse>(
+      `/notification/mark-read/${id}`,
+    );
+  }
+
+  async notificationsMarkDelete(id: number) {
+    return await this.post<NotificationsMarkDeleteResponse>(
+      `/notification/mark-delete/${id}`,
+    );
   }
 }

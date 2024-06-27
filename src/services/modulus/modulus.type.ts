@@ -226,3 +226,89 @@ export type GetCoinStatsResponse = {
     };
   };
 };
+
+//Transactions
+export type GetAllTransactionsRequest = {
+  count?: number;
+  page?: number;
+};
+
+export type TransactionData = {
+  requestDate: string;
+  amount: number;
+  equivalentUsdAmt: number;
+  currency: string;
+  transactionID: string;
+  rejectReason: null | string;
+  comments: null | string;
+  status: null | string;
+  type: string;
+  currentTxnCount: number;
+  requiredTxnCount: number;
+  explorerURL: string;
+  address: string;
+  confirmDate: string;
+  fee: number;
+  pg_name: null | string;
+  memo: null | string;
+  isPassedTravelRule: boolean;
+};
+
+export type GetAllTransactionsResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: TransactionData[];
+  };
+};
+
+//Notifications
+export type GetAllNotificationsRequest = {
+  count?: number;
+  page?: number;
+};
+
+export type NotificationData = {
+  Id: number;
+  CID: number;
+  MessageTitle: string;
+  MessageBody: string;
+  AddedOn: string;
+};
+
+export type GetAllNotificationsErrorResponse = {
+  status: 'Error';
+  message: string;
+};
+
+export type GetAllNotificationsSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: NotificationData[];
+  };
+};
+
+export type GetAllNotificationsResponse =
+  | GetAllNotificationsErrorResponse
+  | GetAllNotificationsSuccessResponse;
+
+export type NotificationsMarkReadResponse = {
+  status: 'Error' | 'Success';
+  message: string;
+};
+
+export type NotificationsMarkDeleteResponse = {
+  status: 'Error' | 'Success';
+  message: string;
+};
