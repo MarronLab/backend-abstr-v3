@@ -307,8 +307,3 @@ export type NotificationsMarkReadResponse = {
   status: 'Error' | 'Success';
   message: string;
 };
-
-export type NotificationsMarkDeleteResponse = {
-  status: 'Error' | 'Success';
-  message: string;
-};
