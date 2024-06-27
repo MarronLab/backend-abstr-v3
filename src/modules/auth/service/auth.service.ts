@@ -1,6 +1,10 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+<<<<<<< HEAD
+import { Injectable } from '@nestjs/common';
 import RegisterDto from '../dto/auth.register.dto';
+=======
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+>>>>>>> 8ae80350913dd1dd91d4828f465af50d27e4c003
 
 import AuthResponseDto from '../dto/auth.response.dto';
 import ErrorResponseDto from '../dto/error.esponse.dto';
