@@ -4,6 +4,10 @@ import {
   AuthenticateUserResponse,
   CancelOrderRequest,
   CancelOrderResponse,
+  DeleteApiKeyRequest,
+  DeleteApiKeyResponse,
+  GenerateApiKeyRequest,
+  GenerateApiKeyResponse,
   GetAllNotificationsRequest,
   GetAllNotificationsResponse,
   GetAllTransactionsRequest,
@@ -12,6 +16,8 @@ import {
   GetBalanceResponse,
   GetCoinStatsResponse,
   GetProfileResponse,
+  ListApiKeysRequest,
+  ListApiKeysResponse,
   NotificationsMarkReadResponse,
   OrderHistoryRequest,
   OrderHistoryResponse,
@@ -118,5 +124,20 @@ export class ModulusService {
 
   async getProfile() {
     return await this.get<GetProfileResponse>('/api/GetProfile', {});
+  }
+
+  async generateApiKey(request: GenerateApiKeyRequest) {
+    return await this.post<GenerateApiKeyResponse>(
+      '/api/GenerateApiKey',
+      request,
+    );
+  }
+
+  async listApiKeys(request: ListApiKeysRequest) {
+    return await this.post<ListApiKeysResponse>('/api/ListApiKey', request);
+  }
+
+  async deleteApiKey(request: DeleteApiKeyRequest) {
+    return await this.post<DeleteApiKeyResponse>('/api/DeleteApiKey', request);
   }
 }
