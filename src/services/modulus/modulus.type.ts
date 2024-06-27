@@ -356,3 +356,82 @@ export type GetProfileSuccessResponse = {
 export type GetProfileResponse =
   | GetProfileErrorResponse
   | GetProfileSuccessResponse;
+
+//API Key - generate api key
+export type GenerateApiKeyRequest = {
+  keyType: string;
+  twoFactorAuthKey: string;
+  IpAddresses: string;
+};
+
+export type GenerateApiKeyData = {
+  privateKey: string;
+  publicKey: string;
+};
+
+export type GenerateApiKeyErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type GenerateApiKeySuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: GenerateApiKeyData;
+};
+
+export type GenerateApiKeyResponse =
+  | GenerateApiKeyErrorResponse
+  | GenerateApiKeySuccessResponse;
+
+//API Key - list api keys
+export type ListApiKeysRequest = {
+  keyType: string;
+};
+
+export type ListApiKeysData = {
+  key: string;
+  type: string;
+  trustedIPs: string;
+  generatedOn: string;
+  lastHit: null | string;
+  account: string;
+};
+
+export type ListApiKeysErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type ListApiKeysSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: ListApiKeysData[];
+};
+
+export type ListApiKeysResponse =
+  | ListApiKeysErrorResponse
+  | ListApiKeysSuccessResponse;
+
+//API Key - list api keys
+export type DeleteApiKeyRequest = {
+  key: string;
+};
+
+export type DeleteApiKeyErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type DeleteApiKeySuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type DeleteApiKeyResponse =
+  | DeleteApiKeyErrorResponse
+  | DeleteApiKeySuccessResponse;
