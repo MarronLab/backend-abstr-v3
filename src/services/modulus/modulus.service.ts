@@ -4,11 +4,16 @@ import {
   AuthenticateUserResponse,
   CancelOrderRequest,
   CancelOrderResponse,
+  GetAllNotificationsRequest,
+  GetAllNotificationsResponse,
   GetAllTransactionsRequest,
   GetAllTransactionsResponse,
   GetBalanceRequest,
   GetBalanceResponse,
   GetCoinStatsResponse,
+  GetProfileResponse,
+  NotificationsMarkDeleteResponse,
+  NotificationsMarkReadResponse,
   OrderHistoryRequest,
   OrderHistoryResponse,
   PlaceOrderPricedRequest,
@@ -95,5 +100,30 @@ export class ModulusService {
       '/api/Get_All_Transactions',
       request,
     );
+  }
+
+  async getAllNotifications(
+    request: GetAllNotificationsRequest = { page: 1, count: 100 },
+  ) {
+    return await this.get<GetAllNotificationsResponse>(
+      '/notification/get-notification/all',
+      request,
+    );
+  }
+
+  async notificationsMarkRead(id: number) {
+    return await this.post<NotificationsMarkReadResponse>(
+      `/notification/mark-read/${id}`,
+    );
+  }
+
+  async notificationsMarkDelete(id: number) {
+    return await this.post<NotificationsMarkDeleteResponse>(
+      `/notification/mark-delete/${id}`,
+    );
+  }
+
+  async getProfile() {
+    return await this.get<GetProfileResponse>('/api/GetProfile', {});
   }
 }

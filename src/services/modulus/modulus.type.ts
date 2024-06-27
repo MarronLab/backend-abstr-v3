@@ -266,3 +266,98 @@ export type GetAllTransactionsResponse = {
     rows: TransactionData[];
   };
 };
+
+//Notifications
+export type GetAllNotificationsRequest = {
+  count?: number;
+  page?: number;
+};
+
+export type NotificationData = {
+  Id: number;
+  CID: number;
+  MessageTitle: string;
+  MessageBody: string;
+  AddedOn: string;
+};
+
+export type GetAllNotificationsErrorResponse = {
+  status: 'Error';
+  message: string;
+};
+
+export type GetAllNotificationsSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: NotificationData[];
+  };
+};
+
+export type GetAllNotificationsResponse =
+  | GetAllNotificationsErrorResponse
+  | GetAllNotificationsSuccessResponse;
+
+export type NotificationsMarkReadResponse = {
+  status: 'Error' | 'Success';
+  message: string;
+};
+
+export type NotificationsMarkDeleteResponse = {
+  status: 'Error' | 'Success';
+  message: string;
+};
+
+//GetProfile
+export type ProfileData = {
+  customerID: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  email: string;
+  loginName: string;
+  joinedOn: string;
+  is2FAEnabled: boolean;
+  isMobileVerified: boolean;
+  kycStatus: string;
+  kycApprovedBy: null | string;
+  country: string;
+  mobileNumber: string;
+  kycRejectReason: string;
+  kycRequestInfo: string;
+  kycApprovedLevel: null | string;
+  currentStatus: null | string;
+  isUserBlocked: boolean;
+  corporateName: string;
+  priceChangeAlert: boolean;
+  priceChangePercentage: string;
+  discounts: {
+    token_discount: number;
+    fee_groups: number;
+    volume_discount: number;
+    total_discount: number;
+  };
+  customFields: [];
+  kycType: string;
+};
+
+export type GetProfileErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type GetProfileSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: ProfileData;
+};
+
+export type GetProfileResponse =
+  | GetProfileErrorResponse
+  | GetProfileSuccessResponse;
