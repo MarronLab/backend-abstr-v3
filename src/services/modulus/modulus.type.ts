@@ -308,11 +308,6 @@ export type NotificationsMarkReadResponse = {
   message: string;
 };
 
-export type NotificationsMarkDeleteResponse = {
-  status: 'Error' | 'Success';
-  message: string;
-};
-
 //GetProfile
 export type ProfileData = {
   customerID: number;

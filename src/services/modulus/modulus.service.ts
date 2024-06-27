@@ -12,7 +12,6 @@ import {
   GetBalanceResponse,
   GetCoinStatsResponse,
   GetProfileResponse,
-  NotificationsMarkDeleteResponse,
   NotificationsMarkReadResponse,
   OrderHistoryRequest,
   OrderHistoryResponse,
@@ -114,12 +113,6 @@ export class ModulusService {
   async notificationsMarkRead(id: number) {
     return await this.post<NotificationsMarkReadResponse>(
       `/notification/mark-read/${id}`,
-    );
-  }
-
-  async notificationsMarkDelete(id: number) {
-    return await this.post<NotificationsMarkDeleteResponse>(
-      `/notification/mark-delete/${id}`,
     );
   }
 

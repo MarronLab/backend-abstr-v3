@@ -1,7 +1,6 @@
 import {
   ClassSerializerInterceptor,
   Controller,
-  Delete,
   Get,
   Param,
   Put,
@@ -64,22 +63,6 @@ export class NotificationController {
   async notificationsMarkRead(@Param() notificationId: number) {
     const response =
       await this.notificationService.notificationsMarkRead(notificationId);
-
-    return response;
-  }
-
-  @UseGuards(AuthGuard)
-  @UseInterceptors(ClassSerializerInterceptor)
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'The notification ID to mark delete',
-    type: 'number',
-  })
-  @Delete('/:id')
-  async notificationsMarkDelete(@Param('id') notificationId: number) {
-    const response =
-      await this.notificationService.notificationsMarkDelete(notificationId);
 
     return response;
   }
