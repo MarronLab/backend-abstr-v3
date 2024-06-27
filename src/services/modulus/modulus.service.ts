@@ -4,6 +4,8 @@ import {
   AuthenticateUserResponse,
   CancelOrderRequest,
   CancelOrderResponse,
+  GetAllTransactionsRequest,
+  GetAllTransactionsResponse,
   GetBalanceRequest,
   GetBalanceResponse,
   GetCoinStatsResponse,
@@ -84,5 +86,14 @@ export class ModulusService {
 
   async getCoinStats() {
     return await this.post<GetCoinStatsResponse>('/api/get_coin_stats');
+  }
+
+  async getAllTransactions(
+    request: GetAllTransactionsRequest = { page: 1, count: 100 },
+  ) {
+    return await this.get<GetAllTransactionsResponse>(
+      '/api/Get_All_Transactions',
+      request,
+    );
   }
 }

@@ -226,3 +226,43 @@ export type GetCoinStatsResponse = {
     };
   };
 };
+
+//Transactions
+export type GetAllTransactionsRequest = {
+  count?: number;
+  page?: number;
+};
+
+export type TransactionData = {
+  requestDate: string;
+  amount: number;
+  equivalentUsdAmt: number;
+  currency: string;
+  transactionID: string;
+  rejectReason: null | string;
+  comments: null | string;
+  status: null | string;
+  type: string;
+  currentTxnCount: number;
+  requiredTxnCount: number;
+  explorerURL: string;
+  address: string;
+  confirmDate: string;
+  fee: number;
+  pg_name: null | string;
+  memo: null | string;
+  isPassedTravelRule: boolean;
+};
+
+export type GetAllTransactionsResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: {
+      totalRows: number;
+      currentPage: number;
+      pageSize: number;
+    };
+    rows: TransactionData[];
+  };
+};
