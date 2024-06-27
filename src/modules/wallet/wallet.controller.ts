@@ -13,12 +13,14 @@ import { WalletService } from './wallet.service';
 import { GetBalancesResponseDto } from './dto/getBalances.dto';
 import {
   getBalancesResponseSchema,
+  walletNetworthResponseSchema,
   walletPerformanceResponseSchema,
 } from './wallet.schema';
 import {
   WalletPerformanceDto,
   WalletPerformanceResponseDto,
 } from './dto/performance.dto';
+import { WalletNetworthResponseDto } from './dto/networth.dto';
 
 @ApiBearerAuth()
 @ApiTags('wallets')
@@ -59,6 +61,24 @@ export class WalletController {
       finalBalance: response.finalBalance,
       balanceChange: response.balanceChange,
       balanceChangePercentage: response.balanceChangePercentage,
+    });
+  }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(walletNetworthResponseSchema),
+  )
+  @Get('/networth')
+  async networth() {
+    const response = await this.walletService.getWalletNetWorth();
+
+    return new WalletNetworthResponseDto({
+      totalNetworth: response.totalNetworth,
+      fiatPercentage: response.fiatPercentage,
+      totalFiatAmount: response.totalFiatAmount,
+      totalCryptoAmount: response.totalCryptoAmount,
+      cryptoPercentage: response.cryptoPercentage,
     });
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { TransactionData } from 'src/services/modulus/modulus.type';
 import { WalletPerformanceDurationEnum } from './wallet.enum';
@@ -145,6 +149,71 @@ export class WalletService {
       };
     } catch (error) {
       throw new UnprocessableEntityException(error);
+    }
+  }
+
+  private calculateNetworth(transactions: TransactionData[]) {
+    let totalFiatAmount = 0,
+      totalCryptoAmount = 0;
+
+    transactions.forEach((transaction) => {
+      if (
+        transaction.status === 'Pending' ||
+        transaction.status === 'Rejected'
+      ) {
+        return;
+      }
+
+      if (transaction.type.startsWith('Fiat')) {
+        if (transaction.type.toLowerCase().includes('deposit')) {
+          totalFiatAmount += transaction.equivalentUsdAmt;
+        } else if (transaction.type.toLowerCase().includes('withdrawal')) {
+          totalFiatAmount -= transaction.equivalentUsdAmt;
+        }
+      }
+
+      if (transaction.type.startsWith('Crypto')) {
+        if (transaction.type.toLowerCase().includes('deposit')) {
+          totalCryptoAmount += transaction.equivalentUsdAmt;
+        } else if (transaction.type.toLowerCase().includes('withdrawal')) {
+          totalCryptoAmount -= transaction.equivalentUsdAmt;
+        }
+      }
+    });
+
+    const totalNetworth = totalFiatAmount + totalCryptoAmount;
+    const cryptoPercentage = (totalCryptoAmount / totalNetworth) * 100;
+    const fiatPercentage = (totalFiatAmount / totalNetworth) * 100;
+
+    return {
+      totalFiatAmount,
+      totalCryptoAmount,
+      totalNetworth,
+      cryptoPercentage,
+      fiatPercentage,
+    };
+  }
+
+  async getWalletNetWorth() {
+    try {
+      const transactions = await this.getResolvedPaginatedTransactions();
+      const {
+        fiatPercentage,
+        cryptoPercentage,
+        totalNetworth,
+        totalCryptoAmount,
+        totalFiatAmount,
+      } = this.calculateNetworth(transactions);
+
+      return {
+        fiatPercentage,
+        cryptoPercentage,
+        totalNetworth,
+        totalFiatAmount,
+        totalCryptoAmount,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
   }
 }
