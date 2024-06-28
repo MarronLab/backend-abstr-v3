@@ -27,6 +27,8 @@ import {
   PlaceOrderResponse,
   TradeHistoryRequest,
   TradeHistoryResponse,
+  RegisterRequest,
+  RegisterResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -65,6 +67,10 @@ export class ModulusService {
       email,
       password,
     });
+  }
+
+  async register(request: RegisterRequest) {
+    return await this.post<RegisterResponse>('/api/SignUp', request);
   }
 
   async placeOrder(request: PlaceOrderRequest) {
