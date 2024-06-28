@@ -52,7 +52,7 @@ export type RegisterSuccessResponse = {
     country: string;
     mobile: string;
     password: string;
-    referralId: string;
+    referralId: number;
     mobileOTP: string;
   };
 };

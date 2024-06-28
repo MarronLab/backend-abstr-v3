@@ -6,7 +6,7 @@ export class RegisterResponseDto {
   country: string;
   mobile: string;
   password: string;
-  referralId: string;
+  referralId: number;
   mobileOTP: string;
 
   constructor(partial: Partial<RegisterResponseDto>) {

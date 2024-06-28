@@ -60,7 +60,7 @@ export default class RegisterDto {
   @ApiProperty({
     description: 'The referral ID, if any',
   })
-  @IsNumber()
+  @IsString()
   referralId: string;
 
   @ApiProperty({
