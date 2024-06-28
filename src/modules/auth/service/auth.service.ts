@@ -43,8 +43,6 @@ export class AuthService {
         mobileOTP: registerDto.mobileOTP,
       });
 
-      // console.log('log data', data);
-
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);
       }
