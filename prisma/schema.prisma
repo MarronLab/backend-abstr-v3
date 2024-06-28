@@ -13,11 +13,11 @@ datasource db {
 model OrderBook {
   id        String   @id @default(cuid())
   orderId   String   @unique
-  metadata  String
-  side      String
-  price     Int
-  size      Int
-  userId    String
+  metadata  Json
+  side      String?
+  price     Int?
+  size      Int?
+  userId    String?
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updateAt  DateTime @updatedAt @db.Timestamp(6)
 

@@ -1,0 +1,150 @@
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { ModulusService } from 'src/services/modulus/modulus.service';
+import { TransactionData } from 'src/services/modulus/modulus.type';
+import { WalletPerformanceDurationEnum } from './wallet.enum';
+import { WalletPerformanceDto } from './dto/performance.dto';
+
+@Injectable()
+export class WalletService {
+  constructor(private readonly modulusService: ModulusService) {}
+
+  async getBalances() {
+    try {
+      const { data: balanceData } = await this.modulusService.getBalance();
+      const { data: coinStatsData } = await this.modulusService.getCoinStats();
+
+      if (balanceData.status === 'Error') {
+        throw new UnprocessableEntityException(balanceData.data);
+      }
+
+      return balanceData.data.map((balance) => {
+        const stats = coinStatsData.data[balance.currency.toLowerCase()];
+
+        return {
+          balance: balance.balance,
+          currency: balance.currency,
+          holdDeposits: balance.holdDeposits,
+          balanceInTrade: balance.balanceInTrade,
+          priceChangePercent24hr: stats?.priceChangePercent24hr || null,
+        };
+      });
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+
+  private async getResolvedPaginatedTransactions() {
+    let transactions: TransactionData[] = [];
+    let currentPage = 1;
+    let totalRows = 0;
+
+    try {
+      do {
+        const { data } = await this.modulusService.getAllTransactions({
+          page: currentPage,
+          count: 100,
+        });
+        const {
+          rows,
+          pageInfo: { totalRows: newTotalRows, pageSize },
+        } = data.data;
+
+        transactions = [...transactions, ...rows];
+
+        totalRows = newTotalRows;
+
+        currentPage++;
+      } while (transactions.length < totalRows);
+
+      return transactions;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+
+  private calculatePerformanceData(
+    transactions: TransactionData[],
+    startDate: string,
+  ) {
+    let initialBalance = 0,
+      finalBalance = 0;
+
+    const filteredTransactions = transactions.filter(
+      (transaction) => new Date(transaction.requestDate) >= new Date(startDate),
+    );
+
+    const data = filteredTransactions.map((transaction) => {
+      if (
+        transaction.status === 'Processed' ||
+        transaction.status === 'Approved'
+      ) {
+        if (transaction.type.toLowerCase().includes('withdrawal')) {
+          finalBalance -= transaction.equivalentUsdAmt;
+        } else if (transaction.type.toLowerCase().includes('deposit')) {
+          finalBalance += transaction.equivalentUsdAmt;
+        }
+      }
+
+      return {
+        timestamp: transaction.requestDate,
+        balance: transaction.equivalentUsdAmt,
+      };
+    });
+
+    if (data.length) initialBalance = data[0].balance;
+    const balanceChange = finalBalance - initialBalance;
+    const balanceChangePercentage = initialBalance
+      ? ((balanceChange / initialBalance) * 100).toFixed(2)
+      : 'N/A';
+
+    return {
+      data,
+      finalBalance,
+      balanceChange,
+      balanceChangePercentage,
+    };
+  }
+
+  private getStartDate = (duration: WalletPerformanceDurationEnum) => {
+    const now = new Date();
+    switch (duration) {
+      case WalletPerformanceDurationEnum.HOURLY:
+        return new Date(now.getTime() - 60 * 60 * 1000);
+      case WalletPerformanceDurationEnum.DAILY:
+        return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      case WalletPerformanceDurationEnum.WEEKLY:
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case WalletPerformanceDurationEnum.MONTHLY:
+        return new Date(now.setMonth(now.getMonth() - 1));
+      case WalletPerformanceDurationEnum.THREE_MONTHLY:
+        return new Date(now.setMonth(now.getMonth() - 3));
+      case WalletPerformanceDurationEnum.YEARLY:
+        return new Date(now.setFullYear(now.getFullYear() - 1));
+      case WalletPerformanceDurationEnum.ALL:
+        return new Date(0);
+      default:
+        throw new Error('Invalid duration');
+    }
+  };
+
+  async getWalletPerformance(walletPerformanceDto: WalletPerformanceDto) {
+    try {
+      const startDate = this.getStartDate(
+        walletPerformanceDto.duration,
+      ).toISOString();
+      const transactions = await this.getResolvedPaginatedTransactions();
+      console.log('transactions: ', transactions);
+      const { balanceChangePercentage, balanceChange, data, finalBalance } =
+        this.calculatePerformanceData(transactions, startDate);
+
+      return {
+        graph: data,
+        finalBalance,
+        balanceChange,
+        balanceChangePercentage,
+      };
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+}
