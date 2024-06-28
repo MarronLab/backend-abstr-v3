@@ -6,6 +6,7 @@ import { MarketModule } from './modules/market/module/market.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { ApiModule } from './modules/api/api.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     WalletModule,
     TransactionModule,
     NotificationModule,
+    ApiModule,
   ],
   controllers: [],
   providers: [],

@@ -21,3 +21,9 @@ export enum OrderTimeInForceEnum {
   IOC = 'IOC',
   FOK = 'FOK',
 }
+
+export enum KeyTypeEnum {
+  ALL = 'all',
+  TRADE = 'trade',
+  READONLY = 'readonly',
+}
