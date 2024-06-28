@@ -1,4 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import * as Sentry from '@sentry/node';
+import {
+  BaseExceptionFilter,
+  HttpAdapterHost,
+  NestFactory,
+} from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { UserActivityInterceptor } from './common/user-activity.interceptor';
@@ -7,7 +12,15 @@ import { TransactionInterceptor } from './common/transaction.interceptor';
 import { PrismaService } from './services/prisma.service';
 
 async function bootstrap() {
+  Sentry.init({
+    environment:
+      process.env.NODE_ENV === 'production' ? 'production' : 'development',
+    dsn: process.env.SENTRY_DNS,
+  });
+
   const app = await NestFactory.create(AppModule);
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
 
   app.enableCors({
     origin: '*',
@@ -33,8 +46,9 @@ async function bootstrap() {
   const doc = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, doc);
 
-  const port = process.env.PORT || 4000;
+  Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
 
+  const port = process.env.PORT || 4000;
   await app.listen(port);
 
   console.log(`\n\n
