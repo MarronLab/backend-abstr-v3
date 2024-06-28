@@ -39,11 +39,10 @@ export class AuthService {
         country: registerDto.country,
         mobile: registerDto.mobile,
         password: registerDto.password,
-        referralId: registerDto.referralId,
+        referralId: registerDto.referralId ?? null,
         mobileOTP: registerDto.mobileOTP,
       });
 
-      // console.log('logging', data);
 
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);

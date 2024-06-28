@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsOptional } from 'class-validator';
 
 export default class RegisterDto {
   @ApiProperty({
@@ -60,6 +60,7 @@ export default class RegisterDto {
   @ApiProperty({
     description: 'The referral ID, if any',
   })
+  @IsOptional()
   @IsString()
   referralId: string;
 
