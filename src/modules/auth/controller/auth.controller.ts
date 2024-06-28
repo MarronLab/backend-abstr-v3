@@ -4,13 +4,16 @@ import {
   Body,
   UsePipes,
   UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
+import { RegisterResponseDto } from '../dto/auth.registerResponse.dto';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
+import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -25,7 +28,21 @@ export class AuthController {
   }
 
   @Post('register')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(ResponseValidationInterceptor)
   async register(@Body() account: RegisterDto) {
-    return await this.authService.register(account);
+    const response = await this.authService.register(account);
+
+    return new RegisterResponseDto({
+      firstname: response.firstname,
+      middlename: response.middlename,
+      lastname: response.lastname,
+      email: response.email,
+      country: response.country,
+      mobile: response.mobile,
+      password: response.password,
+      referralId: response.referralId,
+      mobileOTP: response.mobileOTP,
+    });
   }
 }

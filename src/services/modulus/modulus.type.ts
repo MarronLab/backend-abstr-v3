@@ -29,6 +29,37 @@ export type PlaceOrderRequest = {
   type: OrderTypeEnum;
 };
 
+export type RegisterRequest = {
+  firstname: string;
+  middlename: string;
+  lastname: string;
+  email: string;
+  country: string;
+  mobile: string;
+  password: string;
+  referralId?: string;
+  mobileOTP: string;
+};
+
+export type RegisterSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    firstname: string;
+    middlename: string;
+    lastname: string;
+    email: string;
+    country: string;
+    mobile: string;
+    password: string;
+    referralId: string;
+    mobileOTP: string;
+  };
+};
+export type RegisterResponse =
+  | ModulusBaseErrorResponseData
+  | RegisterSuccessResponse;
+
 export type PlaceOrderPricedRequest = {
   amount: number;
 } & Pick<PlaceOrderRequest, 'side' | 'trade' | 'market'>;
