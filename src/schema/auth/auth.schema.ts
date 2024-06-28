@@ -6,21 +6,26 @@ export const registerResponseSchema: JSONSchemaType<RegisterRequest> = {
   properties: {
     firstname: {
       type: 'string',
+      nullable: true,
     },
     middlename: {
       type: 'string',
+      nullable: true,
     },
     lastname: {
       type: 'string',
+      nullable: true,
     },
     email: {
       type: 'string',
     },
     country: {
       type: 'string',
+      nullable: true,
     },
     mobile: {
       type: 'string',
+      nullable: true,
     },
     password: {
       type: 'string',
@@ -31,17 +36,9 @@ export const registerResponseSchema: JSONSchemaType<RegisterRequest> = {
     },
     mobileOTP: {
       type: 'string',
+      nullable: true,
     },
   },
-  required: [
-    'firstname',
-    'middlename',
-    'lastname',
-    'email',
-    'country',
-    'mobile',
-    'password',
-    'mobileOTP',
-  ],
+  required: ['email', 'password'],
   additionalProperties: false,
 };
