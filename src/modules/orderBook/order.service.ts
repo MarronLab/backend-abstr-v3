@@ -41,12 +41,25 @@ export class OrderService extends BaseService {
     super(prismaService, req);
   }
 
+  filterDuplicates<T extends object>(array: T[], key: keyof T): T[] {
+    const seen = new Set<T[keyof T]>();
+    return array.reduce<T[]>((acc, item) => {
+      const keyValue = item[key];
+      if (keyValue !== undefined && !seen.has(keyValue)) {
+        seen.add(keyValue);
+        acc.push(item);
+      }
+      return acc;
+    }, []);
+  }
+
   async createOrder(createOrderDto: CreateOrderDto) {
+    console.log({ createOrderDto });
     try {
       const orderId = Math.floor(Date.now() / 1000);
 
       console.log({
-        CurrencyPair: createOrderDto.CurrencyPair,
+        CurrencyPair: 'BTC_ETH',
         Size: createOrderDto.Size,
         Remaining: createOrderDto.Size,
         Side: createOrderDto.Side,
@@ -85,6 +98,7 @@ export class OrderService extends BaseService {
       console.log({ modulusOrderResponseData: data?.Event?.NewTrades });
 
       const orders: ReturnOrderI[] = [];
+      let matchingOrders: any[] = [];
       const { Event } = data || {};
 
       if (Event && Event.NewTrades.length > 0) {
@@ -94,20 +108,27 @@ export class OrderService extends BaseService {
 
         for (const newTrade of NewTrades) {
           const relevantOrders = [...UpdatedBuyOrders, ...UpdatedSellOrders];
-          const matchingOrder = relevantOrders.find(
-            (order) => order.OrderID === newTrade.MakerOrderID,
+          matchingOrders = relevantOrders.filter(
+            (order) =>
+              order.OrderID === newTrade.MakerOrderID ||
+              order.OrderID === newTrade.TakerOrderID,
           );
+        }
+      }
 
-          console.log({ extraData: matchingOrder.extraData });
+      const uniqueMatchingOrders = this.filterDuplicates(
+        matchingOrders,
+        'OrderID',
+      );
 
-          if (matchingOrder) {
-            orders.push({
-              extraData: matchingOrder.extraData,
-              size: newTrade.Size,
-              price: newTrade.Price,
-              timestamp: newTrade.Timestamp,
-            });
-          }
+      for (const matchingOrder of uniqueMatchingOrders) {
+        if (matchingOrder) {
+          orders.push({
+            extraData: matchingOrder.extraData,
+            size: matchingOrder.Size,
+            price: matchingOrder.LimitPrice,
+            timestamp: matchingOrder.TimeModified,
+          });
         }
       }
 

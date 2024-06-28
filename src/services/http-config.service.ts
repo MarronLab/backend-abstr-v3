@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 export class HttpConfigService implements HttpModuleOptionsFactory {
   createHttpOptions(): HttpModuleOptions {
     return {
-      baseURL: 'https://api.maroon.io',
+      baseURL: 'http://localhost:8000',
     };
   }
 }

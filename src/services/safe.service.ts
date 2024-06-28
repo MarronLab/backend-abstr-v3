@@ -23,7 +23,7 @@ export class SafeService extends BaseService {
     proxyFactory: ConstantProvider.SAFE_PROXY_FACTORY_ADDRESS,
     addModulesLib: ConstantProvider.ADD_MODULES_LIB_ADDRESS,
     proxyCreationCode: safeProxyFactoryCreationCode,
-    chainId: 137,
+    chainId: 8453,
   };
 
   async callGetSenderAddress(initCode: string) {
