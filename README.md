@@ -61,7 +61,7 @@ This smart contract handles on-chain order settlements, ensuring transparency an
 
 ## Other Component Repositories
 
-- https://github.com/Maroon-io/backend
+- https://github.com/Maroon-io/backend/tree/feat-coinbase-integration
 
 
 ## Example Transaction Hash
