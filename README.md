@@ -53,7 +53,7 @@ This smart contract handles on-chain order settlements, ensuring transparency an
 
 ### Live Demo Instructions
 
-- Navigate to https://demo.maroon.io/ and connect your wallet!
+- Navigate to https://exchange-app-emms.onrender.com/ and connect your wallet!
 - Click on the deposit section and fund your wallet with the trade tokens
 - Buy or Sell the tokens
 
