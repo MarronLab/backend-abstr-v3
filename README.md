@@ -58,7 +58,7 @@ This smart contract handles on-chain order settlements, ensuring transparency an
 - Buy or Sell the tokens
 
 [Backend URL](https://backend-1ifl.onrender.com)
-[Video recording](https://youtu.be/_3RzRAVbAL4)
+[Video recording](https://www.youtube.com/watch?v=CnxwOPf7kfs)
 
 ## Other Component Repositories
 
