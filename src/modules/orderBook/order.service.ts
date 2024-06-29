@@ -59,7 +59,7 @@ export class OrderService extends BaseService {
       const orderId = Math.floor(Date.now() / 1000);
 
       console.log({
-        CurrencyPair: 'BTC_ETH',
+        CurrencyPair: createOrderDto.CurrencyPair,
         Size: createOrderDto.Size,
         Remaining: createOrderDto.Size,
         Side: createOrderDto.Side,
