@@ -61,7 +61,7 @@ This smart contract handles on-chain order settlements, ensuring transparency an
 
 ## Other Component Repositories
 
-- https://github.com/Maroon-io/maroon-backend-poc
+- https://github.com/Maroon-io/backend
 
 
 ## Example Transaction Hash
