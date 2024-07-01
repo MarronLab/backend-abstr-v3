@@ -1,33 +1,50 @@
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
-  Param,
+  Post,
   UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import {
-  ValidateRequestPipe,
-  ValidateResponseInterceptor,
-} from '../../../schema/user/user.validation';
 import { AuthGuard } from 'src/modules/auth/auth.guard';
 import { ResponseValidationInterceptor } from 'src/common/response-validator.interceptor';
 import { GetProfileResponseDto } from '../dto/get-profile.dto';
-import { getProfileResponseSchema } from '../schema/user.schema';
+import {
+  generateSafeAddressResponseSchema,
+  getProfileResponseSchema,
+} from '../schema/user.schema';
+import GenerateSafeAddressDto, {
+  GenerateSafeAddressResponseDto,
+} from '../dto/generate-safe-address.dto';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('find-safe-detail/:userAddress')
-  @UsePipes(ValidateRequestPipe)
-  @UseInterceptors(ValidateResponseInterceptor)
-  async getSafeAddress(@Param('userAddress') userAddress: string) {
-    return await this.userService.getSafeAddress(userAddress);
+  @Post('safe/generate-address')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(generateSafeAddressResponseSchema),
+  )
+  async generateSafeAddress(
+    @Body() generateSafeAddressDto: GenerateSafeAddressDto,
+  ) {
+    const response = await this.userService.generateSafeAddress(
+      generateSafeAddressDto,
+    );
+
+    return new GenerateSafeAddressResponseDto({
+      initCode: response.initCode,
+      safeAddress: response.safeAddress,
+      isSafeDeployed: response.isSafeDeployed,
+    });
   }
 
   @Get('/profile')

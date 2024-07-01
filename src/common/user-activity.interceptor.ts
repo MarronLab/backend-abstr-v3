@@ -15,32 +15,33 @@ export class UserActivityInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const user = request.user; // Assuming we have user information in the request (e.g., via a JWT auth guard)
+    console.log('user: ', user);
     const action = `${request.method} ${request.url}`;
 
     return next.handle().pipe(
       tap(async (value) => {
         if (user) {
-          await this.prisma.userActivity.create({
-            data: {
-              userId: user.id,
-              action,
-              response: JSON.stringify(value),
-              success: true,
-            },
-          });
+          // await this.prisma.userActivity.create({
+          //   data: {
+          //     userId: user.customerID,
+          //     action,
+          //     response: JSON.stringify(value),
+          //     success: true,
+          //   },
+          // });
         }
       }),
       catchError(async (e) => {
-        if (user) {
-          await this.prisma.userActivity.create({
-            data: {
-              userId: user.id,
-              action,
-              response: JSON.stringify(e),
-              success: false,
-            },
-          });
-        }
+        // if (user) {
+        //   await this.prisma.userActivity.create({
+        //     data: {
+        //       userId: user.customerID,
+        //       action,
+        //       response: JSON.stringify(e),
+        //       success: false,
+        //     },
+        //   });
+        // }
 
         throw e;
       }),
