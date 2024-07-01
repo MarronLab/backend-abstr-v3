@@ -4,6 +4,7 @@ import {
   HttpAdapterHost,
   NestFactory,
 } from '@nestjs/core';
+import * as requestIp from 'request-ip';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { UserActivityInterceptor } from './common/user-activity.interceptor';
@@ -19,6 +20,8 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.create(AppModule);
+
+  app.use(requestIp.mw());
 
   const { httpAdapter } = app.get(HttpAdapterHost);
 

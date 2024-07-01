@@ -14,35 +14,49 @@ export class UserActivityInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // Assuming we have user information in the request (e.g., via a JWT auth guard)
-    console.log('user: ', user);
+    const user = request.user;
+    const ip = request.clientIp;
     const action = `${request.method} ${request.url}`;
 
     return next.handle().pipe(
       tap(async (value) => {
+        const data: any = {
+          idAddress: ip,
+          action,
+          response: JSON.stringify(value),
+          success: true,
+        };
+
         if (user) {
-          // await this.prisma.userActivity.create({
-          //   data: {
-          //     userId: user.customerID,
-          //     action,
-          //     response: JSON.stringify(value),
-          //     success: true,
-          //   },
-          // });
+          const internalUser = await this.prisma.user.findFirst({
+            where: { modulusCustomerID: user.customerID },
+          });
+          data.userId = internalUser ? internalUser.id : undefined;
         }
+
+        await this.prisma.userActivity.create({
+          data,
+        });
       }),
       catchError(async (e) => {
-        // if (user) {
-        //   await this.prisma.userActivity.create({
-        //     data: {
-        //       userId: user.customerID,
-        //       action,
-        //       response: JSON.stringify(e),
-        //       success: false,
-        //     },
-        //   });
-        // }
+        const data: any = {
+          idAddress: ip,
+          action,
+          response: JSON.stringify(e),
+          success: false,
+        };
 
+        if (user) {
+          const internalUser = await this.prisma.user.findFirst({
+            where: { modulusCustomerID: user.customerID },
+          });
+
+          data.userId = internalUser ? internalUser.id : undefined;
+        }
+
+        await this.prisma.userActivity.create({
+          data,
+        });
         throw e;
       }),
     );
