@@ -11,7 +11,6 @@ import { ApiTags } from '@nestjs/swagger';
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
 import { registerResponseSchema } from '../../../schema/auth/auth.schema';
-import { RegisterResponseDto } from '../dto/auth.registerResponse.dto';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';

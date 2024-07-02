@@ -7,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 
-import { AuthenticateUserResponse } from 'src/services/modulus/modulus.type';
+import {
+  AuthenticateUserResponse,
+  RegisterResponse,
+} from 'src/services/modulus/modulus.type';
 import RegisterDto from '../dto/auth.register.dto';
 
 @Injectable()
