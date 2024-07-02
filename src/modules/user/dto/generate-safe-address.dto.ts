@@ -22,8 +22,13 @@ export default class GenerateSafeAddressDto {
 }
 
 export class GenerateSafeAddressResponseDto {
+  @ApiProperty()
   safeAddress: string;
+
+  @ApiProperty()
   isSafeDeployed: boolean;
+
+  @ApiProperty()
   initCode: string;
 
   constructor(partial: Partial<GenerateSafeAddressResponseDto>) {

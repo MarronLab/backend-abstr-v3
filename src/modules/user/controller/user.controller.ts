@@ -9,7 +9,15 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'src/modules/auth/auth.guard';
 import { ResponseValidationInterceptor } from 'src/common/response-validator.interceptor';
 import { GetProfileResponseDto } from '../dto/get-profile.dto';
@@ -33,6 +41,14 @@ export class UserController {
   @UseInterceptors(
     new ResponseValidationInterceptor(generateSafeAddressResponseSchema),
   )
+  @ApiOperation({ summary: 'Generate safe address' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The safe address has been successfully generated',
+    type: GenerateSafeAddressResponseDto,
+  })
   async generateSafeAddress(
     @Body() generateSafeAddressDto: GenerateSafeAddressDto,
   ) {
