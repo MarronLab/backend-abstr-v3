@@ -34,8 +34,13 @@ export class CreateOrderDto {
 }
 
 export class CancelOrderResponseDto {
+  @ApiProperty()
   id: number;
+
+  @ApiProperty()
   et: number;
+
+  @ApiProperty()
   etm: number;
 
   constructor(partial: Partial<CancelOrderResponseDto>) {

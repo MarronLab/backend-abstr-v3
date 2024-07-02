@@ -10,7 +10,14 @@ import {
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CancelOrderResponseDto, CreateOrderDto } from './dto/createOrder.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { PlaceOrderDto, PlaceOrderPricedDto } from './dto/placeOrder.dto';
 import {
   PlaceOrderPricedResponseDto,
@@ -29,11 +36,15 @@ import {
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
-  MatchedOrdersResponseDto,
+  MatchedOrderResponseDto,
   OrderHistoryResponseDto,
+  OrderResponseDto,
 } from './dto/orderHistoryResponse.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
-import { TradeHistoryResponseDto } from './dto/tradeHistoryResponse.dto';
+import {
+  TradeHistoryResponseDto,
+  TradeResponseDto,
+} from './dto/tradeHistoryResponse.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -50,6 +61,13 @@ export class OrderController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(placeOrderResponseSchema))
   @Post('/place-order')
+  @ApiOperation({ summary: 'Place order' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The order has been successfully created.',
+    type: PlaceOrderResponseDto,
+  })
   async placeOrder(@Body() placeOrderDto: PlaceOrderDto) {
     const response = await this.orderService.placeOrder(placeOrderDto);
 
@@ -72,6 +90,13 @@ export class OrderController {
     new ResponseValidationInterceptor(placeOrderPricedResponseSchema),
   )
   @Post('/place-order-priced')
+  @ApiOperation({ summary: 'Place order priced' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The order has been successfully created.',
+    type: PlaceOrderPricedResponseDto,
+  })
   async placeOrderPriced(@Body() placeOrderPricedDto: PlaceOrderPricedDto) {
     const response =
       await this.orderService.placeOrderPriced(placeOrderPricedDto);
@@ -93,6 +118,13 @@ export class OrderController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(cancelOrderResponseSchema))
   @Post('/cancel-order')
+  @ApiOperation({ summary: 'Cancel order' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The order has been successfully cancelled.',
+    type: CancelOrderResponseDto,
+  })
   async cancelOrder(@Body() cancelOrderDto: CancelOrderDto) {
     const response = await this.orderService.cancelOrder(cancelOrderDto);
 
@@ -109,6 +141,12 @@ export class OrderController {
     new ResponseValidationInterceptor(orderHistoryResponseSchema),
   )
   @Get('/order-history')
+  @ApiOperation({ summary: 'Fetch order history' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiCreatedResponse({
+    description: 'The order history has been successfully fetched.',
+    type: OrderHistoryResponseDto,
+  })
   async orderHistory(@Query() orderHistoryDto: OrderHistoryDto) {
     const response = await this.orderService.getOrderHistory(orderHistoryDto);
 
@@ -117,7 +155,7 @@ export class OrderController {
     const result = rows.map((row) => {
       const matcheOrders = row.mOrders.map(
         (mOrder) =>
-          new MatchedOrdersResponseDto({
+          new MatchedOrderResponseDto({
             side: mOrder.side,
             id: mOrder.orderId,
             date: mOrder.date,
@@ -130,7 +168,7 @@ export class OrderController {
           }),
       );
 
-      return new OrderHistoryResponseDto({
+      return new OrderResponseDto({
         id: row.orderId,
         date: row.date,
         side: row.side,
@@ -148,7 +186,7 @@ export class OrderController {
       });
     });
 
-    return { pageInfo, result };
+    return new OrderHistoryResponseDto({ pageInfo, result });
   }
 
   @UseGuards(AuthGuard)
@@ -157,13 +195,19 @@ export class OrderController {
     new ResponseValidationInterceptor(tradeHistoryResponseSchema),
   )
   @Get('/trade-history')
+  @ApiOperation({ summary: 'Fetch trade history' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiCreatedResponse({
+    description: 'The trade history has been successfully fetched.',
+    type: TradeHistoryResponseDto,
+  })
   async tradeHistory(@Query() tradeHistoryDto: TradeHistoryDto) {
     const response = await this.orderService.getTradeHistory(tradeHistoryDto);
 
     const { pageInfo, rows } = response;
 
     const result = rows.map((row) => {
-      return new TradeHistoryResponseDto({
+      return new TradeResponseDto({
         id: row.orderId,
         date: row.date,
         side: row.side,
@@ -176,6 +220,6 @@ export class OrderController {
       });
     });
 
-    return { pageInfo, result };
+    return new TradeHistoryResponseDto({ pageInfo, result });
   }
 }
