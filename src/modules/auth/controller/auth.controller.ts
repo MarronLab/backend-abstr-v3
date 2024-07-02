@@ -29,7 +29,6 @@ export class AuthController {
 
   @Post('register')
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseInterceptors(new ResponseValidationInterceptor(registerResponseSchema))
   async register(@Body() account: RegisterDto) {
     return await this.authService.register(account);
   }

@@ -1,16 +1,22 @@
 import { JSONSchemaType } from 'ajv';
-import { RegisterRequest } from 'src/services/modulus/modulus.type';
 
-export const registerResponseSchema: JSONSchemaType<RegisterRequest> = {
+export const registerResponseSchema: JSONSchemaType<{
+  status: string;
+  message: string;
+  data: string;
+}> = {
   type: 'object',
   properties: {
-    email: {
+    status: {
       type: 'string',
     },
-    password: {
+    message: {
+      type: 'string',
+    },
+    data: {
       type: 'string',
     },
   },
-  required: ['email', 'password'],
+  required: ['status', 'message', 'data'],
   additionalProperties: false,
 };

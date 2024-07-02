@@ -16,7 +16,7 @@ export class RegisterResponseDto {
     description: 'The data of the response',
     nullable: true,
   })
-  data: any;
+  data: null;
 
   constructor(partial: Partial<RegisterResponseDto>) {
     Object.assign(this, partial);
