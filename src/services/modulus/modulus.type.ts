@@ -30,30 +30,16 @@ export type PlaceOrderRequest = {
 };
 
 export type RegisterRequest = {
-  firstname?: string;
-  middlename?: string;
-  lastname?: string;
   email: string;
-  country?: string;
-  mobile?: string;
   password: string;
-  referralId?: string;
-  mobileOTP?: string;
 };
 
 export type RegisterSuccessResponse = {
   status: 'Success';
   message: string;
   data: {
-    firstname?: string;
-    middlename?: string;
-    lastname?: string;
     email: string;
-    country?: string;
-    mobile?: string;
     password: string;
-    referralId?: number;
-    mobileOTP?: string;
   };
 };
 export type RegisterResponse =

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsBoolean, IsNumber } from 'class-validator';
+import { IsString, IsNumber } from 'class-validator';
 
 export default class AuthResponseDto {
   @ApiProperty({

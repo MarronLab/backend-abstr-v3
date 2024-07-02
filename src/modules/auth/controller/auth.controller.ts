@@ -32,18 +32,6 @@ export class AuthController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(registerResponseSchema))
   async register(@Body() account: RegisterDto) {
-    const response = await this.authService.register(account);
-
-    return new RegisterResponseDto({
-      firstname: response.firstname,
-      middlename: response.middlename,
-      lastname: response.lastname,
-      email: response.email,
-      country: response.country,
-      mobile: response.mobile,
-      password: response.password,
-      referralId: response.referralId,
-      mobileOTP: response.mobileOTP,
-    });
+    return await this.authService.register(account);
   }
 }
