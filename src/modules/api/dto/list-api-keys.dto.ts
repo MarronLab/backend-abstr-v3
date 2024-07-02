@@ -21,7 +21,7 @@ export class ListApiKeyResponseDto {
   @ApiProperty()
   generatedOn: string;
 
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({ type: String, nullable: true })
   lastHit: null | string;
 
   @ApiProperty()
