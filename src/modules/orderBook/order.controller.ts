@@ -9,7 +9,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CancelOrderResponseDto, CreateOrderDto } from './dto/createOrder.dto';
+import {
+  CancelOrderResponseDto,
+  CreateOrderDto,
+  CreateOrderResponseDto,
+} from './dto/createOrder.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -53,8 +57,24 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post('/create-order')
+  @ApiOperation({ summary: 'Create order' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The order has been successfully created.',
+    type: [CreateOrderResponseDto],
+  })
   async createOrder(@Body() createOrderDto: CreateOrderDto) {
-    return await this.orderService.createOrder(createOrderDto);
+    const response = await this.orderService.createOrder(createOrderDto);
+
+    return response.map((order: any) => {
+      return new CreateOrderResponseDto({
+        size: order.size,
+        price: order.price,
+        extraData: order.extraData,
+        timestamp: order.timestamp,
+      });
+    });
   }
 
   @UseGuards(AuthGuard)

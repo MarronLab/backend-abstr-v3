@@ -10,7 +10,17 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiDefaultResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { ResponseValidationInterceptor } from '../../common/response-validator.interceptor';
 import {
@@ -18,10 +28,7 @@ import {
   GenerateApiKeyResponseDto,
 } from './dto/generate-api-key.dto';
 import { ApiService } from './api.service';
-import {
-  ListApiKeysDto,
-  ListApiKeysResponseDto,
-} from './dto/list-api-keys.dto';
+import { ListApiKeyResponseDto, ListApiKeysDto } from './dto/list-api-keys.dto';
 import { DeleteApiKeyDto } from './dto/delete-api-key.dto';
 import {
   generateApiKeyResponseSchema,
@@ -40,6 +47,14 @@ export class ApiController {
     new ResponseValidationInterceptor(generateApiKeyResponseSchema),
   )
   @Post('/')
+  @ApiOperation({ summary: 'Generate API key' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiCreatedResponse({
+    description: 'The API key has been successfully generated.',
+    type: GenerateApiKeyResponseDto,
+  })
   async generateApiKey(@Body() generateApiKeyDto: GenerateApiKeyDto) {
     const response = await this.apiService.generateApiKey(generateApiKeyDto);
 
@@ -53,11 +68,19 @@ export class ApiController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(listApiKeyResponseSchema))
   @Get('/')
+  @ApiOperation({ summary: 'List API keys' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiCreatedResponse({
+    description: 'The API keys has been successfully fetched.',
+    type: [ListApiKeyResponseDto],
+  })
   async listApiKeys(@Query('keyType') listApiKeysDto: ListApiKeysDto) {
     const response = await this.apiService.listApiKeys(listApiKeysDto);
 
     const result = response.map((row) => {
-      return new ListApiKeysResponseDto({
+      return new ListApiKeyResponseDto({
         key: row.key,
         type: row.type,
         account: row.account,
@@ -73,6 +96,13 @@ export class ApiController {
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Delete('/:key')
+  @ApiOperation({ summary: 'Delete API key' })
+  @ApiOkResponse({
+    description: 'The API key has been successfully removed.',
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   async deleteApiKey(@Param('key') deleteApiKeyDto: DeleteApiKeyDto) {
     await this.apiService.deleteApiKey(deleteApiKeyDto);
   }
