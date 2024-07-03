@@ -21,7 +21,7 @@ export class UserActivityInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap(async (value) => {
         const data: any = {
-          idAddress: ip,
+          ipAddress: ip,
           action,
           response: JSON.stringify(value),
           success: true,
@@ -40,7 +40,7 @@ export class UserActivityInterceptor implements NestInterceptor {
       }),
       catchError(async (e) => {
         const data: any = {
-          idAddress: ip,
+          ipAddress: ip,
           action,
           response: JSON.stringify(e),
           success: false,

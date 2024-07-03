@@ -5,15 +5,21 @@
   - Added the required column `modulusCustomerID` to the `user` table without a default value. This is not possible if the table is not empty.
 
 */
--- DropForeignKey
-ALTER TABLE "userActivity" DROP CONSTRAINT "userActivity_userId_fkey";
-
 -- AlterTable
 ALTER TABLE "user" ADD COLUMN     "modulusCustomerID" INTEGER NOT NULL;
 
--- AlterTable
-ALTER TABLE "userActivity" ADD COLUMN     "idAddress" TEXT,
-ALTER COLUMN "userId" DROP NOT NULL;
+-- CreateTable
+CREATE TABLE "userActivity" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT,
+    "ipAddress" TEXT NOT NULL,
+    "action" TEXT NOT NULL,
+    "response" JSONB NOT NULL,
+    "success" BOOLEAN NOT NULL,
+    "timestamp" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "userActivity_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_modulusCustomerID_key" ON "user"("modulusCustomerID");

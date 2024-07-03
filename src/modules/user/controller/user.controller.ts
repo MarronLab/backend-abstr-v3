@@ -6,7 +6,6 @@ import {
   Post,
   UseGuards,
   UseInterceptors,
-  UsePipes,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import {

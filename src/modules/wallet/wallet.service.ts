@@ -46,6 +46,7 @@ export class WalletService {
         });
         const {
           rows,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           pageInfo: { totalRows: newTotalRows, pageSize },
         } = data.data;
 
