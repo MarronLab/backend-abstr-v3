@@ -53,6 +53,7 @@ model UserActivity {
   idAddress String
   user      User?    @relation(fields: [userId], references: [id])
   action    String
+  body      String?
   response  Json
   success   Boolean
   timestamp DateTime @default(now()) @db.Timestamp(6)

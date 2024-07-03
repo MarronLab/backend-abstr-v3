@@ -16,16 +16,23 @@ export class UserActivityInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     const ip = request.clientIp;
+    const body = { ...request.body };
     const action = `${request.method} ${request.url}`;
+
+    if (body.hasOwnProperty('password')) {
+      body['password'] = '********';
+    }
+
+    const data: any = {
+      idAddress: ip,
+      action,
+      body: JSON.stringify(body),
+    };
 
     return next.handle().pipe(
       tap(async (value) => {
-        const data: any = {
-          idAddress: ip,
-          action,
-          response: JSON.stringify(value),
-          success: true,
-        };
+        data.response = JSON.stringify(value);
+        data.success = true;
 
         if (user) {
           const internalUser = await this.prisma.user.findFirst({
@@ -39,12 +46,8 @@ export class UserActivityInterceptor implements NestInterceptor {
         });
       }),
       catchError(async (e) => {
-        const data: any = {
-          idAddress: ip,
-          action,
-          response: JSON.stringify(e),
-          success: false,
-        };
+        data.response = JSON.stringify(e);
+        data.success = false;
 
         if (user) {
           const internalUser = await this.prisma.user.findFirst({
