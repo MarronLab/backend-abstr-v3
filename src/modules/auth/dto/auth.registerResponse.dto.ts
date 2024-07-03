@@ -18,6 +18,7 @@ export class RegisterResponseDto {
   })
   data: null;
 
+
   constructor(partial: Partial<RegisterResponseDto>) {
     Object.assign(this, partial);
   }

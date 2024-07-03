@@ -11,6 +11,12 @@ export type AuthenticateUserResponse = {
   expires_in: number;
 };
 
+export type PageInfo = {
+  totalRows: number;
+  currentPage: number;
+  pageSize: number;
+};
+
 export type ModulusBaseErrorResponseData = {
   status: 'Error';
   message: string;
@@ -119,11 +125,7 @@ export type TradeHistoryResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: {
       orderId: number;
       volume: number;
@@ -150,11 +152,7 @@ export type OrderHistoryResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: {
       orderId: number;
       date: string;
@@ -275,11 +273,7 @@ export type GetAllTransactionsResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: TransactionData[];
   };
 };
@@ -307,11 +301,7 @@ export type GetAllNotificationsSuccessResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: NotificationData[];
   };
 };

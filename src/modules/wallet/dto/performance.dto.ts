@@ -1,6 +1,7 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
 import { WalletPerformanceDurationEnum } from '../wallet.enum';
+import { Type } from 'class-transformer';
 
 export class WalletPerformanceDto {
   @ApiPropertyOptional()
@@ -8,10 +9,26 @@ export class WalletPerformanceDto {
   duration: WalletPerformanceDurationEnum = WalletPerformanceDurationEnum.ALL;
 }
 
+class Graph {
+  @ApiProperty()
+  timestamp: string;
+
+  @ApiProperty()
+  balance: number;
+}
+
 export class WalletPerformanceResponseDto {
-  graph: Record<string, number | string>[];
+  @ApiProperty({ type: [Graph] })
+  @Type(() => Graph)
+  graph: Graph[];
+
+  @ApiProperty()
   finalBalance: number;
+
+  @ApiProperty()
   balanceChange: number;
+
+  @ApiProperty()
   balanceChangePercentage: string;
 
   constructor(partial: Partial<WalletPerformanceResponseDto>) {

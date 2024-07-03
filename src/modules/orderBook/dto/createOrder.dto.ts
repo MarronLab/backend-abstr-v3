@@ -33,9 +33,32 @@ export class CreateOrderDto {
   UserID: number;
 }
 
+export class CreateOrderResponseDto {
+  @ApiProperty({ type: Object })
+  extraData: any;
+
+  @ApiProperty()
+  size: number;
+
+  @ApiProperty()
+  price: number;
+
+  @ApiProperty()
+  timestamp: string;
+
+  constructor(partial: Partial<CreateOrderResponseDto>) {
+    Object.assign(this, partial);
+  }
+}
+
 export class CancelOrderResponseDto {
+  @ApiProperty()
   id: number;
+
+  @ApiProperty()
   et: number;
+
+  @ApiProperty()
   etm: number;
 
   constructor(partial: Partial<CancelOrderResponseDto>) {
