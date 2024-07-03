@@ -21,6 +21,7 @@ import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import AuthResponseDto from '../dto/auth.response.dto';
+import RegisterResponseDto from '../dto/auth.registerResponse.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -50,6 +51,12 @@ export class AuthController {
     type: RegisterResponseDto,
   })
   async register(@Body() account: RegisterDto) {
-    return await this.authService.register(account);
+    const response = await this.authService.register(account);
+
+    return new RegisterResponseDto({
+      status: response.status,
+      message: response.message,
+      data: response.data,
+    });
   }
 }

@@ -43,11 +43,9 @@ export type RegisterRequest = {
 export type RegisterSuccessResponse = {
   status: 'Success';
   message: string;
-  data: {
-    email: string;
-    password: string;
-  };
+  data: null;
 };
+
 export type RegisterResponse =
   | ModulusBaseErrorResponseData
   | RegisterSuccessResponse;

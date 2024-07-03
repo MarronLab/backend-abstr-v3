@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class RegisterResponseDto {
+export default class RegisterResponseDto {
   @ApiProperty({
     description: 'The status of the response',
     example: 'Success',
@@ -16,8 +16,7 @@ export class RegisterResponseDto {
     description: 'The data of the response',
     nullable: true,
   })
-  data: null;
-
+  data: any;
 
   constructor(partial: Partial<RegisterResponseDto>) {
     Object.assign(this, partial);
