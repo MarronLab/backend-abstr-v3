@@ -1,4 +1,8 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { TransactionData } from 'src/services/modulus/modulus.type';
 import { WalletPerformanceDurationEnum } from './wallet.enum';
@@ -29,7 +33,7 @@ export class WalletService {
         };
       });
     } catch (error) {
-      throw new UnprocessableEntityException(error);
+      throw new InternalServerErrorException(error);
     }
   }
 
@@ -58,7 +62,7 @@ export class WalletService {
 
       return transactions;
     } catch (error) {
-      throw new UnprocessableEntityException(error);
+      throw new InternalServerErrorException(error);
     }
   }
 
@@ -133,7 +137,6 @@ export class WalletService {
         walletPerformanceDto.duration,
       ).toISOString();
       const transactions = await this.getResolvedPaginatedTransactions();
-      console.log('transactions: ', transactions);
       const { balanceChangePercentage, balanceChange, data, finalBalance } =
         this.calculatePerformanceData(transactions, startDate);
 
@@ -144,7 +147,7 @@ export class WalletService {
         balanceChangePercentage,
       };
     } catch (error) {
-      throw new UnprocessableEntityException(error);
+      throw new InternalServerErrorException(error);
     }
   }
 }

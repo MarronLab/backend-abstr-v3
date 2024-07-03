@@ -34,7 +34,10 @@ export class GenerateApiKeyDto {
 }
 
 export class GenerateApiKeyResponseDto {
+  @ApiProperty()
   publicKey: string;
+
+  @ApiProperty()
   privateKey: string;
 
   constructor(partial: Partial<GenerateApiKeyResponseDto>) {

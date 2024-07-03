@@ -68,6 +68,14 @@ export class UserController {
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(getProfileResponseSchema))
+  @ApiOperation({ summary: 'Fetch user profile' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user profile has been successfully fetched.',
+    type: GetProfileResponseDto,
+  })
   async getProfile() {
     const response = await this.userService.getProfile();
 
