@@ -8,7 +8,15 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import {
   ValidateRequestPipe,
   ValidateResponseInterceptor,
@@ -35,6 +43,14 @@ export class UserController {
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(getProfileResponseSchema))
+  @ApiOperation({ summary: 'Fetch user profile' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user profile has been successfully fetched.',
+    type: GetProfileResponseDto,
+  })
   async getProfile() {
     const response = await this.userService.getProfile();
 

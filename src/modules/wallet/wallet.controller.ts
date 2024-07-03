@@ -6,7 +6,15 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { ResponseValidationInterceptor } from '../../common/response-validator.interceptor';
 import { WalletService } from './wallet.service';
@@ -30,6 +38,14 @@ export class WalletController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(getBalancesResponseSchema))
   @Get('/balances')
+  @ApiOperation({ summary: 'Fetch wallet balances' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The balances has been successfully fetched.',
+    type: [GetBalancesResponseDto],
+  })
   async balances() {
     const response = await this.walletService.getBalances();
 
@@ -50,6 +66,14 @@ export class WalletController {
     new ResponseValidationInterceptor(walletPerformanceResponseSchema),
   )
   @Get('/performance')
+  @ApiOperation({ summary: 'Fetch wallet performance' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The performance has been successfully fetched.',
+    type: WalletPerformanceResponseDto,
+  })
   async performance(@Query() walletPerformanceDto: WalletPerformanceDto) {
     const response =
       await this.walletService.getWalletPerformance(walletPerformanceDto);
