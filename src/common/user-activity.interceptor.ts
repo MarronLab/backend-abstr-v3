@@ -24,7 +24,7 @@ export class UserActivityInterceptor implements NestInterceptor {
     }
 
     const data: any = {
-      idAddress: ip,
+      ipAddress: ip,
       action,
       body: JSON.stringify(body),
     };

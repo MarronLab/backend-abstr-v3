@@ -50,7 +50,7 @@ model AuditLog {
 model UserActivity {
   id        String   @id @default(cuid())
   userId    String?
-  idAddress String
+  ipAddress String
   user      User?    @relation(fields: [userId], references: [id])
   action    String
   body      String?
