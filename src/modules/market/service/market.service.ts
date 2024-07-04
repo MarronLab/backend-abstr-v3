@@ -1,7 +1,10 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { MarketDataResponseDto } from '../dtos/market.dto';
+import {
+  MarketDataResponseDto,
+  TrendingMarketDataResponseDto,
+} from '../dtos/market.dto';
 
 @Injectable()
 export class MarketService {
@@ -49,8 +52,37 @@ export class MarketService {
       const response = await firstValueFrom(
         this.httpService.get(this.trending),
       );
-      console.log('logging trends', response.data?.coins);
-      return response;
+
+      const transformTrendingResponse = (data: any[]) => {
+        return data.map((coin) => {
+          return new TrendingMarketDataResponseDto({
+            id: coin.item.id,
+            coin_id: coin.item.coin_id,
+            name: coin.item.name,
+            symbol: coin.item.symbol,
+            market_cap_rank: coin.item.market_cap_rank,
+            thumb: coin.item.thumb,
+            small: coin.item.small,
+            large: coin.item.large,
+            price_btc: coin.item.price_btc,
+            score: coin.item.score,
+            data: {
+              price: coin.item.data.price,
+              price_btc: coin.item.data.price_btc,
+              price_change_percentage_24h: {
+                btc: coin.item.data.price_change_percentage_24h?.btc || 0,
+                usd: coin.item.data.price_change_percentage_24h?.usd || 0,
+              },
+              market_cap: coin.item.data.market_cap || '',
+              market_cap_btc: coin.item.data.market_cap_btc || '',
+              total_volume: coin.item.data.total_volume || '',
+              total_volume_btc: coin.item.data.total_volume_btc || '',
+              sparkline: coin.item.data.sparkline || '',
+            },
+          });
+        });
+      };
+      return transformTrendingResponse(response.data.coins);
     } catch (error) {
       this.handleError(error);
     }

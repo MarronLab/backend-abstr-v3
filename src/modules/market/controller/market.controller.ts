@@ -12,7 +12,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
-import { MarketDataResponseDto } from '../dtos/market.dto';
+import {
+  MarketDataResponseDto,
+  TrendingMarketDataResponseDto,
+} from '../dtos/market.dto';
 
 @ApiTags('market')
 @Controller('market')
@@ -33,6 +36,11 @@ export class MarketController {
   }
 
   @Get('coins/trending')
+  @ApiOperation({ summary: 'Fetch trending market coins data' })
+  @ApiOkResponse({
+    description: 'The trending market coin data has been successfully fetched.',
+    type: [TrendingMarketDataResponseDto],
+  })
   async getTrendingCoin() {
     return await this.marketService.trendingMarket();
   }
