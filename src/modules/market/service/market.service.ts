@@ -6,6 +6,7 @@ import { MarketDataResponseDto } from '../dtos/market.dto';
 @Injectable()
 export class MarketService {
   private readonly endpoint = 'coins/markets';
+  private readonly trending = 'search/trending';
   private readonly params = {
     vs_currency: 'usd',
     order: 'market_cap_desc',
@@ -41,6 +42,18 @@ export class MarketService {
           price_change_percentage_24h: coin.price_change_percentage_24h,
         }),
     );
+  }
+
+  async trendingMarket() {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(this.trending),
+      );
+      console.log('logging trends', response.data?.coins);
+      return response;
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
   private handleError(error: any): void {

@@ -31,4 +31,9 @@ export class MarketController {
   async getMarketData() {
     return await this.marketService.getMarketData();
   }
+
+  @Get('coins/trending')
+  async getTrendingCoin() {
+    return await this.marketService.trendingMarket();
+  }
 }
