@@ -12,7 +12,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
-import { MarketDataResponseDto } from '../dtos/market.dto';
+import { MarketDataResponseDto } from '../dto/market.dto';
 
 @ApiTags('market')
 @Controller('market')
@@ -29,6 +29,10 @@ export class MarketController {
     type: [MarketDataResponseDto],
   })
   async getMarketData() {
-    return await this.marketService.getMarketData();
+    const marketData = await this.marketService.getMarketData();
+    if (!marketData) {
+      return [];
+    }
+    return marketData.map((data) => new MarketDataResponseDto(data));
   }
 }
