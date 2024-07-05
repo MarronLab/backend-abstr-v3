@@ -1,15 +1,21 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 import {
-  MarketDataResponseDto,
-  TrendingMarketDataResponseDto,
-} from '../dtos/market.dto';
+  Injectable,
+  HttpException,
+  HttpStatus,
+  Scope,
+  Inject,
+} from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
-@Injectable()
-export class MarketService {
-  private readonly endpoint = 'coins/markets';
-  private readonly trending = 'search/trending';
+import { BaseService } from '../../../common/base.service';
+import { PrismaService } from '../../../services/prisma.service';
+import { CoingeckoService } from '../../../services/coingecko/coingecko.service';
+import { CoinGeckoMarketDataResponse } from '../../../services/coingecko/coingecko.type';
+import { MarketDataResponseDto } from '../dto/market.dto';
+
+@Injectable({ scope: Scope.REQUEST })
+export class MarketService extends BaseService {
   private readonly params = {
     vs_currency: 'usd',
     order: 'market_cap_desc',
@@ -18,33 +24,123 @@ export class MarketService {
     sparkline: true,
   };
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly coingeckoService: CoingeckoService,
+    private readonly prismaService: PrismaService,
+    @Inject(REQUEST) req: Request,
+  ) {
+    super(prismaService, req);
+  }
 
   async getMarketData() {
     try {
-      const response = await firstValueFrom(
-        this.httpService.get(this.endpoint, { params: this.params }),
-      );
-      return this.transformResponse(response.data);
+      const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
+        where: { type: 'MARKET_DATA' },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+
+      if (lastUpdated) {
+        const now = new Date();
+        const lastUpdatedDate = new Date(lastUpdated.updatedAt);
+        const timeDiff = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = timeDiff / (1000 * 3600);
+
+        if (diffHours < 1) {
+          const parsedData = lastUpdated.data.map((item: string) =>
+            JSON.parse(item),
+          ) as CoinGeckoMarketDataResponse[];
+          return this.transformResponse(parsedData);
+        }
+      }
+
+      const response = await this.coingeckoService.getMarketData(this.params);
+      const marketData = this.transformResponse(response);
+
+      await this.saveMarketData(marketData);
+
+      return marketData;
     } catch (error) {
       this.handleError(error);
     }
   }
 
-  private transformResponse(data: any[]) {
+  private transformResponse(
+    data: CoinGeckoMarketDataResponse[],
+  ): MarketDataResponseDto[] {
     return data.map(
       (coin) =>
         new MarketDataResponseDto({
-          id: coin.id,
-          symbol: coin.symbol,
-          name: coin.name,
-          current_price: coin.current_price,
-          market_cap: coin.market_cap,
-          market_cap_rank: coin.market_cap_rank,
-          sparkline_in_7d: coin.sparkline_in_7d?.price || [],
-          price_change_percentage_24h: coin.price_change_percentage_24h,
+          id: coin.id || '',
+          symbol: coin.symbol || '',
+          name: coin.name || '',
+          image: coin.image || '',
+          current_price:
+            coin.current_price !== null && coin.current_price !== undefined
+              ? coin.current_price
+              : 0,
+          market_cap: this.toNumberOrNull(coin.market_cap),
+          market_cap_rank:
+            coin.market_cap_rank !== null && coin.market_cap_rank !== undefined
+              ? coin.market_cap_rank
+              : 0,
+          fully_diluted_valuation: this.toNumberOrNull(
+            coin.fully_diluted_valuation,
+          ),
+          total_volume: this.toNumberOrNull(coin.total_volume),
+          high_24h: this.toNumberOrNull(coin.high_24h),
+          low_24h: this.toNumberOrNull(coin.low_24h),
+          price_change_24h: this.toNumberOrNull(coin.price_change_24h),
+          price_change_percentage_24h: this.toNumberOrNull(
+            coin.price_change_percentage_24h,
+          ),
+          market_cap_change_24h: this.toNumberOrNull(
+            coin.market_cap_change_24h,
+          ),
+          market_cap_change_percentage_24h: this.toNumberOrNull(
+            coin.market_cap_change_percentage_24h,
+          ),
+          circulating_supply: this.toNumberOrNull(coin.circulating_supply),
+          total_supply: this.toNumberOrNull(coin.total_supply),
+          max_supply: this.toNumberOrNull(coin.max_supply),
+          ath: this.toNumberOrNull(coin.ath),
+          ath_change_percentage: this.toNumberOrNull(
+            coin.ath_change_percentage,
+          ),
+          ath_date: coin.ath_date || '',
+          atl: this.toNumberOrNull(coin.atl),
+          atl_change_percentage: this.toNumberOrNull(
+            coin.atl_change_percentage,
+          ),
+          atl_date: coin.atl_date || '',
+          last_updated: coin.last_updated || '',
+          sparkline_in_7d: coin.sparkline_in_7d || [],
         }),
     );
+  }
+
+  private async saveMarketData(data: MarketDataResponseDto[]) {
+    try {
+      const now = new Date();
+      const jsonData = data.map((item) => JSON.stringify(item));
+      await this.getClient().coinGeckoResponse.upsert({
+        where: { type: 'MARKET_DATA' },
+        update: { data: jsonData, updatedAt: now },
+        create: {
+          type: 'MARKET_DATA',
+          data: jsonData,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private toNumberOrNull(value: any): number | null {
+    return value === null || value === undefined ? null : Number(value);
   }
 
   async trendingMarket() {

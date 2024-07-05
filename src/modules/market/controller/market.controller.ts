@@ -15,7 +15,7 @@ import { ResponseValidationInterceptor } from '../../../schema/market/market.val
 import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
-} from '../dtos/market.dto';
+} from '../dto/market.dto';
 
 @ApiTags('market')
 @Controller('market')
@@ -32,7 +32,21 @@ export class MarketController {
     type: [MarketDataResponseDto],
   })
   async getMarketData() {
-    return await this.marketService.getMarketData();
+    const marketData = await this.marketService.getMarketData();
+    if (!marketData) {
+      return [];
+    }
+    return marketData.map((data) => new MarketDataResponseDto(data));
+  }
+
+  @Get('coins/trending')
+  @ApiOperation({ summary: 'Fetch trending market coins data' })
+  @ApiOkResponse({
+    description: 'The trending market coin data has been successfully fetched.',
+    type: [TrendingMarketDataResponseDto],
+  })
+  async getTrendingCoin() {
+    return await this.marketService.trendingMarket();
   }
 
   @Get('coins/trending')

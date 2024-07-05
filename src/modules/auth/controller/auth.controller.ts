@@ -17,11 +17,11 @@ import {
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
 import { registerResponseSchema } from '../../../schema/auth/auth.schema';
-import { RegisterResponseDto } from '../dto/auth.registerResponse.dto';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import AuthResponseDto from '../dto/auth.response.dto';
+import RegisterResponseDto from '../dto/auth.registerResponse.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -54,15 +54,9 @@ export class AuthController {
     const response = await this.authService.register(account);
 
     return new RegisterResponseDto({
-      firstname: response.firstname,
-      middlename: response.middlename,
-      lastname: response.lastname,
-      email: response.email,
-      country: response.country,
-      mobile: response.mobile,
-      password: response.password,
-      referralId: response.referralId,
-      mobileOTP: response.mobileOTP,
+      status: response.status,
+      message: response.message,
+      data: response.data,
     });
   }
 }

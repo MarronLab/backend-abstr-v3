@@ -1,33 +1,22 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class RegisterResponseDto {
-  @ApiPropertyOptional()
-  firstname?: string;
+export default class RegisterResponseDto {
+  @ApiProperty({
+    description: 'The status of the response',
+    example: 'Success',
+  })
+  status: string;
 
-  @ApiPropertyOptional()
-  middlename?: string;
+  @ApiProperty({
+    description: 'The message accompanying the response',
+  })
+  message: string;
 
-  @ApiPropertyOptional()
-  lastname?: string;
-
-  @ApiProperty()
-  email: string;
-
-  @ApiPropertyOptional()
-  country?: string;
-
-  @ApiPropertyOptional()
-  mobile?: string;
-
-  @Exclude()
-  password: string;
-
-  @ApiPropertyOptional()
-  referralId?: number;
-
-  @ApiPropertyOptional()
-  mobileOTP?: string;
+  @ApiProperty({
+    description: 'The data of the response',
+    nullable: true,
+  })
+  data: any;
 
   constructor(partial: Partial<RegisterResponseDto>) {
     Object.assign(this, partial);
