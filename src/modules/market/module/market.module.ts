@@ -4,6 +4,7 @@ import { MarketController } from '../controller/market.controller';
 import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
 import { HttpModule } from '@nestjs/axios';
 import { PrismaService } from 'src/services/prisma.service';
+import { CoingeckoService } from '../../../services/coingecko/coingecko.service';
 
 @Module({
   imports: [
@@ -15,7 +16,12 @@ import { PrismaService } from 'src/services/prisma.service';
     }),
   ],
   controllers: [MarketController],
-  providers: [MarketService, ResponseValidationInterceptor, PrismaService],
+  providers: [
+    MarketService,
+    ResponseValidationInterceptor,
+    PrismaService,
+    CoingeckoService,
+  ],
   exports: [MarketService],
 })
 export class MarketModule {}

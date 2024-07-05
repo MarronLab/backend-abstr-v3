@@ -29,6 +29,11 @@ export class MarketController {
     type: [MarketDataResponseDto],
   })
   async getMarketData() {
-    return await this.marketService.getMarketData();
+    const marketData = await this.marketService.getMarketData();
+    // console.log('market data', marketData);
+    if (!marketData) {
+      return [];
+    }
+    return marketData.map((data) => new MarketDataResponseDto(data));
   }
 }
