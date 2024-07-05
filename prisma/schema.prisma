@@ -45,70 +45,16 @@ model AuditLog {
   @@map("auditLog")
 }
 
-model MarketData {
-  id                          String   @id @default(cuid())
-  symbol                      String
-  name                        String
-  image                       String
-  current_price               Float
-  market_cap                  Float?
-  market_cap_rank             Int
-  fully_diluted_valuation     Float?
-  total_volume                Float?
-  high_24h                    Float?
-  low_24h                     Float?
-  price_change_24h            Float?
-  price_change_percentage_24h Float?
-  market_cap_change_24h       Float?
-  market_cap_change_percentage_24h Float?
-  circulating_supply          Float?
-  total_supply                Float?
-  max_supply                  Float?
-  ath                         Float?
-  ath_change_percentage       Float?
-  ath_date                    DateTime
-  atl                         Float?
-  atl_change_percentage       Float?
-  atl_date                    DateTime
-  last_updated                DateTime
-  sparkline_in_7d             Float[] 
-  createdAt                   DateTime @default(now()) @db.Timestamp(6)
-  updatedAt                   DateTime @updatedAt @db.Timestamp(6)
+model CoinGeckoResponse {
+  id          String                @id @default(cuid())
+  type        CoinGeckoResponseType @unique
+  data        Json[]
+  createdAt   DateTime              @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime              @updatedAt @db.Timestamp(6)
 
-  @@map("market_data")
+  @@map("coingecko_response")
 }
 
-model CoinData {
-  id                                String   @id
-  symbol                            String
-  name                              String
-  web_slug                          String?
-  asset_platform_id                 String?
-  platforms                         Json?
-  detail_platforms                  Json?
-  block_time_in_minutes             Int?
-  hashing_algorithm                 String?
-  categories                        String[]
-  preview_listing                   Boolean?
-  public_notice                     String?
-  additional_notices                String[]
-  localization                      Json
-  description                       Json
-  links                             Json
-  image                             Json
-  country_origin                    String?
-  genesis_date                      DateTime?
-  sentiment_votes_up_percentage     Float?
-  sentiment_votes_down_percentage   Float?
-  market_cap_rank                   Int?
-  market_data                       Json?
-  public_interest_stats             Json?
-  last_updated                      DateTime
-  status_updates                    Json?
-  tickers                           Json?
-  createdAt                         DateTime @default(now()) @db.Timestamp(6)
-  updatedAt                         DateTime @updatedAt @db.Timestamp(6)
-
-  @@map("single_coin_data")
+enum CoinGeckoResponseType {
+  MARKET_DATA
 }
-
