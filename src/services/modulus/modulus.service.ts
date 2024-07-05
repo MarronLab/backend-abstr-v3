@@ -1,12 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {
   AuthenticateUserResponse,
   CancelOrderRequest,
   CancelOrderResponse,
+  DeleteApiKeyRequest,
+  DeleteApiKeyResponse,
+  GenerateApiKeyRequest,
+  GenerateApiKeyResponse,
+  GetAllNotificationsRequest,
+  GetAllNotificationsResponse,
+  GetAllTransactionsRequest,
+  GetAllTransactionsResponse,
   GetBalanceRequest,
   GetBalanceResponse,
   GetCoinStatsResponse,
+  GetProfileResponse,
+  ListApiKeysRequest,
+  ListApiKeysResponse,
+  NotificationsMarkReadResponse,
   OrderHistoryRequest,
   OrderHistoryResponse,
   PlaceOrderPricedRequest,
@@ -15,6 +27,8 @@ import {
   PlaceOrderResponse,
   TradeHistoryRequest,
   TradeHistoryResponse,
+  RegisterRequest,
+  RegisterResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -30,8 +44,13 @@ export class ModulusService {
 
       return response;
     } catch (error) {
-      console.log('Error: ', error);
-      throw new Error(error);
+      throw new HttpException(
+        {
+          message: error.response?.data?.Message,
+          details: error.message,
+        },
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -43,7 +62,7 @@ export class ModulusService {
 
       return response;
     } catch (error) {
-      console.log('Error: ', error);
+      // console.log('Error: ', error);
       throw new Error(error);
     }
   }
@@ -53,6 +72,10 @@ export class ModulusService {
       email,
       password,
     });
+  }
+
+  async register(request: RegisterRequest) {
+    return await this.post<RegisterResponse>('/api/SignUp', request);
   }
 
   async placeOrder(request: PlaceOrderRequest) {
@@ -84,5 +107,48 @@ export class ModulusService {
 
   async getCoinStats() {
     return await this.post<GetCoinStatsResponse>('/api/get_coin_stats');
+  }
+
+  async getAllTransactions(
+    request: GetAllTransactionsRequest = { page: 1, count: 100 },
+  ) {
+    return await this.get<GetAllTransactionsResponse>(
+      '/api/Get_All_Transactions',
+      request,
+    );
+  }
+
+  async getAllNotifications(
+    request: GetAllNotificationsRequest = { page: 1, count: 100 },
+  ) {
+    return await this.get<GetAllNotificationsResponse>(
+      '/notification/get-notification/all',
+      request,
+    );
+  }
+
+  async notificationsMarkRead(id: number) {
+    return await this.post<NotificationsMarkReadResponse>(
+      `/notification/mark-read/${id}`,
+    );
+  }
+
+  async getProfile() {
+    return await this.get<GetProfileResponse>('/api/GetProfile', {});
+  }
+
+  async generateApiKey(request: GenerateApiKeyRequest) {
+    return await this.post<GenerateApiKeyResponse>(
+      '/api/GenerateApiKey',
+      request,
+    );
+  }
+
+  async listApiKeys(request: ListApiKeysRequest) {
+    return await this.post<ListApiKeysResponse>('/api/ListApiKey', request);
+  }
+
+  async deleteApiKey(request: DeleteApiKeyRequest) {
+    return await this.post<DeleteApiKeyResponse>('/api/DeleteApiKey', request);
   }
 }

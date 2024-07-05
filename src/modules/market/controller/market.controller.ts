@@ -1,9 +1,18 @@
-import { Controller, Get, UseInterceptors, Param, Query } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  UseInterceptors,
+} from '@nestjs/common';
 import { MarketService } from '../service/market.service';
-import { ApiTags, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
-import { MarketResponseDto } from '../dto/marketcoinsResponse.dto';
-import { MarketDataQueryParams } from '../dto/marketQueryParam.dto';
+import { MarketDataResponseDto } from '../dtos/market.dto';
 
 @ApiTags('market')
 @Controller('market')
@@ -11,15 +20,15 @@ export class MarketController {
   constructor(private marketService: MarketService) {}
 
   @Get('coins')
+  @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(ResponseValidationInterceptor)
-  @ApiOkResponse({ type: [MarketResponseDto] })
-  @ApiQuery({ type: MarketDataQueryParams, required: false })
-  async getMarketData(@Query() queryParams: MarketDataQueryParams) {
-    return await this.marketService.getMarketData(queryParams);
-  }
-
-  @Get('coin/:id')
-  getCoinInfo(@Param('id') id: string) {
-    return this.marketService.getCoinById(id);
+  @ApiOperation({ summary: 'Fetch market data' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The market data has been successfully fetched.',
+    type: [MarketDataResponseDto],
+  })
+  async getMarketData() {
+    return await this.marketService.getMarketData();
   }
 }

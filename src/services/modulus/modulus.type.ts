@@ -11,6 +11,12 @@ export type AuthenticateUserResponse = {
   expires_in: number;
 };
 
+export type PageInfo = {
+  totalRows: number;
+  currentPage: number;
+  pageSize: number;
+};
+
 export type ModulusBaseErrorResponseData = {
   status: 'Error';
   message: string;
@@ -28,6 +34,21 @@ export type PlaceOrderRequest = {
   stop: number;
   type: OrderTypeEnum;
 };
+
+export type RegisterRequest = {
+  email: string;
+  password: string;
+};
+
+export type RegisterSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type RegisterResponse =
+  | ModulusBaseErrorResponseData
+  | RegisterSuccessResponse;
 
 export type PlaceOrderPricedRequest = {
   amount: number;
@@ -102,11 +123,7 @@ export type TradeHistoryResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: {
       orderId: number;
       volume: number;
@@ -133,11 +150,7 @@ export type OrderHistoryResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: {
       orderId: number;
       date: string;
@@ -226,3 +239,204 @@ export type GetCoinStatsResponse = {
     };
   };
 };
+
+//Transactions
+export type GetAllTransactionsRequest = {
+  count?: number;
+  page?: number;
+};
+
+export type TransactionData = {
+  requestDate: string;
+  amount: number;
+  equivalentUsdAmt: number;
+  currency: string;
+  transactionID: string;
+  rejectReason: null | string;
+  comments: null | string;
+  status: null | string;
+  type: string;
+  currentTxnCount: number;
+  requiredTxnCount: number;
+  explorerURL: string;
+  address: string;
+  confirmDate: string;
+  fee: number;
+  pg_name: null | string;
+  memo: null | string;
+  isPassedTravelRule: boolean;
+};
+
+export type GetAllTransactionsResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: PageInfo;
+    rows: TransactionData[];
+  };
+};
+
+//Notifications
+export type GetAllNotificationsRequest = {
+  count?: number;
+  page?: number;
+};
+
+export type NotificationData = {
+  Id: number;
+  CID: number;
+  MessageTitle: string;
+  MessageBody: string;
+  AddedOn: string;
+};
+
+export type GetAllNotificationsErrorResponse = {
+  status: 'Error';
+  message: string;
+};
+
+export type GetAllNotificationsSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    pageInfo: PageInfo;
+    rows: NotificationData[];
+  };
+};
+
+export type GetAllNotificationsResponse =
+  | GetAllNotificationsErrorResponse
+  | GetAllNotificationsSuccessResponse;
+
+export type NotificationsMarkReadResponse = {
+  status: 'Error' | 'Success';
+  message: string;
+};
+
+//GetProfile
+export type ProfileData = {
+  customerID: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  email: string;
+  loginName: string;
+  joinedOn: string;
+  is2FAEnabled: boolean;
+  isMobileVerified: boolean;
+  kycStatus: string;
+  kycApprovedBy: null | string;
+  country: string;
+  mobileNumber: string;
+  kycRejectReason: string;
+  kycRequestInfo: string;
+  kycApprovedLevel: null | string;
+  currentStatus: null | string;
+  isUserBlocked: boolean;
+  corporateName: string;
+  priceChangeAlert: boolean;
+  priceChangePercentage: string;
+  discounts: {
+    token_discount: number;
+    fee_groups: number;
+    volume_discount: number;
+    total_discount: number;
+  };
+  customFields: [];
+  kycType: string;
+};
+
+export type GetProfileErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type GetProfileSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: ProfileData;
+};
+
+export type GetProfileResponse =
+  | GetProfileErrorResponse
+  | GetProfileSuccessResponse;
+
+//API Key - generate api key
+export type GenerateApiKeyRequest = {
+  keyType: string;
+  twoFactorAuthKey: string;
+  IpAddresses: string;
+};
+
+export type GenerateApiKeyData = {
+  privateKey: string;
+  publicKey: string;
+};
+
+export type GenerateApiKeyErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type GenerateApiKeySuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: GenerateApiKeyData;
+};
+
+export type GenerateApiKeyResponse =
+  | GenerateApiKeyErrorResponse
+  | GenerateApiKeySuccessResponse;
+
+//API Key - list api keys
+export type ListApiKeysRequest = {
+  keyType: string;
+};
+
+export type ListApiKeysData = {
+  key: string;
+  type: string;
+  trustedIPs: string;
+  generatedOn: string;
+  lastHit: null | string;
+  account: string;
+};
+
+export type ListApiKeysErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type ListApiKeysSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: ListApiKeysData[];
+};
+
+export type ListApiKeysResponse =
+  | ListApiKeysErrorResponse
+  | ListApiKeysSuccessResponse;
+
+//API Key - list api keys
+export type DeleteApiKeyRequest = {
+  key: string;
+};
+
+export type DeleteApiKeyErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type DeleteApiKeySuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type DeleteApiKeyResponse =
+  | DeleteApiKeyErrorResponse
+  | DeleteApiKeySuccessResponse;
