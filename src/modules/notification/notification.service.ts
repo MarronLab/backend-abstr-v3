@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { GetAllNotificationsDto } from './dto/notification.dto';
+import { NotificationData, PageInfo } from 'src/services/modulus/modulus.type';
 
 @Injectable()
 export class NotificationService {
@@ -17,7 +18,19 @@ export class NotificationService {
       });
 
       if (data.status === 'Error') {
-        throw new UnprocessableEntityException(data.message);
+        if (data.message !== 'Data not found.') {
+          throw new UnprocessableEntityException(data.message);
+        }
+
+        const pageInfo: PageInfo = {
+          pageSize: 0,
+          totalRows: 0,
+          currentPage: 0,
+        };
+
+        const rows: NotificationData[] = [];
+
+        return { pageInfo, rows };
       }
 
       return data.data;
