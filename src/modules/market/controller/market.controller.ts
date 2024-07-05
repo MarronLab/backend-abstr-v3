@@ -30,7 +30,6 @@ export class MarketController {
   })
   async getMarketData() {
     const marketData = await this.marketService.getMarketData();
-    // console.log('market data', marketData);
     if (!marketData) {
       return [];
     }

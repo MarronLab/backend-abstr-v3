@@ -134,7 +134,6 @@ export class MarketService extends BaseService {
           updatedAt: now,
         },
       });
-      console.log('Saved market data:', jsonData);
     } catch (error) {
       throw error;
     }
