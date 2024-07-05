@@ -94,6 +94,13 @@ export class WalletController {
     new ResponseValidationInterceptor(walletNetworthResponseSchema),
   )
   @Get('/networth')
+  @ApiOperation({ summary: 'Fetch wallet networth' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The networth has been successfully fetched.',
+    type: WalletNetworthResponseDto,
+  })
   async networth() {
     const response = await this.walletService.getWalletNetWorth();
 
