@@ -12,7 +12,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
-import { MarketDataResponseDto } from '../dtos/market.dto';
+import { MarketDataResponseDto } from '../dto/market.dto';
 
 @ApiTags('market')
 @Controller('market')

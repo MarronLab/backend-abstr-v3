@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class MarketResponseDto {
+export class MarketDataResponseDto {
   @ApiProperty({ type: String, description: 'The ID of the coin' })
   id: string;
 
@@ -117,4 +117,7 @@ export class MarketResponseDto {
     description: 'Price change sparkline for the last 7 days',
   })
   sparkline_in_7d: number[];
+  constructor(partial: Partial<MarketDataResponseDto>) {
+    Object.assign(this, partial);
+  }
 }

@@ -34,21 +34,21 @@ export class MarketService extends BaseService {
 
   async getMarketData() {
     try {
-      const lastUpdated = await this.getClient().marketData.findFirst({
+      const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
+        where: { type: 'MARKET_DATA' },
         orderBy: {
-          last_updated: 'desc',
+          updatedAt: 'desc',
         },
       });
 
       if (lastUpdated) {
         const now = new Date();
-        const lastUpdatedDate = new Date(lastUpdated.last_updated);
+        const lastUpdatedDate = new Date(lastUpdated.updatedAt);
         const timeDiff = now.getTime() - lastUpdatedDate.getTime();
         const diffHours = timeDiff / (1000 * 3600);
 
         if (diffHours < 1) {
-          const cachedData = await this.getClient().marketData.findMany();
-          return this.transformMarketData(cachedData);
+          return lastUpdated.data;
         }
       }
 
@@ -56,50 +56,7 @@ export class MarketService extends BaseService {
         this.httpService.get(this.endpoint, { params: this.params }),
       );
 
-      const transformResponse = (data: any[]) => {
-        return data.map((coin) => ({
-          id: coin.id,
-          symbol: coin.symbol,
-          name: coin.name,
-          image: coin.image,
-          current_price: this.toNumberOrNull(coin.current_price),
-          market_cap: this.toNumberOrNull(coin.market_cap),
-          market_cap_rank: coin.market_cap_rank,
-          fully_diluted_valuation: this.toNumberOrNull(
-            coin.fully_diluted_valuation,
-          ),
-          total_volume: this.toNumberOrNull(coin.total_volume),
-          high_24h: this.toNumberOrNull(coin.high_24h),
-          low_24h: this.toNumberOrNull(coin.low_24h),
-          price_change_24h: this.toNumberOrNull(coin.price_change_24h),
-          price_change_percentage_24h: this.toNumberOrNull(
-            coin.price_change_percentage_24h,
-          ),
-          market_cap_change_24h: this.toNumberOrNull(
-            coin.market_cap_change_24h,
-          ),
-          market_cap_change_percentage_24h: this.toNumberOrNull(
-            coin.market_cap_change_percentage_24h,
-          ),
-          circulating_supply: this.toNumberOrNull(coin.circulating_supply),
-          total_supply: this.toNumberOrNull(coin.total_supply),
-          max_supply: this.toNumberOrNull(coin.max_supply),
-          ath: this.toNumberOrNull(coin.ath),
-          ath_change_percentage: this.toNumberOrNull(
-            coin.ath_change_percentage,
-          ),
-          ath_date: coin.ath_date,
-          atl: this.toNumberOrNull(coin.atl),
-          atl_change_percentage: this.toNumberOrNull(
-            coin.atl_change_percentage,
-          ),
-          atl_date: coin.atl_date,
-          last_updated: coin.last_updated,
-          sparkline_in_7d: coin.sparkline_in_7d?.price || [],
-        }));
-      };
-
-      const marketData = transformResponse(response.data);
+      const marketData = this.transformResponse(response.data);
 
       await this.saveMarketData(marketData);
 
@@ -109,32 +66,56 @@ export class MarketService extends BaseService {
     }
   }
 
-  private transformMarketData(data: any[]) {
+  private transformResponse(data: any[]) {
     return data.map((coin) => ({
-      ...coin,
-      ath_date: this.formatDate(coin.ath_date),
-      atl_date: this.formatDate(coin.atl_date),
-      last_updated: new Date(coin.last_updated).toISOString(),
+      id: coin.id,
+      symbol: coin.symbol,
+      name: coin.name,
+      image: coin.image,
+      current_price: this.toNumberOrNull(coin.current_price),
+      market_cap: this.toNumberOrNull(coin.market_cap),
+      market_cap_rank: coin.market_cap_rank,
+      fully_diluted_valuation: this.toNumberOrNull(
+        coin.fully_diluted_valuation,
+      ),
+      total_volume: this.toNumberOrNull(coin.total_volume),
+      high_24h: this.toNumberOrNull(coin.high_24h),
+      low_24h: this.toNumberOrNull(coin.low_24h),
+      price_change_24h: this.toNumberOrNull(coin.price_change_24h),
+      price_change_percentage_24h: this.toNumberOrNull(
+        coin.price_change_percentage_24h,
+      ),
+      market_cap_change_24h: this.toNumberOrNull(coin.market_cap_change_24h),
+      market_cap_change_percentage_24h: this.toNumberOrNull(
+        coin.market_cap_change_percentage_24h,
+      ),
+      circulating_supply: this.toNumberOrNull(coin.circulating_supply),
+      total_supply: this.toNumberOrNull(coin.total_supply),
+      max_supply: this.toNumberOrNull(coin.max_supply),
+      ath: this.toNumberOrNull(coin.ath),
+      ath_change_percentage: this.toNumberOrNull(coin.ath_change_percentage),
+      ath_date: coin.ath_date,
+      atl: this.toNumberOrNull(coin.atl),
+      atl_change_percentage: this.toNumberOrNull(coin.atl_change_percentage),
+      atl_date: coin.atl_date,
+      last_updated: coin.last_updated,
+      sparkline_in_7d: coin.sparkline_in_7d?.price || [],
     }));
-  }
-
-  private formatDate(date: string): string {
-    return new Date(date).toISOString();
   }
 
   private async saveMarketData(data: any[]) {
     try {
       const now = new Date();
-
-      await Promise.all(
-        data.map(async (coin) => {
-          await this.getClient().marketData.upsert({
-            where: { id: coin.id },
-            update: { ...coin, last_updated: now },
-            create: { ...coin, last_updated: now },
-          });
-        }),
-      );
+      await this.getClient().coinGeckoResponse.upsert({
+        where: { type: 'MARKET_DATA' },
+        update: { data, updatedAt: now },
+        create: {
+          type: 'MARKET_DATA',
+          data,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
     } catch (error) {
       throw error;
     }
