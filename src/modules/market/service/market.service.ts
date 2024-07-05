@@ -1,6 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { MarketDataResponseDto } from '../dtos/market.dto';
 
 @Injectable()
 export class MarketService {
@@ -27,16 +28,19 @@ export class MarketService {
   }
 
   private transformResponse(data: any[]) {
-    return data.map((coin) => ({
-      id: coin.id,
-      symbol: coin.symbol,
-      name: coin.name,
-      current_price: coin.current_price,
-      market_cap: coin.market_cap,
-      market_cap_rank: coin.market_cap_rank,
-      sparkline_in_7d: coin.sparkline_in_7d?.price || [],
-      price_change_percentage_24h: coin.price_change_percentage_24h,
-    }));
+    return data.map(
+      (coin) =>
+        new MarketDataResponseDto({
+          id: coin.id,
+          symbol: coin.symbol,
+          name: coin.name,
+          current_price: coin.current_price,
+          market_cap: coin.market_cap,
+          market_cap_rank: coin.market_cap_rank,
+          sparkline_in_7d: coin.sparkline_in_7d?.price || [],
+          price_change_percentage_24h: coin.price_change_percentage_24h,
+        }),
+    );
   }
 
   private handleError(error: any): void {

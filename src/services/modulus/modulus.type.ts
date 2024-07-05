@@ -11,6 +11,12 @@ export type AuthenticateUserResponse = {
   expires_in: number;
 };
 
+export type PageInfo = {
+  totalRows: number;
+  currentPage: number;
+  pageSize: number;
+};
+
 export type ModulusBaseErrorResponseData = {
   status: 'Error';
   message: string;
@@ -28,6 +34,21 @@ export type PlaceOrderRequest = {
   stop: number;
   type: OrderTypeEnum;
 };
+
+export type RegisterRequest = {
+  email: string;
+  password: string;
+};
+
+export type RegisterSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type RegisterResponse =
+  | ModulusBaseErrorResponseData
+  | RegisterSuccessResponse;
 
 export type PlaceOrderPricedRequest = {
   amount: number;
@@ -102,11 +123,7 @@ export type TradeHistoryResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: {
       orderId: number;
       volume: number;
@@ -133,11 +150,7 @@ export type OrderHistoryResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: {
       orderId: number;
       date: string;
@@ -258,11 +271,7 @@ export type GetAllTransactionsResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: TransactionData[];
   };
 };
@@ -290,11 +299,7 @@ export type GetAllNotificationsSuccessResponse = {
   status: 'Success';
   message: string;
   data: {
-    pageInfo: {
-      totalRows: number;
-      currentPage: number;
-      pageSize: number;
-    };
+    pageInfo: PageInfo;
     rows: NotificationData[];
   };
 };
@@ -356,3 +361,82 @@ export type GetProfileSuccessResponse = {
 export type GetProfileResponse =
   | GetProfileErrorResponse
   | GetProfileSuccessResponse;
+
+//API Key - generate api key
+export type GenerateApiKeyRequest = {
+  keyType: string;
+  twoFactorAuthKey: string;
+  IpAddresses: string;
+};
+
+export type GenerateApiKeyData = {
+  privateKey: string;
+  publicKey: string;
+};
+
+export type GenerateApiKeyErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type GenerateApiKeySuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: GenerateApiKeyData;
+};
+
+export type GenerateApiKeyResponse =
+  | GenerateApiKeyErrorResponse
+  | GenerateApiKeySuccessResponse;
+
+//API Key - list api keys
+export type ListApiKeysRequest = {
+  keyType: string;
+};
+
+export type ListApiKeysData = {
+  key: string;
+  type: string;
+  trustedIPs: string;
+  generatedOn: string;
+  lastHit: null | string;
+  account: string;
+};
+
+export type ListApiKeysErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type ListApiKeysSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: ListApiKeysData[];
+};
+
+export type ListApiKeysResponse =
+  | ListApiKeysErrorResponse
+  | ListApiKeysSuccessResponse;
+
+//API Key - list api keys
+export type DeleteApiKeyRequest = {
+  key: string;
+};
+
+export type DeleteApiKeyErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type DeleteApiKeySuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type DeleteApiKeyResponse =
+  | DeleteApiKeyErrorResponse
+  | DeleteApiKeySuccessResponse;

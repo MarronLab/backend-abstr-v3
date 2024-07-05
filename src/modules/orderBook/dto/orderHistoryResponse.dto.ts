@@ -1,42 +1,111 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   OrderSideEnum,
   OrderTypeEnum,
 } from 'src/services/modulus/modulus.enum';
 
-export class MatchedOrdersResponseDto {
+export class PageInfoResponseDto {
+  @ApiProperty()
+  totalRows: number;
+
+  @ApiProperty()
+  currentPage: number;
+
+  @ApiProperty()
+  pageSize: number;
+}
+
+export class MatchedOrderResponseDto {
+  @ApiProperty()
   id: number;
+
+  @ApiProperty()
   volume: number;
+
+  @ApiProperty()
   rate: number;
+
+  @ApiProperty()
   trade: string;
+
+  @ApiProperty()
   market: string;
+
+  @ApiProperty()
   amount: number;
+
+  @ApiProperty()
   serviceCharge: number;
+
+  @ApiProperty()
   date: string;
+
+  @ApiProperty()
   side: 'BUY' | 'SELL';
 
-  constructor(partial: Partial<MatchedOrdersResponseDto>) {
+  constructor(partial: Partial<MatchedOrderResponseDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+export class OrderResponseDto {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  date: string;
+
+  @ApiProperty()
+  currencyPair: string;
+
+  @ApiProperty()
+  side: OrderSideEnum;
+
+  @ApiProperty()
+  tradeType: OrderTypeEnum;
+
+  @ApiProperty()
+  tradePrice: string;
+
+  @ApiProperty()
+  averagePrice: string;
+
+  @ApiProperty()
+  size: string;
+
+  @ApiProperty()
+  filled: string;
+
+  @ApiProperty()
+  feePaid: string;
+
+  @ApiProperty()
+  totalExecutedValue: string;
+
+  @ApiProperty()
+  stopPrice: string;
+
+  @ApiProperty()
+  orderStatus: 'Filled' | 'Cancelled' | 'Pending';
+
+  @ApiProperty({ type: [MatchedOrderResponseDto] })
+  @Type(() => MatchedOrderResponseDto)
+  mOrders: MatchedOrderResponseDto[];
+
+  constructor(partial: Partial<OrderResponseDto>) {
     Object.assign(this, partial);
   }
 }
 
 export class OrderHistoryResponseDto {
-  id: number;
-  date: string;
-  currencyPair: string;
-  side: OrderSideEnum;
-  tradeType: OrderTypeEnum;
-  tradePrice: string;
-  averagePrice: string;
-  size: string;
-  filled: string;
-  feePaid: string;
-  totalExecutedValue: string;
-  stopPrice: string;
-  orderStatus: 'Filled' | 'Cancelled' | 'Pending';
+  @ApiProperty()
+  @Type(() => PageInfoResponseDto)
+  pageInfo: PageInfoResponseDto;
 
-  @Type(() => MatchedOrdersResponseDto)
-  mOrders: MatchedOrdersResponseDto[];
+  @ApiProperty({ type: [OrderResponseDto] })
+  @Type(() => OrderResponseDto)
+  result: OrderResponseDto[];
 
   constructor(partial: Partial<OrderHistoryResponseDto>) {
     Object.assign(this, partial);
