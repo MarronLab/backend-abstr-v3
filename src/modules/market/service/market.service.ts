@@ -14,10 +14,13 @@ import { CoingeckoService } from '../../../services/coingecko/coingecko.service'
 import {
   CoinGeckoMarketDataResponse,
   CoingeckoTrendingItem,
+  CoinGeckoTopGainerLoserItem,
 } from '../../../services/coingecko/coingecko.type';
 import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
+  TopGainerLoserResponseDto,
+  TopGainerLoserDataResponseDto,
 } from '../dto/market.dto';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -28,6 +31,12 @@ export class MarketService extends BaseService {
     per_page: 10,
     page: 1,
     sparkline: true,
+  };
+
+  private readonly topGainerLoserParams = {
+    vs_currency: 'usd',
+    duration: '24h',
+    top_coins: '1000',
   };
 
   constructor(
@@ -231,6 +240,44 @@ export class MarketService extends BaseService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async getTopGainerLoserData() {
+    try {
+      const response = await this.coingeckoService.getTopGainerLoserData(
+        this.topGainerLoserParams,
+      );
+      const topGainers = this.transformTopGainerLoserResponse(
+        response.top_gainers,
+      );
+      const topLosers = this.transformTopGainerLoserResponse(
+        response.top_losers,
+      );
+
+      return new TopGainerLoserDataResponseDto({
+        top_gainers: topGainers,
+        top_losers: topLosers,
+      });
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private transformTopGainerLoserResponse(
+    data: CoinGeckoTopGainerLoserItem[],
+  ): TopGainerLoserResponseDto[] {
+    return data.map((coin) => {
+      return new TopGainerLoserResponseDto({
+        id: coin.id,
+        symbol: coin.symbol,
+        name: coin.name,
+        image: coin.image,
+        market_cap_rank: coin.market_cap_rank,
+        usd: coin.usd,
+        usd_24h_vol: coin.usd_24h_vol,
+        usd_24h_change: coin.usd_24h_change,
+      });
+    });
   }
 
   private handleError(error: any): void {

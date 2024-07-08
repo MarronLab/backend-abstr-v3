@@ -194,3 +194,27 @@ export class TrendingMarketDataResponseDto {
     Object.assign(this, partial);
   }
 }
+
+export class TopGainerLoserResponseDto {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  market_cap_rank: number | null;
+  usd: number;
+  usd_24h_vol: number;
+  usd_24h_change: number;
+
+  constructor(data: Partial<TopGainerLoserResponseDto>) {
+    Object.assign(this, data);
+  }
+}
+
+export class TopGainerLoserDataResponseDto {
+  top_gainers: TopGainerLoserResponseDto[];
+  top_losers: TopGainerLoserResponseDto[];
+
+  constructor(data: Partial<TopGainerLoserDataResponseDto>) {
+    Object.assign(this, data);
+  }
+}

@@ -64,3 +64,19 @@ export type CoingeckoTrendingDataResponse = {
   nfts: any[];
   categories: any[];
 };
+
+export type CoinGeckoTopGainerLoserItem = {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  market_cap_rank: number | null;
+  usd: number;
+  usd_24h_vol: number;
+  usd_24h_change: number;
+};
+
+export type CoinGeckoTopGainerLoserResponse = {
+  top_gainers: CoinGeckoTopGainerLoserItem[];
+  top_losers: CoinGeckoTopGainerLoserItem[];
+};

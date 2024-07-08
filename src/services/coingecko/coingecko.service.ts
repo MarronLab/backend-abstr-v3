@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import {
   CoinGeckoMarketDataResponse,
   CoingeckoTrendingDataResponse,
+  CoinGeckoTopGainerLoserResponse,
 } from './coingecko.type';
 
 @Injectable()
@@ -54,5 +55,12 @@ export class CoingeckoService {
 
   async getTrendingMarketData() {
     return await this.get<CoingeckoTrendingDataResponse>('search/trending', {});
+  }
+
+  async getTopGainerLoserData(params: any) {
+    return await this.get<CoinGeckoTopGainerLoserResponse>(
+      '/coins/top_gainers_losers',
+      params,
+    );
   }
 }

@@ -17,6 +17,7 @@ import { ResponseValidationInterceptor } from '../../../common/response-validato
 import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
+  TopGainerLoserDataResponseDto,
 } from '../dto/market.dto';
 
 @ApiTags('market')
@@ -56,5 +57,23 @@ export class MarketController {
       return [];
     }
     return trendingData.map((data) => new TrendingMarketDataResponseDto(data));
+  }
+
+  @Get('top_gainers_losers')
+  @ApiOperation({ summary: 'Fetch 1000 top coin gainers and loser data' })
+  @ApiOkResponse({
+    description:
+      'The top gainer and loser market coin data has been successfully fetched.',
+    type: [TopGainerLoserDataResponseDto],
+  })
+  async getTopGainerLoserCoin() {
+    const topGainerLoserData = await this.marketService.getTopGainerLoserData();
+    if (!topGainerLoserData) {
+      return new TopGainerLoserDataResponseDto({
+        top_gainers: [],
+        top_losers: [],
+      });
+    }
+    return topGainerLoserData;
   }
 }
