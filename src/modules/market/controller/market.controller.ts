@@ -33,23 +33,14 @@ export class MarketController {
   })
   async getMarketData() {
     const marketData = await this.marketService.getMarketData();
+    console.log(marketData);
     if (!marketData) {
       return [];
     }
     return marketData.map((data) => new MarketDataResponseDto(data));
   }
 
-  @Get('coins/trending')
-  @ApiOperation({ summary: 'Fetch trending market coins data' })
-  @ApiOkResponse({
-    description: 'The trending market coin data has been successfully fetched.',
-    type: [TrendingMarketDataResponseDto],
-  })
-  async getTrendingCoin() {
-    return await this.marketService.trendingMarket();
-  }
-
-  @Get('coins/trending')
+  @Get('trending')
   @ApiOperation({ summary: 'Fetch trending market coins data' })
   @ApiOkResponse({
     description: 'The trending market coin data has been successfully fetched.',

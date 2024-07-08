@@ -11,8 +11,14 @@ import { Request } from 'express';
 import { BaseService } from '../../../common/base.service';
 import { PrismaService } from '../../../services/prisma.service';
 import { CoingeckoService } from '../../../services/coingecko/coingecko.service';
-import { CoinGeckoMarketDataResponse } from '../../../services/coingecko/coingecko.type';
-import { MarketDataResponseDto } from '../dto/market.dto';
+import {
+  CoinGeckoMarketDataResponse,
+  CoingeckoTrendingItem,
+} from '../../../services/coingecko/coingecko.type';
+import {
+  MarketDataResponseDto,
+  TrendingMarketDataResponseDto,
+} from '../dto/market.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
@@ -145,40 +151,40 @@ export class MarketService extends BaseService {
 
   async trendingMarket() {
     try {
-      const response = await firstValueFrom(
-        this.httpService.get(this.trending),
-      );
-
-      const transformTrendingResponse = (data: any[]) => {
+      const response = await this.coingeckoService.getTrendingMarketData();
+      console.log('Logging response:', response);
+      const transformTrendingResponse = (data: CoingeckoTrendingItem[]) => {
         return data.map((coin) => {
+          const { item } = coin;
           return new TrendingMarketDataResponseDto({
-            id: coin.item.id,
-            coin_id: coin.item.coin_id,
-            name: coin.item.name,
-            symbol: coin.item.symbol,
-            market_cap_rank: coin.item.market_cap_rank,
-            thumb: coin.item.thumb,
-            small: coin.item.small,
-            large: coin.item.large,
-            price_btc: coin.item.price_btc,
-            score: coin.item.score,
+            id: item.id,
+            coin_id: item.coin_id,
+            name: item.name,
+            symbol: item.symbol,
+            market_cap_rank: item.market_cap_rank,
+            thumb: item.thumb,
+            small: item.small,
+            large: item.large,
+            price_btc: item.price_btc,
+            score: item.score,
             data: {
-              price: coin.item.data.price,
-              price_btc: coin.item.data.price_btc,
+              price: item.data.price,
+              price_btc: item.data.price_btc,
               price_change_percentage_24h: {
-                btc: coin.item.data.price_change_percentage_24h?.btc || 0,
-                usd: coin.item.data.price_change_percentage_24h?.usd || 0,
+                btc: item.data.price_change_percentage_24h?.btc || 0,
+                usd: item.data.price_change_percentage_24h?.usd || 0,
               },
-              market_cap: coin.item.data.market_cap || '',
-              market_cap_btc: coin.item.data.market_cap_btc || '',
-              total_volume: coin.item.data.total_volume || '',
-              total_volume_btc: coin.item.data.total_volume_btc || '',
-              sparkline: coin.item.data.sparkline || '',
+              market_cap: item.data.market_cap || '',
+              market_cap_btc: item.data.market_cap_btc || '',
+              total_volume: item.data.total_volume || '',
+              total_volume_btc: item.data.total_volume_btc || '',
+              sparkline: item.data.sparkline || '',
             },
           });
         });
       };
-      return transformTrendingResponse(response.data.coins);
+
+      return transformTrendingResponse(response.coins);
     } catch (error) {
       this.handleError(error);
     }
