@@ -68,7 +68,7 @@ model CoinGeckoResponse {
   createdAt   DateTime              @default(now()) @db.Timestamp(6)
   updatedAt   DateTime              @updatedAt @db.Timestamp(6)
 
-  @@map("coingecko_response")
+  @@map("coingeckoResponse")
 }
 
 enum CoinGeckoResponseType {
