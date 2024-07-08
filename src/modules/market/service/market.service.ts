@@ -148,45 +148,90 @@ export class MarketService extends BaseService {
   private toNumberOrNull(value: any): number | null {
     return value === null || value === undefined ? null : Number(value);
   }
-
   async trendingMarket() {
     try {
-      const response = await this.coingeckoService.getTrendingMarketData();
-      console.log('Logging response:', response);
-      const transformTrendingResponse = (data: CoingeckoTrendingItem[]) => {
-        return data.map((coin) => {
-          const { item } = coin;
-          return new TrendingMarketDataResponseDto({
-            id: item.id,
-            coin_id: item.coin_id,
-            name: item.name,
-            symbol: item.symbol,
-            market_cap_rank: item.market_cap_rank,
-            thumb: item.thumb,
-            small: item.small,
-            large: item.large,
-            price_btc: item.price_btc,
-            score: item.score,
-            data: {
-              price: item.data.price,
-              price_btc: item.data.price_btc,
-              price_change_percentage_24h: {
-                btc: item.data.price_change_percentage_24h?.btc || 0,
-                usd: item.data.price_change_percentage_24h?.usd || 0,
-              },
-              market_cap: item.data.market_cap || '',
-              market_cap_btc: item.data.market_cap_btc || '',
-              total_volume: item.data.total_volume || '',
-              total_volume_btc: item.data.total_volume_btc || '',
-              sparkline: item.data.sparkline || '',
-            },
-          });
-        });
-      };
+      const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
+        where: { type: 'TRENDING_DATA' },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
 
-      return transformTrendingResponse(response.coins);
+      if (lastUpdated) {
+        const now = new Date();
+        const lastUpdatedDate = new Date(lastUpdated.updatedAt);
+        const timeDiff = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = timeDiff / (1000 * 3600);
+
+        if (diffHours < 1) {
+          const parsedData = lastUpdated.data.map((item: string) => {
+            const parsedItem = JSON.parse(item);
+            return parsedItem;
+          }) as CoingeckoTrendingItem[];
+          return this.transformTrendingResponse(parsedData);
+        }
+      }
+
+      const response = await this.coingeckoService.getTrendingMarketData();
+      const trendingData = this.transformTrendingResponse(response.coins);
+
+      await this.saveTrendingMarketData(trendingData);
+
+      return trendingData;
     } catch (error) {
       this.handleError(error);
+    }
+  }
+
+  private transformTrendingResponse(
+    data: CoingeckoTrendingItem[],
+  ): TrendingMarketDataResponseDto[] {
+    return data.map((coin) => {
+      const { item } = coin;
+      return new TrendingMarketDataResponseDto({
+        id: item.id,
+        coin_id: item.coin_id,
+        name: item.name,
+        symbol: item.symbol,
+        market_cap_rank: item.market_cap_rank,
+        thumb: item.thumb,
+        small: item.small,
+        large: item.large,
+        price_btc: item.price_btc,
+        score: item.score,
+        data: {
+          price: item.data.price,
+          price_btc: item.data.price_btc,
+          price_change_percentage_24h: {
+            btc: item.data.price_change_percentage_24h?.btc || 0,
+            usd: item.data.price_change_percentage_24h?.usd || 0,
+          },
+          market_cap: item.data.market_cap || '',
+          market_cap_btc: item.data.market_cap_btc || '',
+          total_volume: item.data.total_volume || '',
+          total_volume_btc: item.data.total_volume_btc || '',
+          sparkline: item.data.sparkline || '',
+        },
+      });
+    });
+  }
+
+  private async saveTrendingMarketData(data: TrendingMarketDataResponseDto[]) {
+    try {
+      const now = new Date();
+      const jsonData = data.map((item) => JSON.stringify(item));
+      await this.getClient().coinGeckoResponse.upsert({
+        where: { type: 'TRENDING_DATA' },
+        update: { data: jsonData, updatedAt: now },
+        create: {
+          type: 'TRENDING_DATA',
+          data: jsonData,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
+    } catch (error) {
+      throw error;
     }
   }
 

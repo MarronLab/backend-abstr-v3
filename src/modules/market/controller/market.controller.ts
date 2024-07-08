@@ -12,6 +12,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
+
 import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
@@ -47,6 +48,11 @@ export class MarketController {
     type: [TrendingMarketDataResponseDto],
   })
   async getTrendingCoin() {
-    return await this.marketService.trendingMarket();
+    const trendingData = await this.marketService.trendingMarket();
+    console.log('trending logged', trendingData);
+    if (!trendingData) {
+      return [];
+    }
+    return trendingData.map((data) => new TrendingMarketDataResponseDto(data));
   }
 }
