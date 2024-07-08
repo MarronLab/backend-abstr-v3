@@ -156,7 +156,6 @@ export class MarketService extends BaseService {
           updatedAt: 'desc',
         },
       });
-
       if (lastUpdated) {
         const now = new Date();
         const lastUpdatedDate = new Date(lastUpdated.updatedAt);
@@ -176,9 +175,9 @@ export class MarketService extends BaseService {
       const trendingData = this.transformTrendingResponse(response.coins);
 
       await this.saveTrendingMarketData(trendingData);
-
       return trendingData;
     } catch (error) {
+      console.log('abeg', error);
       this.handleError(error);
     }
   }
@@ -186,8 +185,11 @@ export class MarketService extends BaseService {
   private transformTrendingResponse(
     data: CoingeckoTrendingItem[],
   ): TrendingMarketDataResponseDto[] {
+    console.log('main data', data);
     return data.map((coin) => {
-      const { item } = coin;
+      console.log('logging coin', coin);
+      const item = coin.item || coin;
+      console.log('Transforming Item:', item);
       return new TrendingMarketDataResponseDto({
         id: item.id,
         coin_id: item.coin_id,

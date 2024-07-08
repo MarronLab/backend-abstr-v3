@@ -34,7 +34,7 @@ export type PriceChangePercentage24hData = {
 
 export type CoingeckoMarketData = {
   price: number;
-  price_btc: number;
+  price_btc: string;
   price_change_percentage_24h: PriceChangePercentage24hData;
   market_cap: string;
   market_cap_btc: string;
@@ -42,8 +42,6 @@ export type CoingeckoMarketData = {
   total_volume_btc: string;
   sparkline: string;
 };
-
-// coingecko.type.ts
 
 export type CoingeckoTrendingItem = {
   item: {
@@ -55,7 +53,7 @@ export type CoingeckoTrendingItem = {
     thumb: string;
     small: string;
     large: string;
-    price_btc: string;
+    price_btc: number;
     score: number;
     data: CoingeckoMarketData;
   };

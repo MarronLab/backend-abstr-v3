@@ -11,8 +11,10 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
-
+import MarketResponseValidationInterceptor from '../../../schema/market/market.validation';
+import { trendingMarketSchema } from '../../../schema/market/market.schema';
+import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
+import { TrendResponseValidationInterceptor } from '../../../schema/market/trend.validation';
 import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
@@ -25,7 +27,7 @@ export class MarketController {
 
   @Get('coins')
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseInterceptors(ResponseValidationInterceptor)
+  @UseInterceptors(MarketResponseValidationInterceptor)
   @ApiOperation({ summary: 'Fetch market data' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
@@ -42,6 +44,8 @@ export class MarketController {
   }
 
   @Get('trending')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(new ResponseValidationInterceptor(trendingMarketSchema))
   @ApiOperation({ summary: 'Fetch trending market coins data' })
   @ApiOkResponse({
     description: 'The trending market coin data has been successfully fetched.',

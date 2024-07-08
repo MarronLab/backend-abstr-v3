@@ -130,12 +130,12 @@ class PriceChangePercentage24hDto {
   usd: number;
 }
 
-class DataDto {
+class CoingeckoMarketData {
   @ApiProperty()
   price: number;
 
   @ApiProperty()
-  price_btc: number;
+  price_btc: string;
 
   @ApiProperty({ type: PriceChangePercentage24hDto })
   price_change_percentage_24h: PriceChangePercentage24hDto;
@@ -182,13 +182,13 @@ export class TrendingMarketDataResponseDto {
   large: string;
 
   @ApiProperty()
-  price_btc: string;
+  price_btc: number;
 
   @ApiProperty()
   score: number;
 
-  @ApiProperty({ type: DataDto })
-  data: DataDto;
+  @ApiProperty({ type: CoingeckoMarketData })
+  data: CoingeckoMarketData;
 
   constructor(partial: Partial<TrendingMarketDataResponseDto>) {
     Object.assign(this, partial);

@@ -24,7 +24,7 @@ export class ResponseValidationInterceptor<T>
       map((data) => {
         const validate = this.ajv.compile(this.schema);
         const valid = validate(data);
-
+        console.log('logged valid', valid);
         if (!valid) {
           throw new BadRequestException(
             'Response validation failed: ' +

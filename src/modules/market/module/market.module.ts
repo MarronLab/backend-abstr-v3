@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MarketService } from '../service/market.service';
 import { MarketController } from '../controller/market.controller';
-import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
+import ResponseValidationInterceptor from '../../../schema/market/market.validation';
+import { TrendResponseValidationInterceptor } from '../../../schema/market/trend.validation';
 import { HttpModule } from '@nestjs/axios';
 import { PrismaService } from 'src/services/prisma.service';
 import { CoingeckoService } from '../../../services/coingecko/coingecko.service';
@@ -19,6 +20,7 @@ import { CoingeckoService } from '../../../services/coingecko/coingecko.service'
   providers: [
     MarketService,
     ResponseValidationInterceptor,
+    TrendResponseValidationInterceptor,
     PrismaService,
     CoingeckoService,
   ],

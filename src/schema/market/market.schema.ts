@@ -1,3 +1,6 @@
+import { JSONSchemaType } from 'ajv';
+import { TrendingMarketDataResponseDto } from '../../modules/market/dto/market.dto';
+
 export const marketDataSchema = {
   type: 'array',
   items: {
@@ -59,6 +62,89 @@ export const marketDataSchema = {
       // 'atl_date',
       // 'last_updated',
       'sparkline_in_7d',
+    ],
+  },
+};
+
+export const priceChangePercentage24hSchema: JSONSchemaType<{
+  btc: number;
+  usd: number;
+}> = {
+  type: 'object',
+  properties: {
+    btc: { type: 'number' },
+    usd: { type: 'number' },
+  },
+  required: ['btc', 'usd'],
+};
+
+export const coingeckoMarketDataSchema: JSONSchemaType<{
+  price: number;
+  price_btc: string;
+  price_change_percentage_24h: {
+    btc: number;
+    usd: number;
+  };
+  market_cap: string;
+  market_cap_btc: string;
+  total_volume: string;
+  total_volume_btc: string;
+  sparkline: string;
+}> = {
+  type: 'object',
+  properties: {
+    price: { type: 'number' },
+    price_btc: { type: 'string' },
+    price_change_percentage_24h: priceChangePercentage24hSchema,
+    market_cap: { type: 'string' },
+    market_cap_btc: { type: 'string' },
+    total_volume: { type: 'string' },
+    total_volume_btc: { type: 'string' },
+    sparkline: { type: 'string' },
+  },
+  required: [
+    'price',
+    'price_btc',
+    'price_change_percentage_24h',
+    'market_cap',
+    'market_cap_btc',
+    'total_volume',
+    'total_volume_btc',
+    'sparkline',
+  ],
+};
+
+export const trendingMarketSchema: JSONSchemaType<
+  TrendingMarketDataResponseDto[]
+> = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      coin_id: { type: 'number' },
+      name: { type: 'string' },
+      symbol: { type: 'string' },
+      market_cap_rank: { type: 'number' },
+      thumb: { type: 'string' },
+      small: { type: 'string' },
+      large: { type: 'string' },
+      price_btc: { type: 'number' },
+      score: { type: 'number' },
+      data: coingeckoMarketDataSchema,
+    },
+    required: [
+      'id',
+      'coin_id',
+      'name',
+      'symbol',
+      'market_cap_rank',
+      'thumb',
+      'small',
+      'large',
+      'price_btc',
+      'score',
+      'data',
     ],
   },
 };

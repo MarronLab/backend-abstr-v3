@@ -10,14 +10,14 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { marketDataSchema } from './market.schema';
+import { trendingMarketSchema } from './market.schema';
 
 const ajv = new Ajv();
 addFormats(ajv);
 
 @Injectable()
-export default class ResponseValidationInterceptor implements NestInterceptor {
-  private validate = ajv.compile(marketDataSchema);
+export class TrendResponseValidationInterceptor implements NestInterceptor {
+  private validate = ajv.compile(trendingMarketSchema);
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
