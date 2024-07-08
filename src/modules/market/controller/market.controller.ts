@@ -14,7 +14,6 @@ import {
 import MarketResponseValidationInterceptor from '../../../schema/market/market.validation';
 import { trendingMarketSchema } from '../../../schema/market/market.schema';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
-import { TrendResponseValidationInterceptor } from '../../../schema/market/trend.validation';
 import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
@@ -53,7 +52,6 @@ export class MarketController {
   })
   async getTrendingCoin() {
     const trendingData = await this.marketService.trendingMarket();
-    console.log('trending logged', trendingData);
     if (!trendingData) {
       return [];
     }
