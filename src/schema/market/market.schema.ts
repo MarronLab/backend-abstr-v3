@@ -1,5 +1,9 @@
 import { JSONSchemaType } from 'ajv';
-import { TrendingMarketDataResponseDto } from '../../modules/market/dto/market.dto';
+import {
+  TrendingMarketDataResponseDto,
+  TopGainerLoserResponseDto,
+  TopGainerLoserDataResponseDto,
+} from '../../modules/market/dto/market.dto';
 
 export const marketDataSchema = {
   type: 'array',
@@ -148,3 +152,45 @@ export const trendingMarketSchema: JSONSchemaType<
     ],
   },
 };
+
+export const topGainerLoserItemSchema: JSONSchemaType<TopGainerLoserResponseDto> =
+  {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      symbol: { type: 'string' },
+      name: { type: 'string' },
+      image: { type: 'string' },
+      market_cap_rank: { type: 'number' },
+      usd: { type: 'number' },
+      usd_24h_vol: { type: 'number' },
+      usd_24h_change: { type: 'number' },
+    },
+    required: [
+      'id',
+      'symbol',
+      'name',
+      'image',
+      'market_cap_rank',
+      'usd',
+      'usd_24h_vol',
+      'usd_24h_change',
+    ],
+    additionalProperties: false,
+  };
+
+export const topGainerLoserDataSchema: JSONSchemaType<TopGainerLoserDataResponseDto> =
+  {
+    type: 'object',
+    properties: {
+      top_gainers: {
+        type: 'array',
+        items: topGainerLoserItemSchema,
+      },
+      top_losers: {
+        type: 'array',
+        items: topGainerLoserItemSchema,
+      },
+    },
+    required: ['top_gainers', 'top_losers'],
+  };

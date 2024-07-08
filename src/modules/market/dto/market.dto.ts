@@ -196,13 +196,28 @@ export class TrendingMarketDataResponseDto {
 }
 
 export class TopGainerLoserResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   symbol: string;
+
+  @ApiProperty()
   name: string;
+
+  @ApiProperty()
   image: string;
-  market_cap_rank: number | null;
+
+  @ApiProperty()
+  market_cap_rank: number;
+
+  @ApiProperty()
   usd: number;
+
+  @ApiProperty()
   usd_24h_vol: number;
+
+  @ApiProperty()
   usd_24h_change: number;
 
   constructor(data: Partial<TopGainerLoserResponseDto>) {
@@ -211,7 +226,10 @@ export class TopGainerLoserResponseDto {
 }
 
 export class TopGainerLoserDataResponseDto {
+  @ApiProperty({ type: [TopGainerLoserResponseDto] })
   top_gainers: TopGainerLoserResponseDto[];
+
+  @ApiProperty({ type: [TopGainerLoserResponseDto] })
   top_losers: TopGainerLoserResponseDto[];
 
   constructor(data: Partial<TopGainerLoserDataResponseDto>) {

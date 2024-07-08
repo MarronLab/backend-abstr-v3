@@ -70,7 +70,7 @@ export type CoinGeckoTopGainerLoserItem = {
   symbol: string;
   name: string;
   image: string;
-  market_cap_rank: number | null;
+  market_cap_rank: number;
   usd: number;
   usd_24h_vol: number;
   usd_24h_change: number;

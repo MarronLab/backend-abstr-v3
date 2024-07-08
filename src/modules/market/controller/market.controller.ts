@@ -12,7 +12,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import MarketResponseValidationInterceptor from '../../../schema/market/market.validation';
-import { trendingMarketSchema } from '../../../schema/market/market.schema';
+import {
+  trendingMarketSchema,
+  topGainerLoserDataSchema,
+} from '../../../schema/market/market.schema';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import {
   MarketDataResponseDto,
@@ -60,6 +63,8 @@ export class MarketController {
   }
 
   @Get('top_gainers_losers')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(new ResponseValidationInterceptor(topGainerLoserDataSchema))
   @ApiOperation({ summary: 'Fetch 1000 top coin gainers and loser data' })
   @ApiOkResponse({
     description:
