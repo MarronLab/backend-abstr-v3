@@ -44,12 +44,18 @@ export class SafeService extends BaseService {
     }
   }
 
-  async getSafeAddress({ userAddress }: { userAddress: string }) {
+  async generateSafeAddress({
+    userAddress,
+    modulusCustomerID,
+  }: {
+    userAddress: string;
+    modulusCustomerID: number;
+  }) {
     const safe = await Safe4337.withSigner(userAddress, this.safeGlobalConfig);
 
     const initCode = safe.getInitCode();
 
-    let safeAddress = await this.callGetSenderAddress(initCode);
+    let safeAddress: string = await this.callGetSenderAddress(initCode);
 
     const isSafeDeployed = safeAddress === ethers.ZeroAddress;
 
@@ -69,6 +75,7 @@ export class SafeService extends BaseService {
         data: {
           userAddress,
           safeAddress,
+          modulusCustomerID,
         },
       });
     }

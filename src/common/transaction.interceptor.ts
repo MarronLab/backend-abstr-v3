@@ -5,14 +5,14 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Observable, catchError, concatMap, from, lastValueFrom } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { PrismaService } from 'src/services/prisma.service';
 
 export const PRISMA_TRANSACTION_KEY = 'PRISMA_TRANSACTION';
 
 @Injectable()
 export class TransactionInterceptor implements NestInterceptor {
-  constructor(private prisma: PrismaService) {}
+  constructor(protected prisma: PrismaService) {}
 
   async intercept(
     context: ExecutionContext,
@@ -25,17 +25,26 @@ export class TransactionInterceptor implements NestInterceptor {
         // attach prisma transaction to the request
         req[PRISMA_TRANSACTION_KEY] = transactionPrisma;
 
-        return lastValueFrom(
-          next.handle().pipe(
-            concatMap(async (data) => {
-              return data;
-            }),
-            catchError(async (e) => {
-              throw e;
-            }),
-          ),
-        );
+        const observable = this.handleNext(context, next);
+
+        return new Promise((resolve, reject) => {
+          observable.subscribe({
+            next: async (data) => {
+              resolve(data);
+            },
+            error: async (e) => {
+              reject(e);
+            },
+          });
+        });
       }),
     );
+  }
+
+  protected handleNext(
+    context: ExecutionContext,
+    next: CallHandler<any>,
+  ): Observable<any> {
+    return next.handle();
   }
 }

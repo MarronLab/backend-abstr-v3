@@ -30,10 +30,21 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException();
       }
 
+      const user = await this.httpService.axiosRef.get('/api/GetProfile', {
+        headers: { Authorization: token },
+      });
+
+      if (user.data.status !== 'Success') {
+        throw new UnauthorizedException();
+      }
+
+      request['user'] = user.data.data;
+
       this.httpService.axiosRef.interceptors.request.use((config) => {
         config.headers['Authorization'] = token;
         return config;
       });
+
       // this.httpService.axiosRef.defaults.headers.common.Authorization = token;
     } catch (error) {
       throw new UnauthorizedException();
