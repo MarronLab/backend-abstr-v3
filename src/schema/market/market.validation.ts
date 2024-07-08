@@ -9,9 +9,11 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 import { marketDataSchema } from './market.schema';
 
 const ajv = new Ajv();
+addFormats(ajv);
 
 @Injectable()
 export class ResponseValidationInterceptor implements NestInterceptor {

@@ -60,3 +60,17 @@ model UserActivity {
 
   @@map("userActivity")
 }
+
+model CoinGeckoResponse {
+  id          String                @id @default(cuid())
+  type        CoinGeckoResponseType @unique
+  data        Json[]
+  createdAt   DateTime              @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime              @updatedAt @db.Timestamp(6)
+
+  @@map("coingecko_response")
+}
+
+enum CoinGeckoResponseType {
+  MARKET_DATA
+}

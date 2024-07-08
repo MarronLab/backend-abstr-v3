@@ -83,3 +83,38 @@ export const walletPerformanceResponseSchema: JSONSchemaType<{
   ],
   additionalProperties: false,
 };
+
+export const walletNetworthResponseSchema: JSONSchemaType<{
+  totalFiatAmount: number;
+  totalCryptoAmount: number;
+  totalNetworth: number;
+  cryptoPercentage: number;
+  fiatPercentage: number;
+}> = {
+  type: 'object',
+  properties: {
+    totalFiatAmount: {
+      type: 'number',
+    },
+    totalCryptoAmount: {
+      type: 'number',
+    },
+    totalNetworth: {
+      type: 'number',
+    },
+    cryptoPercentage: {
+      type: 'number',
+    },
+    fiatPercentage: {
+      type: 'number',
+    },
+  },
+  required: [
+    'totalFiatAmount',
+    'totalCryptoAmount',
+    'totalNetworth',
+    'cryptoPercentage',
+    'fiatPercentage',
+  ],
+  additionalProperties: false,
+};
