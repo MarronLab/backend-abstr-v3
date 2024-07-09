@@ -5,6 +5,7 @@ import {
   UsePipes,
   UseInterceptors,
   ClassSerializerInterceptor,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import {
@@ -65,6 +66,7 @@ export class AuthController {
   }
 
   @Post('verify-account')
+  @HttpCode(200)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Verify user account' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
@@ -77,6 +79,7 @@ export class AuthController {
   }
 
   @Post('resend-email')
+  @HttpCode(200)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Resend user verification email' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
