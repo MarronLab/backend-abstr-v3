@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "CoinGeckoResponseType" ADD VALUE 'TOPGAINERLOSER_DATA';

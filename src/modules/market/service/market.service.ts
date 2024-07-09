@@ -14,7 +14,7 @@ import { CoingeckoService } from '../../../services/coingecko/coingecko.service'
 import {
   CoinGeckoMarketDataResponse,
   CoingeckoTrendingItem,
-  CoinGeckoTopGainerLoserItem,
+  CoinGeckoTopGainerLoserResponse,
 } from '../../../services/coingecko/coingecko.type';
 import {
   MarketDataResponseDto,
@@ -244,40 +244,73 @@ export class MarketService extends BaseService {
 
   async getTopGainerLoserData() {
     try {
+      const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
+        where: { type: 'TOPGAINERLOSER_DATA' },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+
+      if (lastUpdated) {
+        const now = new Date();
+        const lastUpdatedDate = new Date(lastUpdated.updatedAt);
+        const timeDiff = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = timeDiff / (1000 * 3600);
+
+        if (diffHours < 1) {
+          const parsedData = lastUpdated.data.map((item: string) =>
+            JSON.parse(item),
+          ) as CoinGeckoTopGainerLoserResponse[];
+          return this.transformTopGainerLoserData(parsedData[0]);
+        }
+      }
+
       const response = await this.coingeckoService.getTopGainerLoserData(
         this.topGainerLoserParams,
       );
-      const topGainers = this.transformTopGainerLoserResponse(
-        response.top_gainers,
-      );
-      const topLosers = this.transformTopGainerLoserResponse(
-        response.top_losers,
-      );
+      const topGainerLoserData = this.transformTopGainerLoserData(response);
 
-      return new TopGainerLoserDataResponseDto({
-        top_gainers: topGainers,
-        top_losers: topLosers,
-      });
+      await this.saveTopGainerLoserData(topGainerLoserData);
+
+      return topGainerLoserData;
     } catch (error) {
       this.handleError(error);
     }
   }
 
-  private transformTopGainerLoserResponse(
-    data: CoinGeckoTopGainerLoserItem[],
-  ): TopGainerLoserResponseDto[] {
-    return data.map((coin) => {
-      return new TopGainerLoserResponseDto({
-        id: coin.id,
-        symbol: coin.symbol,
-        name: coin.name,
-        image: coin.image,
-        market_cap_rank: coin.market_cap_rank,
-        usd: coin.usd,
-        usd_24h_vol: coin.usd_24h_vol,
-        usd_24h_change: coin.usd_24h_change,
-      });
+  private transformTopGainerLoserData(
+    data: CoinGeckoTopGainerLoserResponse,
+  ): TopGainerLoserDataResponseDto {
+    const topGainers = data.top_gainers.map(
+      (coin) => new TopGainerLoserResponseDto(coin),
+    );
+    const topLosers = data.top_losers.map(
+      (coin) => new TopGainerLoserResponseDto(coin),
+    );
+
+    return new TopGainerLoserDataResponseDto({
+      top_gainers: topGainers,
+      top_losers: topLosers,
     });
+  }
+
+  private async saveTopGainerLoserData(data: TopGainerLoserDataResponseDto) {
+    try {
+      const now = new Date();
+      const jsonData = JSON.stringify(data);
+      await this.getClient().coinGeckoResponse.upsert({
+        where: { type: 'TOPGAINERLOSER_DATA' },
+        update: { data: [jsonData], updatedAt: now },
+        create: {
+          type: 'TOPGAINERLOSER_DATA',
+          data: [jsonData],
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   private handleError(error: any): void {
