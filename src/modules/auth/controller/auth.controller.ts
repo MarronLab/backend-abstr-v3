@@ -9,6 +9,8 @@ import {
 import { AuthService } from '../service/auth.service';
 import {
   ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -22,6 +24,8 @@ import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers'
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import AuthResponseDto from '../dto/auth.response.dto';
 import RegisterResponseDto from '../dto/auth.registerResponse.dto';
+import VerifyAccountDto from '../dto/auth.verify.dto';
+import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -58,5 +62,29 @@ export class AuthController {
       message: response.message,
       data: response.data,
     });
+  }
+
+  @Post('verify-account')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Verify user account' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user account has been successfully verified.',
+  })
+  async verifyAccount(@Body() verifyAccountDto: VerifyAccountDto) {
+    return await this.authService.verifyAccount(verifyAccountDto);
+  }
+
+  @Post('resend-email')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Resend user verification email' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user verification email has been successfully sent.',
+  })
+  async resendEmail(@Body() signupResendEmailDto: SignupResendEmailDto) {
+    return await this.authService.signupResendEmail(signupResendEmailDto);
   }
 }
