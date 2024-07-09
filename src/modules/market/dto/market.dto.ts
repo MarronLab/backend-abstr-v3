@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+class SparklineIn7dDto {
+  @ApiProperty({
+    type: [Number],
+    description: 'Price change sparkline for the last 7 days',
+  })
+  price: number[];
+}
+
 export class MarketDataResponseDto {
   @ApiProperty({ type: String, description: 'The ID of the coin' })
   id: string;
@@ -116,7 +124,7 @@ export class MarketDataResponseDto {
     type: [Number],
     description: 'Price change sparkline for the last 7 days',
   })
-  sparkline_in_7d: number[];
+  sparkline_in_7d: SparklineIn7dDto;
   constructor(partial: Partial<MarketDataResponseDto>) {
     Object.assign(this, partial);
   }

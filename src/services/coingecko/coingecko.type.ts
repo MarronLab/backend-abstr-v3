@@ -24,7 +24,9 @@ export type CoinGeckoMarketDataResponse = {
   atl_change_percentage: number | null;
   atl_date: string | null;
   last_updated: string | null;
-  sparkline_in_7d: number[];
+  sparkline_in_7d: {
+    price: number[];
+  };
 };
 
 export type PriceChangePercentage24hData = {

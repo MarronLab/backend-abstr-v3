@@ -130,7 +130,11 @@ export class MarketService extends BaseService {
           ),
           atl_date: coin.atl_date || '',
           last_updated: coin.last_updated || '',
-          sparkline_in_7d: coin.sparkline_in_7d || [],
+          sparkline_in_7d: {
+            price: Array.isArray(coin.sparkline_in_7d.price)
+              ? coin.sparkline_in_7d.price
+              : [],
+          },
         }),
     );
   }

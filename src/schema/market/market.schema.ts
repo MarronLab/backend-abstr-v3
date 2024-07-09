@@ -36,8 +36,14 @@ export const marketDataSchema = {
       atl_date: { type: 'string' },
       last_updated: { type: 'string' },
       sparkline_in_7d: {
-        type: 'array',
-        items: { type: 'number' },
+        type: 'object',
+        properties: {
+          price: {
+            type: 'array',
+            items: { type: 'number' },
+          },
+        },
+        required: ['price'],
       },
     },
     required: [
