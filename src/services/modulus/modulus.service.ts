@@ -29,6 +29,10 @@ import {
   TradeHistoryResponse,
   RegisterRequest,
   RegisterResponse,
+  VerifyAccountRequest,
+  VerifyAccountResponse,
+  SignupResendEmailRequest,
+  SignupResendEmailResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -150,5 +154,19 @@ export class ModulusService {
 
   async deleteApiKey(request: DeleteApiKeyRequest) {
     return await this.post<DeleteApiKeyResponse>('/api/DeleteApiKey', request);
+  }
+
+  async verifyAccount(request: VerifyAccountRequest) {
+    return await this.post<VerifyAccountResponse>(
+      '/api/VerifyAccount',
+      request,
+    );
+  }
+
+  async signupResendEmail(request: SignupResendEmailRequest) {
+    return await this.post<SignupResendEmailResponse>(
+      '/api/SignUp_Resend_Email',
+      request,
+    );
   }
 }

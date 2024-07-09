@@ -440,3 +440,45 @@ export type DeleteApiKeySuccessResponse = {
 export type DeleteApiKeyResponse =
   | DeleteApiKeyErrorResponse
   | DeleteApiKeySuccessResponse;
+
+//Verify Account
+export type VerifyAccountRequest = {
+  otp: string;
+};
+
+export type VerifyAccountErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type VerifyAccountSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type VerifyAccountResponse =
+  | DeleteApiKeyErrorResponse
+  | DeleteApiKeySuccessResponse;
+
+//Signup Resend Email
+export type SignupResendEmailRequest = {
+  email: string;
+};
+
+export type SignupResendEmailErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type SignupResendEmailSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type SignupResendEmailResponse =
+  | DeleteApiKeyErrorResponse
+  | DeleteApiKeySuccessResponse;
