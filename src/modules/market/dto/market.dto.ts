@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+class SparklineIn7dDto {
+  @ApiProperty({
+    type: [Number],
+    description: 'Price change sparkline for the last 7 days',
+  })
+  price: number[];
+}
+
 export class MarketDataResponseDto {
   @ApiProperty({ type: String, description: 'The ID of the coin' })
   id: string;
@@ -116,8 +124,123 @@ export class MarketDataResponseDto {
     type: [Number],
     description: 'Price change sparkline for the last 7 days',
   })
-  sparkline_in_7d: number[];
+  sparkline_in_7d: SparklineIn7dDto;
   constructor(partial: Partial<MarketDataResponseDto>) {
     Object.assign(this, partial);
+  }
+}
+
+class PriceChangePercentage24hDto {
+  @ApiProperty()
+  btc: number;
+
+  @ApiProperty()
+  usd: number;
+}
+
+class CoingeckoMarketData {
+  @ApiProperty()
+  price: number;
+
+  @ApiProperty()
+  price_btc: string;
+
+  @ApiProperty({ type: PriceChangePercentage24hDto })
+  price_change_percentage_24h: PriceChangePercentage24hDto;
+
+  @ApiProperty()
+  market_cap: string;
+
+  @ApiProperty()
+  market_cap_btc: string;
+
+  @ApiProperty()
+  total_volume: string;
+
+  @ApiProperty()
+  total_volume_btc: string;
+
+  @ApiProperty()
+  sparkline: string;
+}
+
+export class TrendingMarketDataResponseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  coin_id: number;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  symbol: string;
+
+  @ApiProperty()
+  market_cap_rank: number;
+
+  @ApiProperty()
+  thumb: string;
+
+  @ApiProperty()
+  small: string;
+
+  @ApiProperty()
+  large: string;
+
+  @ApiProperty()
+  price_btc: number;
+
+  @ApiProperty()
+  score: number;
+
+  @ApiProperty({ type: CoingeckoMarketData })
+  data: CoingeckoMarketData;
+
+  constructor(partial: Partial<TrendingMarketDataResponseDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+export class TopGainerLoserResponseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  symbol: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  image: string;
+
+  @ApiProperty()
+  market_cap_rank: number;
+
+  @ApiProperty()
+  usd: number;
+
+  @ApiProperty()
+  usd_24h_vol: number;
+
+  @ApiProperty()
+  usd_24h_change: number;
+
+  constructor(data: Partial<TopGainerLoserResponseDto>) {
+    Object.assign(this, data);
+  }
+}
+
+export class TopGainerLoserDataResponseDto {
+  @ApiProperty({ type: [TopGainerLoserResponseDto] })
+  top_gainers: TopGainerLoserResponseDto[];
+
+  @ApiProperty({ type: [TopGainerLoserResponseDto] })
+  top_losers: TopGainerLoserResponseDto[];
+
+  constructor(data: Partial<TopGainerLoserDataResponseDto>) {
+    Object.assign(this, data);
   }
 }

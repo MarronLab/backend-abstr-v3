@@ -11,8 +11,17 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResponseValidationInterceptor } from '../../../schema/market/market.validation';
-import { MarketDataResponseDto } from '../dto/market.dto';
+import MarketResponseValidationInterceptor from '../../../schema/market/market.validation';
+import {
+  trendingMarketSchema,
+  topGainerLoserDataSchema,
+} from '../../../schema/market/market.schema';
+import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
+import {
+  MarketDataResponseDto,
+  TrendingMarketDataResponseDto,
+  TopGainerLoserDataResponseDto,
+} from '../dto/market.dto';
 
 @ApiTags('market')
 @Controller('market')
@@ -21,7 +30,7 @@ export class MarketController {
 
   @Get('coins')
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseInterceptors(ResponseValidationInterceptor)
+  @UseInterceptors(MarketResponseValidationInterceptor)
   @ApiOperation({ summary: 'Fetch market data' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
@@ -34,5 +43,41 @@ export class MarketController {
       return [];
     }
     return marketData.map((data) => new MarketDataResponseDto(data));
+  }
+
+  @Get('trending')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(new ResponseValidationInterceptor(trendingMarketSchema))
+  @ApiOperation({ summary: 'Fetch trending market coins data' })
+  @ApiOkResponse({
+    description: 'The trending market coin data has been successfully fetched.',
+    type: [TrendingMarketDataResponseDto],
+  })
+  async getTrendingCoin() {
+    const trendingData = await this.marketService.trendingMarket();
+    if (!trendingData) {
+      return [];
+    }
+    return trendingData.map((data) => new TrendingMarketDataResponseDto(data));
+  }
+
+  @Get('top_gainers_losers')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(new ResponseValidationInterceptor(topGainerLoserDataSchema))
+  @ApiOperation({ summary: 'Fetch 1000 top coin gainers and loser data' })
+  @ApiOkResponse({
+    description:
+      'The top gainer and loser market coin data has been successfully fetched.',
+    type: [TopGainerLoserDataResponseDto],
+  })
+  async getTopGainerLoserCoin() {
+    const topGainerLoserData = await this.marketService.getTopGainerLoserData();
+    if (!topGainerLoserData) {
+      return new TopGainerLoserDataResponseDto({
+        top_gainers: [],
+        top_losers: [],
+      });
+    }
+    return topGainerLoserData;
   }
 }

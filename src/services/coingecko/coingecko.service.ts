@@ -1,7 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { CoinGeckoMarketDataResponse } from './coingecko.type';
+import {
+  CoinGeckoMarketDataResponse,
+  CoingeckoTrendingDataResponse,
+  CoinGeckoTopGainerLoserResponse,
+} from './coingecko.type';
 
 @Injectable()
 export class CoingeckoService {
@@ -29,6 +33,7 @@ export class CoingeckoService {
       const response = await firstValueFrom(
         this.httpService.get<T>(endpoint, { params }),
       );
+
       return response.data;
     } catch (error) {
       throw new HttpException(
@@ -44,6 +49,17 @@ export class CoingeckoService {
   async getMarketData(params: any) {
     return await this.get<CoinGeckoMarketDataResponse[]>(
       '/coins/markets',
+      params,
+    );
+  }
+
+  async getTrendingMarketData() {
+    return await this.get<CoingeckoTrendingDataResponse>('search/trending', {});
+  }
+
+  async getTopGainerLoserData(params: any) {
+    return await this.get<CoinGeckoTopGainerLoserResponse>(
+      '/coins/top_gainers_losers',
       params,
     );
   }

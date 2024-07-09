@@ -16,7 +16,7 @@ const ajv = new Ajv();
 addFormats(ajv);
 
 @Injectable()
-export class ResponseValidationInterceptor implements NestInterceptor {
+export default class ResponseValidationInterceptor implements NestInterceptor {
   private validate = ajv.compile(marketDataSchema);
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {

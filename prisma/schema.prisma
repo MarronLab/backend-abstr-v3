@@ -73,4 +73,6 @@ model CoinGeckoResponse {
 
 enum CoinGeckoResponseType {
   MARKET_DATA
+  TRENDING_DATA
+  TOPGAINERLOSER_DATA
 }

@@ -24,5 +24,61 @@ export type CoinGeckoMarketDataResponse = {
   atl_change_percentage: number | null;
   atl_date: string | null;
   last_updated: string | null;
-  sparkline_in_7d: number[];
+  sparkline_in_7d: {
+    price: number[];
+  };
+};
+
+export type PriceChangePercentage24hData = {
+  btc: number;
+  usd: number;
+};
+
+export type CoingeckoMarketData = {
+  price: number;
+  price_btc: string;
+  price_change_percentage_24h: PriceChangePercentage24hData;
+  market_cap: string;
+  market_cap_btc: string;
+  total_volume: string;
+  total_volume_btc: string;
+  sparkline: string;
+};
+
+export type CoingeckoTrendingItem = {
+  item: {
+    id: string;
+    coin_id: number;
+    name: string;
+    symbol: string;
+    market_cap_rank: number;
+    thumb: string;
+    small: string;
+    large: string;
+    price_btc: number;
+    score: number;
+    data: CoingeckoMarketData;
+  };
+};
+
+export type CoingeckoTrendingDataResponse = {
+  coins: CoingeckoTrendingItem[];
+  nfts: any[];
+  categories: any[];
+};
+
+export type CoinGeckoTopGainerLoserItem = {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  market_cap_rank: number;
+  usd: number;
+  usd_24h_vol: number;
+  usd_24h_change: number;
+};
+
+export type CoinGeckoTopGainerLoserResponse = {
+  top_gainers: CoinGeckoTopGainerLoserItem[];
+  top_losers: CoinGeckoTopGainerLoserItem[];
 };

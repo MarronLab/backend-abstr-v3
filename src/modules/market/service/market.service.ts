@@ -11,8 +11,17 @@ import { Request } from 'express';
 import { BaseService } from '../../../common/base.service';
 import { PrismaService } from '../../../services/prisma.service';
 import { CoingeckoService } from '../../../services/coingecko/coingecko.service';
-import { CoinGeckoMarketDataResponse } from '../../../services/coingecko/coingecko.type';
-import { MarketDataResponseDto } from '../dto/market.dto';
+import {
+  CoinGeckoMarketDataResponse,
+  CoingeckoTrendingItem,
+  CoinGeckoTopGainerLoserResponse,
+} from '../../../services/coingecko/coingecko.type';
+import {
+  MarketDataResponseDto,
+  TrendingMarketDataResponseDto,
+  TopGainerLoserResponseDto,
+  TopGainerLoserDataResponseDto,
+} from '../dto/market.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
@@ -22,6 +31,12 @@ export class MarketService extends BaseService {
     per_page: 10,
     page: 1,
     sparkline: true,
+  };
+
+  private readonly topGainerLoserParams = {
+    vs_currency: 'usd',
+    duration: '24h',
+    top_coins: '1000',
   };
 
   constructor(
@@ -115,7 +130,11 @@ export class MarketService extends BaseService {
           ),
           atl_date: coin.atl_date || '',
           last_updated: coin.last_updated || '',
-          sparkline_in_7d: coin.sparkline_in_7d || [],
+          sparkline_in_7d: {
+            price: Array.isArray(coin.sparkline_in_7d.price)
+              ? coin.sparkline_in_7d.price
+              : [],
+          },
         }),
     );
   }
@@ -141,6 +160,161 @@ export class MarketService extends BaseService {
 
   private toNumberOrNull(value: any): number | null {
     return value === null || value === undefined ? null : Number(value);
+  }
+  async trendingMarket() {
+    try {
+      const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
+        where: { type: 'TRENDING_DATA' },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+      if (lastUpdated) {
+        const now = new Date();
+        const lastUpdatedDate = new Date(lastUpdated.updatedAt);
+        const timeDiff = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = timeDiff / (1000 * 3600);
+
+        if (diffHours < 1) {
+          const parsedData = lastUpdated.data.map((item: string) => {
+            const parsedItem = JSON.parse(item);
+            return parsedItem;
+          }) as CoingeckoTrendingItem[];
+          return this.transformTrendingResponse(parsedData);
+        }
+      }
+
+      const response = await this.coingeckoService.getTrendingMarketData();
+      const trendingData = this.transformTrendingResponse(response.coins);
+
+      await this.saveTrendingMarketData(trendingData);
+      return trendingData;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private transformTrendingResponse(
+    data: CoingeckoTrendingItem[],
+  ): TrendingMarketDataResponseDto[] {
+    return data.map((coin) => {
+      const item = coin.item || coin;
+      return new TrendingMarketDataResponseDto({
+        id: item.id,
+        coin_id: item.coin_id,
+        name: item.name,
+        symbol: item.symbol,
+        market_cap_rank: item.market_cap_rank,
+        thumb: item.thumb,
+        small: item.small,
+        large: item.large,
+        price_btc: item.price_btc,
+        score: item.score,
+        data: {
+          price: item.data.price,
+          price_btc: item.data.price_btc,
+          price_change_percentage_24h: {
+            btc: item.data.price_change_percentage_24h?.btc || 0,
+            usd: item.data.price_change_percentage_24h?.usd || 0,
+          },
+          market_cap: item.data.market_cap || '',
+          market_cap_btc: item.data.market_cap_btc || '',
+          total_volume: item.data.total_volume || '',
+          total_volume_btc: item.data.total_volume_btc || '',
+          sparkline: item.data.sparkline || '',
+        },
+      });
+    });
+  }
+
+  private async saveTrendingMarketData(data: TrendingMarketDataResponseDto[]) {
+    try {
+      const now = new Date();
+      const jsonData = data.map((item) => JSON.stringify(item));
+      await this.getClient().coinGeckoResponse.upsert({
+        where: { type: 'TRENDING_DATA' },
+        update: { data: jsonData, updatedAt: now },
+        create: {
+          type: 'TRENDING_DATA',
+          data: jsonData,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTopGainerLoserData() {
+    try {
+      const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
+        where: { type: 'TOPGAINERLOSER_DATA' },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+
+      if (lastUpdated) {
+        const now = new Date();
+        const lastUpdatedDate = new Date(lastUpdated.updatedAt);
+        const timeDiff = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = timeDiff / (1000 * 3600);
+
+        if (diffHours < 1) {
+          const parsedData = lastUpdated.data.map((item: string) =>
+            JSON.parse(item),
+          ) as CoinGeckoTopGainerLoserResponse[];
+          return this.transformTopGainerLoserData(parsedData[0]);
+        }
+      }
+
+      const response = await this.coingeckoService.getTopGainerLoserData(
+        this.topGainerLoserParams,
+      );
+      const topGainerLoserData = this.transformTopGainerLoserData(response);
+
+      await this.saveTopGainerLoserData(topGainerLoserData);
+
+      return topGainerLoserData;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private transformTopGainerLoserData(
+    data: CoinGeckoTopGainerLoserResponse,
+  ): TopGainerLoserDataResponseDto {
+    const topGainers = data.top_gainers.map(
+      (coin) => new TopGainerLoserResponseDto(coin),
+    );
+    const topLosers = data.top_losers.map(
+      (coin) => new TopGainerLoserResponseDto(coin),
+    );
+
+    return new TopGainerLoserDataResponseDto({
+      top_gainers: topGainers,
+      top_losers: topLosers,
+    });
+  }
+
+  private async saveTopGainerLoserData(data: TopGainerLoserDataResponseDto) {
+    try {
+      const now = new Date();
+      const jsonData = JSON.stringify(data);
+      await this.getClient().coinGeckoResponse.upsert({
+        where: { type: 'TOPGAINERLOSER_DATA' },
+        update: { data: [jsonData], updatedAt: now },
+        create: {
+          type: 'TOPGAINERLOSER_DATA',
+          data: [jsonData],
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   private handleError(error: any): void {
