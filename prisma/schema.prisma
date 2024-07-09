@@ -25,11 +25,13 @@ model OrderBook {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  safeAddress String   @unique
-  userAddress String   @unique
-  createdAt   DateTime @default(now()) @db.Timestamp(6)
-  updateAt    DateTime @updatedAt @db.Timestamp(6)
+  id                String         @id @default(cuid())
+  safeAddress       String         @unique
+  userAddress       String         @unique
+  modulusCustomerID Int            @unique
+  activities        UserActivity[]
+  createdAt         DateTime       @default(now()) @db.Timestamp(6)
+  updateAt          DateTime       @updatedAt @db.Timestamp(6)
 
   @@map("user")
 }
@@ -45,6 +47,20 @@ model AuditLog {
   @@map("auditLog")
 }
 
+model UserActivity {
+  id        String   @id @default(cuid())
+  userId    String?
+  ipAddress String
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  body      String?
+  response  Json
+  success   Boolean
+  timestamp DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("userActivity")
+}
+
 model CoinGeckoResponse {
   id          String                @id @default(cuid())
   type        CoinGeckoResponseType @unique
@@ -52,7 +68,7 @@ model CoinGeckoResponse {
   createdAt   DateTime              @default(now()) @db.Timestamp(6)
   updatedAt   DateTime              @updatedAt @db.Timestamp(6)
 
-  @@map("coingecko_response")
+  @@map("coingeckoResponse")
 }
 
 enum CoinGeckoResponseType {

@@ -101,3 +101,18 @@ export const getProfileResponseSchema: JSONSchemaType<{
     },
   },
 };
+
+export const generateSafeAddressResponseSchema: JSONSchemaType<{
+  safeAddress: string;
+  isSafeDeployed: boolean;
+  initCode: string;
+}> = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['safeAddress', 'isSafeDeployed', 'initCode'],
+  properties: {
+    safeAddress: { type: 'string' },
+    isSafeDeployed: { type: 'boolean' },
+    initCode: { type: 'string' },
+  },
+};
