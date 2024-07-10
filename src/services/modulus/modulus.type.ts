@@ -482,3 +482,29 @@ export type SignupResendEmailSuccessResponse = {
 export type SignupResendEmailResponse =
   | DeleteApiKeyErrorResponse
   | DeleteApiKeySuccessResponse;
+
+//Asset Open Order
+export type AssetOpenOrderRequest = {
+  pair: string;
+  side: 'BUY' | 'SELL';
+  depth: number;
+};
+
+export type OpenOrderData = {
+  MarketType: string;
+  CurrencyType: string;
+  Rate: number;
+  Volume: number;
+};
+
+export type AssetOpenOrderData = {
+  pair: string;
+  type: string;
+  orders: OpenOrderData[];
+};
+
+export type AssetOpenOrderResponse = {
+  status: 'Success';
+  message: string;
+  data: AssetOpenOrderData;
+};

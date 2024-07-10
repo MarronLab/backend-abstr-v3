@@ -16,6 +16,7 @@ import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
+import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
 
 export interface IProcessOrder {
   done: Order[];
@@ -222,6 +223,20 @@ export class OrderService extends BaseService {
       //Remove metadata
       await this.getClient().orderBook.delete({
         where: { orderId: String(cancelOrderDto.id) },
+      });
+
+      return data.data;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+
+  async getAssetOpenOrder(assetOpenOrderRequestDto: AssetOpenOrderRequestDto) {
+    try {
+      const { data } = await this.modulusService.getAssetOpenOrder({
+        pair: assetOpenOrderRequestDto.pair,
+        side: assetOpenOrderRequestDto.side,
+        depth: assetOpenOrderRequestDto.depth,
       });
 
       return data.data;

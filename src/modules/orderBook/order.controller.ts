@@ -49,6 +49,12 @@ import {
   TradeHistoryResponseDto,
   TradeResponseDto,
 } from './dto/tradeHistoryResponse.dto';
+import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
+import {
+  AssetOpenOrderResponseDto,
+  OpenOrderDataDto,
+  AssetOpenOrderDataDto,
+} from './dto/openOrderResponse.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -241,5 +247,37 @@ export class OrderController {
     });
 
     return new TradeHistoryResponseDto({ pageInfo, result });
+  }
+
+  @Get('/get-open-orders')
+  async OpenOrders(
+    @Query() assetOpenOrderRequestDto: AssetOpenOrderRequestDto,
+  ) {
+    const response = await this.orderService.getAssetOpenOrder(
+      assetOpenOrderRequestDto,
+    );
+
+    console.log('main res', response);
+
+    // const transformedOrders: OpenOrderDataDto[] = response.data.orders.map(
+    //   (order) => ({
+    //     MarketType: order.MarketType,
+    //     CurrencyType: order.CurrencyType,
+    //     Rate: order.Rate,
+    //     Volume: order.Volume,
+    //   }),
+    // );
+
+    // const transformedData: AssetOpenOrderDataDto = {
+    //   pair: response.data.pair,
+    //   type: response.data.type,
+    //   orders: transformedOrders,
+    // };
+
+    // return new AssetOpenOrderResponseDto({
+    //   status: response.status,
+    //   message: response.message,
+    //   data: transformedData,
+    // });
   }
 }
