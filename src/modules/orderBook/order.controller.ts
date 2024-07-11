@@ -37,6 +37,7 @@ import {
   placeOrderPricedResponseSchema,
   placeOrderResponseSchema,
   tradeHistoryResponseSchema,
+  assetOpenOrderResponseSchema,
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
@@ -250,6 +251,15 @@ export class OrderController {
   }
 
   @Get('/get-open-orders')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(assetOpenOrderResponseSchema),
+  )
+  @ApiOperation({ summary: 'Fetch asset open order' })
+  @ApiCreatedResponse({
+    description: 'The asset open order history has been successfully fetched.',
+    type: AssetOpenOrderResponseDto,
+  })
   async OpenOrders(
     @Query() assetOpenOrderRequestDto: AssetOpenOrderRequestDto,
   ) {
@@ -257,27 +267,23 @@ export class OrderController {
       assetOpenOrderRequestDto,
     );
 
-    console.log('main res', response);
+    const transformedOrders: OpenOrderDataDto[] = response.Orders.map(
+      (order) => ({
+        MarketType: order.MarketType,
+        CurrencyType: order.CurrencyType,
+        Rate: order.Rate,
+        Volume: order.Volume,
+      }),
+    );
 
-    // const transformedOrders: OpenOrderDataDto[] = response.data.orders.map(
-    //   (order) => ({
-    //     MarketType: order.MarketType,
-    //     CurrencyType: order.CurrencyType,
-    //     Rate: order.Rate,
-    //     Volume: order.Volume,
-    //   }),
-    // );
+    const transformedData: AssetOpenOrderDataDto = {
+      Pair: response.Pair,
+      Type: response.Type,
+      Orders: transformedOrders,
+    };
 
-    // const transformedData: AssetOpenOrderDataDto = {
-    //   pair: response.data.pair,
-    //   type: response.data.type,
-    //   orders: transformedOrders,
-    // };
-
-    // return new AssetOpenOrderResponseDto({
-    //   status: response.status,
-    //   message: response.message,
-    //   data: transformedData,
-    // });
+    return new AssetOpenOrderResponseDto({
+      data: transformedData,
+    });
   }
 }

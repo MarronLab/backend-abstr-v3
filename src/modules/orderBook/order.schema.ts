@@ -310,3 +310,57 @@ export const tradeHistoryResponseSchema: JSONSchemaType<{
     },
   },
 };
+
+export const assetOpenOrderResponseSchema: JSONSchemaType<{
+  data: {
+    Pair: string;
+    Type: string;
+    Orders: {
+      MarketType: string;
+      CurrencyType: string;
+      Rate: number;
+      Volume: number;
+    }[];
+  };
+}> = {
+  type: 'object',
+  properties: {
+    data: {
+      type: 'object',
+      properties: {
+        Pair: {
+          type: 'string',
+        },
+        Type: {
+          type: 'string',
+        },
+        Orders: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              MarketType: {
+                type: 'string',
+              },
+              CurrencyType: {
+                type: 'string',
+              },
+              Rate: {
+                type: 'number',
+              },
+              Volume: {
+                type: 'number',
+              },
+            },
+            required: ['MarketType', 'CurrencyType', 'Rate', 'Volume'],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ['Pair', 'Type', 'Orders'],
+      additionalProperties: false,
+    },
+  },
+  required: ['data'],
+  additionalProperties: false,
+};

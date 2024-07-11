@@ -487,7 +487,7 @@ export type SignupResendEmailResponse =
 export type AssetOpenOrderRequest = {
   pair: string;
   side: 'BUY' | 'SELL';
-  depth: number;
+  depth?: number;
 };
 
 export type OpenOrderData = {
@@ -498,9 +498,9 @@ export type OpenOrderData = {
 };
 
 export type AssetOpenOrderData = {
-  pair: string;
-  type: string;
-  orders: OpenOrderData[];
+  Pair: string;
+  Type: string;
+  Orders: OpenOrderData[];
 };
 
 export type AssetOpenOrderResponse = {

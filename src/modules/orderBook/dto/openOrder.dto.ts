@@ -1,5 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsNotEmpty, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsNumber,
+  IsNotEmpty,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class AssetOpenOrderRequestDto {
   @ApiProperty({
@@ -17,9 +24,9 @@ export class AssetOpenOrderRequestDto {
   @IsEnum(['BUY', 'SELL'])
   side: 'SELL' | 'BUY';
 
-  @ApiProperty({
-    description: 'The depth of the order book to retrieve',
-  })
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
-  depth: number;
+  @Transform(({ value }) => (value ? parseInt(value, 10) : 10))
+  depth?: number = 10;
 }

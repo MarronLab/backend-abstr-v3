@@ -16,13 +16,13 @@ export class OpenOrderDataDto {
 
 export class AssetOpenOrderDataDto {
   @ApiProperty()
-  pair: string;
+  Pair: string;
 
   @ApiProperty()
-  type: string;
+  Type: string;
 
   @ApiProperty({ type: [OpenOrderDataDto] })
-  orders: OpenOrderDataDto[];
+  Orders: OpenOrderDataDto[];
 }
 
 export class AssetOpenOrderResponseDto {
