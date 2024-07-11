@@ -502,10 +502,31 @@ export type AssetOpenOrderData = {
   Pair: string;
   Type: string;
   Orders: OpenOrderData[];
+  lastTradedPrice: AssetCurrencyData;
 };
 
-export type AssetOpenOrderResponse = {
+export type AssetOpenOrderSuccessResponse = {
   status: 'Success';
   message: string;
   data: AssetOpenOrderData;
+};
+
+export type AssetOpenOrderResponse =
+  | ModulusBaseErrorResponseData
+  | AssetOpenOrderSuccessResponse;
+
+// Get currency pair price
+export type AssetCurrencyPriceRequest = {
+  pair: string;
+};
+
+export type AssetCurrencyData = {
+  Pair: string;
+  Price: number;
+};
+
+export type AssetCurrencyPriceResponse = {
+  status: 'Success';
+  message: string;
+  data: AssetCurrencyData;
 };

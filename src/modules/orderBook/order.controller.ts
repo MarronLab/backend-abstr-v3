@@ -267,7 +267,8 @@ export class OrderController {
       assetOpenOrderRequestDto,
     );
 
-    const transformedOrders: OpenOrderDataDto[] = response.Orders.map(
+    const { currencyPrice, assetOpenOrderData } = response;
+    const transformedOrders: OpenOrderDataDto[] = assetOpenOrderData.Orders.map(
       (order) => ({
         MarketType: order.MarketType,
         CurrencyType: order.CurrencyType,
@@ -278,13 +279,14 @@ export class OrderController {
     );
 
     const transformedData: AssetOpenOrderDataDto = {
-      Pair: response.Pair,
-      Type: response.Type,
+      Pair: assetOpenOrderData.Pair,
+      Type: assetOpenOrderData.Type,
       Orders: transformedOrders,
     };
 
     return new AssetOpenOrderResponseDto({
       data: transformedData,
+      currencyPrice: currencyPrice.Price,
     });
   }
 }

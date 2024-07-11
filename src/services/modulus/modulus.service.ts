@@ -35,6 +35,8 @@ import {
   SignupResendEmailResponse,
   AssetOpenOrderRequest,
   AssetOpenOrderResponse,
+  AssetCurrencyPriceRequest,
+  AssetCurrencyPriceResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -174,6 +176,13 @@ export class ModulusService {
   async getAssetOpenOrder(request: AssetOpenOrderRequest) {
     return await this.get<AssetOpenOrderResponse>(
       `/market/get-open-orders/${request.pair}/${request.side}/${request.depth}`,
+      {},
+    );
+  }
+
+  async getCurrencyPrice(request: AssetCurrencyPriceRequest) {
+    return await this.get<AssetCurrencyPriceResponse>(
+      `/market/get-currency-price/${request.pair}`,
       {},
     );
   }

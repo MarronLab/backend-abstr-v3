@@ -38,6 +38,9 @@ export class AssetOpenOrderResponseDto {
   @ApiProperty({ type: AssetOpenOrderDataDto })
   data: AssetOpenOrderDataDto;
 
+  @ApiProperty({ description: 'last trade value of the Current pair' })
+  currencyPrice: number;
+
   constructor(partial: Partial<AssetOpenOrderResponseDto>) {
     Object.assign(this, partial);
   }

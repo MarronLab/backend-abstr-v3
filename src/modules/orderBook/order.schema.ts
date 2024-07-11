@@ -323,6 +323,7 @@ export const assetOpenOrderResponseSchema: JSONSchemaType<{
       Total: number;
     }[];
   };
+  currencyPrice: number;
 }> = {
   type: 'object',
   properties: {
@@ -364,7 +365,10 @@ export const assetOpenOrderResponseSchema: JSONSchemaType<{
       required: ['Pair', 'Type', 'Orders'],
       additionalProperties: false,
     },
+    currencyPrice: {
+      type: 'number',
+    },
   },
-  required: ['data'],
+  required: ['data', 'currencyPrice'],
   additionalProperties: false,
 };

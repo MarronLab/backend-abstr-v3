@@ -239,7 +239,20 @@ export class OrderService extends BaseService {
         depth: assetOpenOrderRequestDto.depth,
       });
 
-      return data.data;
+      if (data.status === 'Error') {
+        console.log('error');
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      const currencyPrice = await this.modulusService.getCurrencyPrice({
+        pair: data.data.Pair,
+      });
+
+      return {
+        assetOpenOrderData: data.data,
+        currencyPrice: currencyPrice.data.data,
+      };
+      // return data.data;
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }
