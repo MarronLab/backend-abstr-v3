@@ -19,6 +19,7 @@ export class UserService {
       return await this.safeService.generateSafeAddress({
         userAddress: generateSafeAddressDto.userAddress,
         modulusCustomerID: generateSafeAddressDto.modulusCustomerID,
+        modulusCustomerEmail: generateSafeAddressDto.modulusCustomerEmail,
       });
     } catch (error) {
       throw new InternalServerErrorException(error);
