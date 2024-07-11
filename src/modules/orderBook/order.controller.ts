@@ -273,6 +273,7 @@ export class OrderController {
         CurrencyType: order.CurrencyType,
         Rate: order.Rate,
         Volume: order.Volume,
+        Total: order.Rate * order.Volume,
       }),
     );
 

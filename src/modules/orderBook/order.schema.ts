@@ -320,6 +320,7 @@ export const assetOpenOrderResponseSchema: JSONSchemaType<{
       CurrencyType: string;
       Rate: number;
       Volume: number;
+      Total: number;
     }[];
   };
 }> = {
@@ -351,8 +352,11 @@ export const assetOpenOrderResponseSchema: JSONSchemaType<{
               Volume: {
                 type: 'number',
               },
+              Total: {
+                type: 'number',
+              },
             },
-            required: ['MarketType', 'CurrencyType', 'Rate', 'Volume'],
+            required: ['MarketType', 'CurrencyType', 'Rate', 'Volume', 'Total'],
             additionalProperties: false,
           },
         },

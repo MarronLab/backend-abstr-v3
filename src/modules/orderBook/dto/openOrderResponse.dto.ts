@@ -12,6 +12,9 @@ export class OpenOrderDataDto {
 
   @ApiProperty()
   Volume: number;
+
+  @ApiProperty()
+  Total: number;
 }
 
 export class AssetOpenOrderDataDto {

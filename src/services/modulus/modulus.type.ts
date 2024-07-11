@@ -495,6 +495,7 @@ export type OpenOrderData = {
   CurrencyType: string;
   Rate: number;
   Volume: number;
+  Total: number;
 };
 
 export type AssetOpenOrderData = {
