@@ -511,8 +511,13 @@ export type AssetOpenOrderSuccessResponse = {
   data: AssetOpenOrderData;
 };
 
+export type AssetOpenOrderErrorResponse = {
+  status: 'Error';
+  errorMessage: string;
+  data: string;
+};
 export type AssetOpenOrderResponse =
-  | ModulusBaseErrorResponseData
+  | AssetOpenOrderErrorResponse
   | AssetOpenOrderSuccessResponse;
 
 // Get currency pair price
