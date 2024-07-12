@@ -514,7 +514,7 @@ export type RequestChangePasswordOTPResponse =
   | RequestChangePasswordOTPErrorResponse
   | RequestChangePasswordOTPSuccessResponse;
 
-//Change Password - Request Otp
+//Change Password
 export type ChangePasswordRequest = {
   oldPassword: string;
   newPassword: string;
