@@ -33,6 +33,12 @@ import {
   VerifyAccountResponse,
   SignupResendEmailRequest,
   SignupResendEmailResponse,
+  GAuthCheckStatusResponse,
+  GAuthEnableRequestResponse,
+  GAuthSetEnableRequest,
+  GAuthSetEnableResponse,
+  GAuthDisableRequestRequest,
+  GAuthDisableRequestResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -166,6 +172,34 @@ export class ModulusService {
   async signupResendEmail(request: SignupResendEmailRequest) {
     return await this.post<SignupResendEmailResponse>(
       '/api/SignUp_Resend_Email',
+      request,
+    );
+  }
+
+  async gAuthCheckStatus() {
+    return await this.get<GAuthCheckStatusResponse>(
+      '/api/GAuth_Check_Status',
+      {},
+    );
+  }
+
+  async gAuthEnableRequest() {
+    return await this.get<GAuthEnableRequestResponse>(
+      '/api/GAuth_Enable_Request',
+      {},
+    );
+  }
+
+  async gAuthSetEnable(request: GAuthSetEnableRequest) {
+    return await this.post<GAuthSetEnableResponse>(
+      '/api/GAuth_Set_Enable',
+      request,
+    );
+  }
+
+  async gAuthDisableRequest(request: GAuthDisableRequestRequest) {
+    return await this.post<GAuthDisableRequestResponse>(
+      '/api/GAuth_Disable_Request',
       request,
     );
   }
