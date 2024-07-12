@@ -6,8 +6,8 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   HttpCode,
-  Put,
   Get,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
@@ -23,7 +23,10 @@ import {
 } from '@nestjs/swagger';
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
-import { registerResponseSchema } from '../../../schema/auth/auth.schema';
+import {
+  getGoogleAuthenticatorEnableResponseSchema,
+  registerResponseSchema,
+} from '../../../schema/auth/auth.schema';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
@@ -31,6 +34,9 @@ import AuthResponseDto from '../dto/auth.response.dto';
 import RegisterResponseDto from '../dto/auth.registerResponse.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
+import DisableGoogleAuthenticatorDto from '../dto/auth.disable-google-authenticator.dto';
+import EnableGoogleAuthenticatorDto from '../dto/auth.enable-google-authenticator.dto';
+import GetGoogleAuthenticatorEnableResponseDto from '../dto/auth.get-google-authenticator-enable.dto';
 import ChangePasswordDto from '../dto/auth.change-password.dto';
 import ChangeEmailDto from '../dto/auth.change-email.dto';
 import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
@@ -97,6 +103,88 @@ export class AuthController {
   })
   async resendEmail(@Body() signupResendEmailDto: SignupResendEmailDto) {
     return await this.authService.signupResendEmail(signupResendEmailDto);
+  }
+
+  @Get('gauth/status')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Check Google Authenticator status' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The Google Authenticator status has been successfully fetch.',
+    type: 'true',
+  })
+  async checkGoogleAuthenticatorStatus() {
+    return await this.authService.checkGoogleAuthenticatorStatus();
+  }
+
+  @Get('gauth/enable')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(
+      getGoogleAuthenticatorEnableResponseSchema,
+    ),
+  )
+  @ApiOperation({ summary: 'Enable Google Authenticator' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The Google Authenticator enable has been successfully fetch.',
+    type: GetGoogleAuthenticatorEnableResponseDto,
+  })
+  async getGoogleAuthenticatorEnable() {
+    const response = await this.authService.getGoogleAuthenticatorEnable();
+
+    return new GetGoogleAuthenticatorEnableResponseDto({
+      qRCode: response.qR_Code,
+      pairingCode: response.pairingCode,
+    });
+  }
+
+  @Post('gauth/enable')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Enable Google Authenticator' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The Google Authenticator has been successfully enable.',
+    type: EnableGoogleAuthenticatorDto,
+  })
+  async enableGoogleAuthenticator(
+    @Body() enableGoogleAuthenticatorDto: EnableGoogleAuthenticatorDto,
+  ) {
+    return await this.authService.enableGoogleAuthenticator(
+      enableGoogleAuthenticatorDto,
+    );
+  }
+
+  @Post('gauth/disable')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Disable Google Authenticator' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The Google Authenticator has been successfully disabled.',
+    type: DisableGoogleAuthenticatorDto,
+  })
+  async disableGoogleAuthenticator(
+    @Body() disableGoogleAuthenticatorDto: DisableGoogleAuthenticatorDto,
+  ) {
+    return await this.authService.disableGoogleAuthenticator(
+      disableGoogleAuthenticatorDto,
+    );
   }
 
   @Put('change-email')

@@ -11,6 +11,8 @@ import { AuthenticateUserResponse } from 'src/services/modulus/modulus.type';
 import RegisterDto from '../dto/auth.register.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
+import DisableGoogleAuthenticatorDto from '../dto/auth.disable-google-authenticator.dto';
+import EnableGoogleAuthenticatorDto from '../dto/auth.enable-google-authenticator.dto';
 import ChangePasswordDto from '../dto/auth.change-password.dto';
 import ChangeEmailDto from '../dto/auth.change-email.dto';
 import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
@@ -85,9 +87,73 @@ export class AuthService {
     }
   }
 
+  async disableGoogleAuthenticator(
+    disableGoogleAuthenticatorDto: DisableGoogleAuthenticatorDto,
+  ) {
+    try {
+      const { data } = await this.modulusService.gAuthDisableRequest({
+        GAuth_Code: disableGoogleAuthenticatorDto.code,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async enableGoogleAuthenticator(
+    enableGoogleAuthenticatorDto: EnableGoogleAuthenticatorDto,
+  ) {
+    try {
+      const { data } = await this.modulusService.gAuthSetEnable({
+        GAuth_Code: enableGoogleAuthenticatorDto.code,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getGoogleAuthenticatorEnable() {
+    try {
+      const { data } = await this.modulusService.gAuthEnableRequest();
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async requestChangePasswordOTP() {
     try {
       const { data } = await this.modulusService.requestChangePasswordOTP();
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async checkGoogleAuthenticatorStatus() {
+    try {
+      const { data } = await this.modulusService.gAuthCheckStatus();
 
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);

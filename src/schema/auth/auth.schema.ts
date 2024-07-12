@@ -20,3 +20,20 @@ export const registerResponseSchema: JSONSchemaType<{
   required: ['status', 'message', 'data'],
   additionalProperties: false,
 };
+
+export const getGoogleAuthenticatorEnableResponseSchema: JSONSchemaType<{
+  pairingCode: string;
+  qRCode: string;
+}> = {
+  type: 'object',
+  properties: {
+    pairingCode: {
+      type: 'string',
+    },
+    qRCode: {
+      type: 'string',
+    },
+  },
+  required: ['pairingCode', 'qRCode'],
+  additionalProperties: false,
+};
