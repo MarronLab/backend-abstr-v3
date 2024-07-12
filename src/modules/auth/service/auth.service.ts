@@ -11,6 +11,8 @@ import { AuthenticateUserResponse } from 'src/services/modulus/modulus.type';
 import RegisterDto from '../dto/auth.register.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
+import ChangeEmailDto from '../dto/auth.change-password.dto';
+import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
 
 @Injectable()
 export class AuthService {
@@ -77,6 +79,39 @@ export class AuthService {
       }
 
       return data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async changeEmail(changeEmailDto: ChangeEmailDto) {
+    try {
+      const { data } = await this.modulusService.changeEmail({
+        NewEmail: changeEmailDto.email,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async verifyChangeEmailOtp(verifyChangeEmailOtpDto: VerifyChangeEmailOtpDto) {
+    try {
+      const { data } = await this.modulusService.changeEmailVerifyOtp({
+        OTP_New: verifyChangeEmailOtpDto.newEmailOtp,
+        OTP_Old: verifyChangeEmailOtpDto.oldEmailOtp,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

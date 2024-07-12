@@ -9,10 +9,16 @@ import { BaseService } from 'src/common/base.service';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { customAlphabet } from 'nanoid';
+import { UserSettingsService } from 'src/modules/user/service/user-settings.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class SafeService extends BaseService {
-  constructor(prisma: PrismaService, @Inject(REQUEST) req: Request) {
+  constructor(
+    prisma: PrismaService,
+    @Inject(REQUEST) req: Request,
+    private readonly userSettingsService: UserSettingsService,
+  ) {
     super(prisma, req);
   }
 
@@ -47,9 +53,11 @@ export class SafeService extends BaseService {
   async generateSafeAddress({
     userAddress,
     modulusCustomerID,
+    modulusCustomerEmail,
   }: {
     userAddress: string;
     modulusCustomerID: number;
+    modulusCustomerEmail: string;
   }) {
     const safe = await Safe4337.withSigner(userAddress, this.safeGlobalConfig);
 
@@ -71,11 +79,21 @@ export class SafeService extends BaseService {
     if (user) {
       safeAddress = user.safeAddress;
     } else {
+      const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const nanoid = customAlphabet(alphabet, 16);
+
+      const userSettings = this.userSettingsService.getUserSettings();
+
       await this.getClient().user.create({
         data: {
           userAddress,
           safeAddress,
           modulusCustomerID,
+          modulusCustomerEmail,
+          publicID: nanoid(),
+          timezone: userSettings.timezone,
+          currency: userSettings.currency,
+          language: userSettings.language,
         },
       });
     }

@@ -27,6 +27,8 @@ import AuthResponseDto from '../dto/auth.response.dto';
 import RegisterResponseDto from '../dto/auth.registerResponse.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
+import ChangeEmailDto from '../dto/auth.change-password.dto';
+import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -89,5 +91,37 @@ export class AuthController {
   })
   async resendEmail(@Body() signupResendEmailDto: SignupResendEmailDto) {
     return await this.authService.signupResendEmail(signupResendEmailDto);
+  }
+
+  @Post('change-email')
+  @HttpCode(200)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Change user login email' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user login email has been successfully requested.',
+  })
+  async changeEmail(@Body() changeEmailDto: ChangeEmailDto) {
+    const response = await this.authService.changeEmail(changeEmailDto);
+    return { data: response };
+  }
+
+  @Post('verify-change-email-otp')
+  @HttpCode(200)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Verify change email OTP' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The OTP has been successfully verified.',
+  })
+  async verifyChangeEmailOTP(
+    @Body() verifyChangeEmailOtpDto: VerifyChangeEmailOtpDto,
+  ) {
+    const response = await this.authService.verifyChangeEmailOtp(
+      verifyChangeEmailOtpDto,
+    );
+    return { data: response };
   }
 }

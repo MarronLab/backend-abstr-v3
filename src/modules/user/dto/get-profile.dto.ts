@@ -89,6 +89,36 @@ export class GetProfileResponseDto {
   @ApiProperty()
   kycType: string;
 
+  @ApiProperty({ type: String, nullable: true })
+  language: string | null;
+
+  @ApiProperty({ type: String, nullable: true })
+  currency: string | null;
+
+  @ApiProperty({ type: String, nullable: true })
+  timezone: string | null;
+
+  @ApiProperty({ type: String, nullable: true })
+  username: string | null;
+
+  @ApiProperty()
+  safeAddress: string;
+
+  @ApiProperty()
+  userAddress: string;
+
+  @ApiProperty()
+  emailNewsletter: boolean;
+
+  @ApiProperty()
+  emailTradeUpdates: boolean;
+
+  @ApiProperty()
+  emailAnnouncements: boolean;
+
+  @ApiProperty()
+  publicID: string;
+
   constructor(partial: Partial<GetProfileResponseDto>) {
     Object.assign(this, partial);
   }

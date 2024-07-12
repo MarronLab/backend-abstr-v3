@@ -33,6 +33,10 @@ import {
   VerifyAccountResponse,
   SignupResendEmailRequest,
   SignupResendEmailResponse,
+  ChangeEmailRequest,
+  ChangeEmailResponse,
+  ChangeEmailVerifyOtpRequest,
+  ChangeEmailVerifyOtpResponse,
   AssetOpenOrderRequest,
   AssetOpenOrderResponse,
   AssetCurrencyPriceRequest,
@@ -169,6 +173,17 @@ export class ModulusService {
   async signupResendEmail(request: SignupResendEmailRequest) {
     return await this.post<SignupResendEmailResponse>(
       '/api/SignUp_Resend_Email',
+      request,
+    );
+  }
+
+  async changeEmail(request: ChangeEmailRequest) {
+    return await this.post<ChangeEmailResponse>('/api/Change_Email', request);
+  }
+
+  async changeEmailVerifyOtp(request: ChangeEmailVerifyOtpRequest) {
+    return await this.post<ChangeEmailVerifyOtpResponse>(
+      '/api/ChangeEmail_Verify_EmailOTP',
       request,
     );
   }
