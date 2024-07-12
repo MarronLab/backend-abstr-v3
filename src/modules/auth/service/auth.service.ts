@@ -85,6 +85,20 @@ export class AuthService {
     }
   }
 
+  async requestChangePasswordOTP() {
+    try {
+      const { data } = await this.modulusService.requestChangePasswordOTP();
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async changePassword(changePasswordDto: ChangePasswordDto) {
     try {
       const { data } = await this.modulusService.changePassword({
@@ -114,18 +128,6 @@ export class AuthService {
       }
 
       return data.data;
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  async requestChangePasswordOTP() {
-    try {
-      const { data } = await this.modulusService.requestChangePasswordOTP();
-
-      if (data.status === 'Error') {
-        throw new UnprocessableEntityException(data.data);
-      }
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
