@@ -482,3 +482,38 @@ export type SignupResendEmailSuccessResponse = {
 export type SignupResendEmailResponse =
   | DeleteApiKeyErrorResponse
   | DeleteApiKeySuccessResponse;
+
+//Change Email
+export type ChangeEmailRequest = {
+  NewEmail: string;
+};
+
+export type ChangeEmailErrorResponse = ModulusBaseErrorResponseData;
+
+export type ChangeEmailSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ChangeEmailResponse =
+  | ChangeEmailErrorResponse
+  | ChangeEmailSuccessResponse;
+
+//Change Email - Verify Otp
+export type ChangeEmailVerifyOtpRequest = {
+  OTP_New: string;
+  OTP_Old: string;
+};
+
+export type ChangeEmailVerifyOtpErrorResponse = ModulusBaseErrorResponseData;
+
+export type ChangeEmailVerifyOtpSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ChangeEmailVerifyOtpResponse =
+  | ChangeEmailVerifyOtpErrorResponse
+  | ChangeEmailVerifyOtpSuccessResponse;
