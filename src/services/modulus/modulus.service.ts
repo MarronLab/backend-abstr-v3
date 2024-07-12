@@ -33,6 +33,10 @@ import {
   VerifyAccountResponse,
   SignupResendEmailRequest,
   SignupResendEmailResponse,
+  AssetOpenOrderRequest,
+  AssetOpenOrderResponse,
+  AssetCurrencyPriceRequest,
+  AssetCurrencyPriceResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -63,7 +67,6 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
-
       return response;
     } catch (error) {
       // console.log('Error: ', error);
@@ -167,6 +170,20 @@ export class ModulusService {
     return await this.post<SignupResendEmailResponse>(
       '/api/SignUp_Resend_Email',
       request,
+    );
+  }
+
+  async getAssetOpenOrder(request: AssetOpenOrderRequest) {
+    return await this.get<AssetOpenOrderResponse>(
+      `/market/get-open-orders/${request.pair}/${request.side}/${request.depth}`,
+      {},
+    );
+  }
+
+  async getCurrencyPrice(request: AssetCurrencyPriceRequest) {
+    return await this.get<AssetCurrencyPriceResponse>(
+      `/market/get-currency-price/${request.pair}`,
+      {},
     );
   }
 }
