@@ -6,6 +6,8 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   HttpCode,
+  Put,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import {
@@ -27,6 +29,7 @@ import AuthResponseDto from '../dto/auth.response.dto';
 import RegisterResponseDto from '../dto/auth.registerResponse.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
+import ChangePasswordDto from '../dto/auth.change-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -89,5 +92,34 @@ export class AuthController {
   })
   async resendEmail(@Body() signupResendEmailDto: SignupResendEmailDto) {
     return await this.authService.signupResendEmail(signupResendEmailDto);
+  }
+
+  @Put('change-password')
+  @HttpCode(200)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Change user login password' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user login password has been successfully changed.',
+  })
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    const response = await this.authService.changePassword(changePasswordDto);
+    return { data: response };
+  }
+
+  @Get('request-change-password-otp')
+  @HttpCode(200)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Request change user login password OTP' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description:
+      'The user request change login password OTP has been successfully sent.',
+  })
+  async requestChangePasswordOTP() {
+    const response = await this.authService.requestChangePasswordOTP();
+    return { data: response };
   }
 }

@@ -33,6 +33,9 @@ import {
   VerifyAccountResponse,
   SignupResendEmailRequest,
   SignupResendEmailResponse,
+  RequestChangePasswordOTPResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -166,6 +169,20 @@ export class ModulusService {
   async signupResendEmail(request: SignupResendEmailRequest) {
     return await this.post<SignupResendEmailResponse>(
       '/api/SignUp_Resend_Email',
+      request,
+    );
+  }
+
+  async requestChangePasswordOTP() {
+    return await this.post<RequestChangePasswordOTPResponse>(
+      '/api/RequestChangePasswordOTP',
+      {},
+    );
+  }
+
+  async changePassword(request: ChangePasswordRequest) {
+    return await this.post<ChangePasswordResponse>(
+      '/api/ChangePassword',
       request,
     );
   }

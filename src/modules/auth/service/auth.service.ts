@@ -11,6 +11,7 @@ import { AuthenticateUserResponse } from 'src/services/modulus/modulus.type';
 import RegisterDto from '../dto/auth.register.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
+import ChangePasswordDto from '../dto/auth.change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -77,6 +78,38 @@ export class AuthService {
       }
 
       return data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto) {
+    try {
+      const { data } = await this.modulusService.changePassword({
+        otp: changePasswordDto.otp,
+        newPassword: changePasswordDto.newPassword,
+        oldPassword: changePasswordDto.oldPassword,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async requestChangePasswordOTP() {
+    try {
+      const { data } = await this.modulusService.requestChangePasswordOTP();
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

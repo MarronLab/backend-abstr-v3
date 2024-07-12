@@ -482,3 +482,36 @@ export type SignupResendEmailSuccessResponse = {
 export type SignupResendEmailResponse =
   | DeleteApiKeyErrorResponse
   | DeleteApiKeySuccessResponse;
+
+//Change Password - Request Otp
+export type RequestChangePasswordOTPErrorResponse =
+  ModulusBaseErrorResponseData;
+
+export type RequestChangePasswordOTPSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type RequestChangePasswordOTPResponse =
+  | RequestChangePasswordOTPErrorResponse
+  | RequestChangePasswordOTPSuccessResponse;
+
+//Change Password - Request Otp
+export type ChangePasswordRequest = {
+  oldPassword: string;
+  newPassword: string;
+  otp?: string;
+};
+
+export type ChangePasswordErrorResponse = ModulusBaseErrorResponseData;
+
+export type ChangePasswordSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ChangePasswordResponse =
+  | ChangePasswordErrorResponse
+  | ChangePasswordSuccessResponse;
