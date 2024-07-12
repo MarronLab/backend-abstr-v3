@@ -99,7 +99,7 @@ export class AuthController {
     return await this.authService.signupResendEmail(signupResendEmailDto);
   }
 
-  @Post('change-email')
+  @Put('change-email')
   @HttpCode(200)
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
