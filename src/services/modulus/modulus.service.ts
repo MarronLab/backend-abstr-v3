@@ -33,6 +33,9 @@ import {
   VerifyAccountResponse,
   SignupResendEmailRequest,
   SignupResendEmailResponse,
+  RequestChangePasswordOTPResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
   ChangeEmailRequest,
   ChangeEmailResponse,
   ChangeEmailVerifyOtpRequest,
@@ -174,6 +177,19 @@ export class ModulusService {
     return await this.post<SignupResendEmailResponse>(
       '/api/SignUp_Resend_Email',
       request,
+    );
+  }
+
+  async changePassword(request: ChangePasswordRequest) {
+    return await this.post<ChangePasswordResponse>(
+      '/api/ChangePassword',
+      request,
+    );
+  }
+
+  async requestChangePasswordOTP() {
+    return await this.post<RequestChangePasswordOTPResponse>(
+      '/api/RequestChangePasswordOTP',
     );
   }
 

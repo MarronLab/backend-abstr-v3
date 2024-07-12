@@ -6,9 +6,13 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   HttpCode,
+  Put,
+  Get,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
@@ -27,8 +31,10 @@ import AuthResponseDto from '../dto/auth.response.dto';
 import RegisterResponseDto from '../dto/auth.registerResponse.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
-import ChangeEmailDto from '../dto/auth.change-password.dto';
+import ChangePasswordDto from '../dto/auth.change-password.dto';
+import ChangeEmailDto from '../dto/auth.change-email.dto';
 import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
+import { AuthGuard } from '../auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -93,10 +99,13 @@ export class AuthController {
     return await this.authService.signupResendEmail(signupResendEmailDto);
   }
 
-  @Post('change-email')
+  @Put('change-email')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Change user login email' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
@@ -104,13 +113,17 @@ export class AuthController {
   })
   async changeEmail(@Body() changeEmailDto: ChangeEmailDto) {
     const response = await this.authService.changeEmail(changeEmailDto);
+
     return { data: response };
   }
 
   @Post('verify-change-email-otp')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Verify change email OTP' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
@@ -122,6 +135,43 @@ export class AuthController {
     const response = await this.authService.verifyChangeEmailOtp(
       verifyChangeEmailOtpDto,
     );
+
+    return { data: response };
+  }
+
+  @Put('change-password')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Change user login password' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user login password has been successfully changed.',
+  })
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    const response = await this.authService.changePassword(changePasswordDto);
+    return { data: response };
+  }
+
+  @Get('request-change-password-otp')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Request change user login password OTP' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description:
+      'The user request change login password OTP has been successfully sent.',
+  })
+  async requestChangePasswordOTP() {
+    const response = await this.authService.requestChangePasswordOTP();
+
     return { data: response };
   }
 }

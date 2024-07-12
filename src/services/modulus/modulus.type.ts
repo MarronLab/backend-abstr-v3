@@ -500,6 +500,39 @@ export type ChangeEmailResponse =
   | ChangeEmailErrorResponse
   | ChangeEmailSuccessResponse;
 
+//Change Password - Request Otp
+export type RequestChangePasswordOTPErrorResponse =
+  ModulusBaseErrorResponseData;
+
+export type RequestChangePasswordOTPSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type RequestChangePasswordOTPResponse =
+  | RequestChangePasswordOTPErrorResponse
+  | RequestChangePasswordOTPSuccessResponse;
+
+//Change Password
+export type ChangePasswordRequest = {
+  oldPassword: string;
+  newPassword: string;
+  otp?: string;
+};
+
+export type ChangePasswordErrorResponse = ModulusBaseErrorResponseData;
+
+export type ChangePasswordSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ChangePasswordResponse =
+  | ChangePasswordErrorResponse
+  | ChangePasswordSuccessResponse;
+
 //Change Email - Verify Otp
 export type ChangeEmailVerifyOtpRequest = {
   OTP_New: string;
@@ -517,6 +550,7 @@ export type ChangeEmailVerifyOtpSuccessResponse = {
 export type ChangeEmailVerifyOtpResponse =
   | ChangeEmailVerifyOtpErrorResponse
   | ChangeEmailVerifyOtpSuccessResponse;
+
 //Asset Open Order
 export type AssetOpenOrderRequest = {
   pair: string;
@@ -550,6 +584,7 @@ export type AssetOpenOrderErrorResponse = {
   errorMessage: string;
   data: string;
 };
+
 export type AssetOpenOrderResponse =
   | AssetOpenOrderErrorResponse
   | AssetOpenOrderSuccessResponse;
