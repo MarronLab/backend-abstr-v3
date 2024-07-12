@@ -36,6 +36,14 @@ import {
   RequestChangePasswordOTPResponse,
   ChangePasswordRequest,
   ChangePasswordResponse,
+  ChangeEmailRequest,
+  ChangeEmailResponse,
+  ChangeEmailVerifyOtpRequest,
+  ChangeEmailVerifyOtpResponse,
+  AssetOpenOrderRequest,
+  AssetOpenOrderResponse,
+  AssetCurrencyPriceRequest,
+  AssetCurrencyPriceResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -66,7 +74,6 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
-
       return response;
     } catch (error) {
       // console.log('Error: ', error);
@@ -173,17 +180,41 @@ export class ModulusService {
     );
   }
 
-  async requestChangePasswordOTP() {
-    return await this.post<RequestChangePasswordOTPResponse>(
-      '/api/RequestChangePasswordOTP',
-      {},
-    );
-  }
-
   async changePassword(request: ChangePasswordRequest) {
     return await this.post<ChangePasswordResponse>(
       '/api/ChangePassword',
       request,
+    );
+  }
+
+  async requestChangePasswordOTP() {
+    return await this.post<RequestChangePasswordOTPResponse>(
+      '/api/RequestChangePasswordOTP',
+    );
+  }
+
+  async changeEmail(request: ChangeEmailRequest) {
+    return await this.post<ChangeEmailResponse>('/api/Change_Email', request);
+  }
+
+  async changeEmailVerifyOtp(request: ChangeEmailVerifyOtpRequest) {
+    return await this.post<ChangeEmailVerifyOtpResponse>(
+      '/api/ChangeEmail_Verify_EmailOTP',
+      request,
+    );
+  }
+
+  async getAssetOpenOrder(request: AssetOpenOrderRequest) {
+    return await this.get<AssetOpenOrderResponse>(
+      `/market/get-open-orders/${request.pair}/${request.side}/${request.depth}`,
+      {},
+    );
+  }
+
+  async getCurrencyPrice(request: AssetCurrencyPriceRequest) {
+    return await this.get<AssetCurrencyPriceResponse>(
+      `/market/get-currency-price/${request.pair}`,
+      {},
     );
   }
 }
