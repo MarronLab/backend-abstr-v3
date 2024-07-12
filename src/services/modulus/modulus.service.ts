@@ -33,6 +33,7 @@ import {
   VerifyAccountResponse,
   SignupResendEmailRequest,
   SignupResendEmailResponse,
+  MarketSummaryResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -63,10 +64,10 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
-
+      console.log('main', response);
       return response;
     } catch (error) {
-      // console.log('Error: ', error);
+      console.log('Error: ', error);
       throw new Error(error);
     }
   }
@@ -167,6 +168,13 @@ export class ModulusService {
     return await this.post<SignupResendEmailResponse>(
       '/api/SignUp_Resend_Email',
       request,
+    );
+  }
+
+  async getMarketSummary() {
+    return await this.get<MarketSummaryResponse>(
+      '/market/get-market-summary',
+      {},
     );
   }
 }
