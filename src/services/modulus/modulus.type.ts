@@ -517,3 +517,55 @@ export type ChangeEmailVerifyOtpSuccessResponse = {
 export type ChangeEmailVerifyOtpResponse =
   | ChangeEmailVerifyOtpErrorResponse
   | ChangeEmailVerifyOtpSuccessResponse;
+//Asset Open Order
+export type AssetOpenOrderRequest = {
+  pair: string;
+  side: 'BUY' | 'SELL';
+  depth?: number;
+};
+
+export type OpenOrderData = {
+  MarketType: string;
+  CurrencyType: string;
+  Rate: number;
+  Volume: number;
+  Total: number;
+};
+
+export type AssetOpenOrderData = {
+  Pair: string;
+  Type: string;
+  Orders: OpenOrderData[];
+  lastTradedPrice: AssetCurrencyData;
+};
+
+export type AssetOpenOrderSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: AssetOpenOrderData;
+};
+
+export type AssetOpenOrderErrorResponse = {
+  status: 'Error';
+  errorMessage: string;
+  data: string;
+};
+export type AssetOpenOrderResponse =
+  | AssetOpenOrderErrorResponse
+  | AssetOpenOrderSuccessResponse;
+
+// Get currency pair price
+export type AssetCurrencyPriceRequest = {
+  pair: string;
+};
+
+export type AssetCurrencyData = {
+  Pair: string;
+  Price: number;
+};
+
+export type AssetCurrencyPriceResponse = {
+  status: 'Success';
+  message: string;
+  data: AssetCurrencyData;
+};
