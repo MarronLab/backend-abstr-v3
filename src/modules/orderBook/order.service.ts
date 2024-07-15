@@ -229,4 +229,13 @@ export class OrderService extends BaseService {
       throw new UnprocessableEntityException(error);
     }
   }
+
+  async getMarketSummary() {
+    try {
+      const { data } = await this.modulusService.getMarketSummary();
+      return data.data;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
 }

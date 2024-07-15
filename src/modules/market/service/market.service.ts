@@ -319,16 +319,6 @@ export class MarketService extends BaseService {
     }
   }
 
-  async getMarketSummary() {
-    try {
-      const response = await this.modulusService.getMarketSummary();
-      console.log(response);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
-
   private handleError(error: any): void {
     throw new HttpException(
       error.response?.data?.message || error.message,

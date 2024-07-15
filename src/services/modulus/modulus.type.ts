@@ -493,9 +493,8 @@ export type MarketSummaryPairData = {
   High_24hr: number;
   Low_24hr: number;
 };
-export type MarketSummaryData = {
-  pair: MarketSummaryPairData;
-};
+
+export type MarketSummaryData = Record<string, MarketSummaryPairData>;
 
 export type MarketSummaryResponse = {
   status: 'Success';

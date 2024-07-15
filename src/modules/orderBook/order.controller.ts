@@ -37,6 +37,7 @@ import {
   placeOrderPricedResponseSchema,
   placeOrderResponseSchema,
   tradeHistoryResponseSchema,
+  // marketSummaryResponseSchema,
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
@@ -49,6 +50,11 @@ import {
   TradeHistoryResponseDto,
   TradeResponseDto,
 } from './dto/tradeHistoryResponse.dto';
+import {
+  MarketSummaryDataDto,
+  MarketSummaryPairDataDto,
+  MarketSummaryResponseDto,
+} from './dto/marketSummary.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -241,5 +247,27 @@ export class OrderController {
     });
 
     return new TradeHistoryResponseDto({ pageInfo, result });
+  }
+
+  @Get('get-market-summary')
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // @UseInterceptors(
+  //   new ResponseValidationInterceptor(marketSummaryResponseSchema),
+  // )
+  @ApiOperation({
+    summary: 'This endpoint returns a summary of all listed currency pairs',
+  })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The market summary has successfully been fetched.',
+    type: MarketSummaryDataDto,
+  })
+  async getMarketSummary() {
+    const response = await this.orderService.getMarketSummary();
+    console.log('logged pair most', response.data);
+
+    return new MarketSummaryDataDto({
+      pair: response,
+    });
   }
 }

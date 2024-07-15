@@ -80,11 +80,4 @@ export class MarketController {
     }
     return topGainerLoserData;
   }
-
-  @Get('get-market-summary')
-  async getMarketSummary() {
-    const response = await this.marketService.getMarketSummary();
-    console.log('response', response);
-    return response;
-  }
 }

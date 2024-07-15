@@ -64,10 +64,8 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
-      console.log('main', response);
       return response;
     } catch (error) {
-      console.log('Error: ', error);
       throw new Error(error);
     }
   }
