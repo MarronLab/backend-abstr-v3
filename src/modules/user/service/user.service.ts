@@ -1,24 +1,36 @@
 import {
+  Inject,
   Injectable,
   InternalServerErrorException,
+  Scope,
+  UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { SafeService } from 'src/services/safe.service';
 import GenerateSafeAddressDto from '../dto/generate-safe-address.dto';
+import { BaseService } from 'src/common/base.service';
+import { REQUEST } from '@nestjs/core';
+import { PrismaService } from 'src/services/prisma.service';
+import { Request } from 'express';
 
-@Injectable()
-export class UserService {
+@Injectable({ scope: Scope.REQUEST })
+export class UserService extends BaseService {
   constructor(
+    prisma: PrismaService,
+    @Inject(REQUEST) req: Request,
     private readonly safeService: SafeService,
     private readonly modulusService: ModulusService,
-  ) {}
+  ) {
+    super(prisma, req);
+  }
 
   async generateSafeAddress(generateSafeAddressDto: GenerateSafeAddressDto) {
     try {
       return await this.safeService.generateSafeAddress({
         userAddress: generateSafeAddressDto.userAddress,
         modulusCustomerID: generateSafeAddressDto.modulusCustomerID,
+        modulusCustomerEmail: generateSafeAddressDto.modulusCustomerEmail,
       });
     } catch (error) {
       throw new InternalServerErrorException(error);
@@ -33,7 +45,27 @@ export class UserService {
         throw new UnprocessableEntityException(data.data);
       }
 
-      return data.data;
+      const internalUser = await this.getClient().user.findUnique({
+        where: { modulusCustomerID: data.data.customerID },
+        select: {
+          language: true,
+          currency: true,
+          timezone: true,
+          username: true,
+          safeAddress: true,
+          userAddress: true,
+          emailNewsletter: true,
+          emailTradeUpdates: true,
+          emailAnnouncements: true,
+          publicID: true,
+        },
+      });
+
+      if (!internalUser) {
+        throw new UnauthorizedException('');
+      }
+
+      return { ...data.data, ...internalUser };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

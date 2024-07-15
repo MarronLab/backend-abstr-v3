@@ -11,6 +11,11 @@ import { AuthenticateUserResponse } from 'src/services/modulus/modulus.type';
 import RegisterDto from '../dto/auth.register.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
+import DisableGoogleAuthenticatorDto from '../dto/auth.disable-google-authenticator.dto';
+import EnableGoogleAuthenticatorDto from '../dto/auth.enable-google-authenticator.dto';
+import ChangePasswordDto from '../dto/auth.change-password.dto';
+import ChangeEmailDto from '../dto/auth.change-email.dto';
+import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
 
 @Injectable()
 export class AuthService {
@@ -77,6 +82,135 @@ export class AuthService {
       }
 
       return data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async disableGoogleAuthenticator(
+    disableGoogleAuthenticatorDto: DisableGoogleAuthenticatorDto,
+  ) {
+    try {
+      const { data } = await this.modulusService.gAuthDisableRequest({
+        GAuth_Code: disableGoogleAuthenticatorDto.code,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async enableGoogleAuthenticator(
+    enableGoogleAuthenticatorDto: EnableGoogleAuthenticatorDto,
+  ) {
+    try {
+      const { data } = await this.modulusService.gAuthSetEnable({
+        GAuth_Code: enableGoogleAuthenticatorDto.code,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getGoogleAuthenticatorEnable() {
+    try {
+      const { data } = await this.modulusService.gAuthEnableRequest();
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async requestChangePasswordOTP() {
+    try {
+      const { data } = await this.modulusService.requestChangePasswordOTP();
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async checkGoogleAuthenticatorStatus() {
+    try {
+      const { data } = await this.modulusService.gAuthCheckStatus();
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto) {
+    try {
+      const { data } = await this.modulusService.changePassword({
+        otp: changePasswordDto.otp,
+        newPassword: changePasswordDto.newPassword,
+        oldPassword: changePasswordDto.oldPassword,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async changeEmail(changeEmailDto: ChangeEmailDto) {
+    try {
+      const { data } = await this.modulusService.changeEmail({
+        NewEmail: changeEmailDto.email,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async verifyChangeEmailOtp(verifyChangeEmailOtpDto: VerifyChangeEmailOtpDto) {
+    try {
+      const { data } = await this.modulusService.changeEmailVerifyOtp({
+        OTP_New: verifyChangeEmailOtpDto.newEmailOtp,
+        OTP_Old: verifyChangeEmailOtpDto.oldEmailOtp,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

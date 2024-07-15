@@ -486,3 +486,189 @@ export type SignupResendEmailSuccessResponse = {
 export type SignupResendEmailResponse =
   | DeleteApiKeyErrorResponse
   | DeleteApiKeySuccessResponse;
+
+//Google authenticator - GAuth_Check_Status
+export type GAuthCheckStatusErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type GAuthCheckStatusSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: true;
+};
+
+export type GAuthCheckStatusResponse =
+  | GAuthCheckStatusSuccessResponse
+  | GAuthCheckStatusErrorResponse;
+
+//Google authenticator - GAuth_Enable_Request
+export type GAuthEnableRequestErrorResponse = ModulusBaseErrorResponseData;
+
+export type GAuthEnableRequestSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: { pairingCode: string; qR_Code: string };
+};
+
+export type GAuthEnableRequestResponse =
+  | GAuthEnableRequestSuccessResponse
+  | GAuthEnableRequestErrorResponse;
+
+//Google authenticator - GAuth_Set_Enable
+export type GAuthSetEnableRequest = {
+  GAuth_Code: string;
+};
+
+export type GAuthSetEnableErrorResponse = ModulusBaseErrorResponseData;
+
+export type GAuthSetEnableSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: string;
+};
+
+export type GAuthSetEnableResponse =
+  | GAuthSetEnableSuccessResponse
+  | GAuthSetEnableErrorResponse;
+
+//Google authenticator - GAuth_Disable_Request
+export type GAuthDisableRequestRequest = {
+  GAuth_Code: string;
+};
+
+export type GAuthDisableRequestErrorResponse = ModulusBaseErrorResponseData;
+
+export type GAuthDisableRequestSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: string;
+};
+
+export type GAuthDisableRequestResponse =
+  | GAuthDisableRequestSuccessResponse
+  | GAuthDisableRequestErrorResponse;
+
+//Change Email
+export type ChangeEmailRequest = {
+  NewEmail: string;
+};
+
+export type ChangeEmailErrorResponse = ModulusBaseErrorResponseData;
+
+export type ChangeEmailSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ChangeEmailResponse =
+  | ChangeEmailErrorResponse
+  | ChangeEmailSuccessResponse;
+
+//Change Password - Request Otp
+export type RequestChangePasswordOTPErrorResponse =
+  ModulusBaseErrorResponseData;
+
+export type RequestChangePasswordOTPSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type RequestChangePasswordOTPResponse =
+  | RequestChangePasswordOTPErrorResponse
+  | RequestChangePasswordOTPSuccessResponse;
+
+//Change Password
+export type ChangePasswordRequest = {
+  oldPassword: string;
+  newPassword: string;
+  otp?: string;
+};
+
+export type ChangePasswordErrorResponse = ModulusBaseErrorResponseData;
+
+export type ChangePasswordSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ChangePasswordResponse =
+  | ChangePasswordErrorResponse
+  | ChangePasswordSuccessResponse;
+
+//Change Email - Verify Otp
+export type ChangeEmailVerifyOtpRequest = {
+  OTP_New: string;
+  OTP_Old: string;
+};
+
+export type ChangeEmailVerifyOtpErrorResponse = ModulusBaseErrorResponseData;
+
+export type ChangeEmailVerifyOtpSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ChangeEmailVerifyOtpResponse =
+  | ChangeEmailVerifyOtpErrorResponse
+  | ChangeEmailVerifyOtpSuccessResponse;
+
+//Asset Open Order
+export type AssetOpenOrderRequest = {
+  pair: string;
+  side: 'BUY' | 'SELL';
+  depth?: number;
+};
+
+export type OpenOrderData = {
+  MarketType: string;
+  CurrencyType: string;
+  Rate: number;
+  Volume: number;
+  Total: number;
+};
+
+export type AssetOpenOrderData = {
+  Pair: string;
+  Type: string;
+  Orders: OpenOrderData[];
+  lastTradedPrice: AssetCurrencyData;
+};
+
+export type AssetOpenOrderSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: AssetOpenOrderData;
+};
+
+export type AssetOpenOrderErrorResponse = {
+  status: 'Error';
+  errorMessage: string;
+  data: string;
+};
+
+export type AssetOpenOrderResponse =
+  | AssetOpenOrderErrorResponse
+  | AssetOpenOrderSuccessResponse;
+
+// Get currency pair price
+export type AssetCurrencyPriceRequest = {
+  pair: string;
+};
+
+export type AssetCurrencyData = {
+  Pair: string;
+  Price: number;
+};
+
+export type AssetCurrencyPriceResponse = {
+  status: 'Success';
+  message: string;
+  data: AssetCurrencyData;
+};

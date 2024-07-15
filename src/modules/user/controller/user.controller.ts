@@ -108,6 +108,16 @@ export class UserController {
       kycApprovedLevel: response.kycApprovedLevel,
       priceChangeAlert: response.priceChangeAlert,
       priceChangePercentage: response.priceChangePercentage,
+      language: response.language,
+      currency: response.currency,
+      timezone: response.timezone,
+      username: response.username,
+      safeAddress: response.safeAddress,
+      userAddress: response.userAddress,
+      emailNewsletter: response.emailNewsletter,
+      emailTradeUpdates: response.emailTradeUpdates,
+      emailAnnouncements: response.emailAnnouncements,
+      publicID: response.publicID,
     });
   }
 }
