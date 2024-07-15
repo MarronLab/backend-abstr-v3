@@ -28,6 +28,7 @@ import {
   registerResponseSchema,
 } from '../../../schema/auth/auth.schema';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
+import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
 import AuthResponseDto from '../dto/auth.response.dto';
 import RegisterResponseDto from '../dto/auth.registerResponse.dto';
