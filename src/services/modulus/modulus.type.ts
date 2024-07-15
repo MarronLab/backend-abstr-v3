@@ -46,9 +46,13 @@ export type RegisterSuccessResponse = {
   data: null;
 };
 
-export type RegisterResponse =
-  | ModulusBaseErrorResponseData
-  | RegisterSuccessResponse;
+export type RegisterErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: string;
+};
+
+export type RegisterResponse = RegisterErrorResponse | RegisterSuccessResponse;
 
 export type PlaceOrderPricedRequest = {
   amount: number;
