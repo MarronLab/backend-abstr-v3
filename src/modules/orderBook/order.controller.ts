@@ -37,11 +37,8 @@ import {
   placeOrderPricedResponseSchema,
   placeOrderResponseSchema,
   tradeHistoryResponseSchema,
-<<<<<<< HEAD
-  marketSummaryResponseSchema,
-=======
   assetOpenOrderResponseSchema,
->>>>>>> 8853a040202ac67ef4504a572ec0aa310b0a6e1e
+  marketSummaryResponseSchema,
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
@@ -54,16 +51,13 @@ import {
   TradeHistoryResponseDto,
   TradeResponseDto,
 } from './dto/tradeHistoryResponse.dto';
-<<<<<<< HEAD
-import { MarketSummaryDtoResponse } from './dto/marketSummary.dto';
-=======
 import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
 import {
   AssetOpenOrderResponseDto,
   OpenOrderDataDto,
   AssetOpenOrderDataDto,
 } from './dto/openOrderResponse.dto';
->>>>>>> 8853a040202ac67ef4504a572ec0aa310b0a6e1e
+import { MarketSummaryDtoResponse } from './dto/marketSummary.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -258,45 +252,11 @@ export class OrderController {
     return new TradeHistoryResponseDto({ pageInfo, result });
   }
 
-<<<<<<< HEAD
-  @UseInterceptors(ClassSerializerInterceptor)
-  @UseInterceptors(
-    new ResponseValidationInterceptor(marketSummaryResponseSchema),
-  )
-  @Get('get-market-summary')
-  @ApiOperation({
-    summary: 'This endpoint returns a summary of all listed currency pairs',
-  })
-  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
-  @ApiCreatedResponse({
-    description: 'The market summary has successfully been fetched.',
-    type: MarketSummaryDtoResponse,
-  })
-  async getMarketSummary() {
-    const response = await this.orderService.getMarketSummary();
-    console.log('logged pair most', response);
-    const dtoResponse: MarketSummaryDtoResponse = {};
-
-    Object.keys(response).forEach((pair) => {
-      dtoResponse[pair] = {
-        Last: response[pair].Last,
-        LowestAsk: response[pair].LowestAsk,
-        HeighestBid: response[pair].HeighestBid,
-        PercentChange: response[pair].PercentChange,
-        BaseVolume: response[pair].BaseVolume,
-        QuoteVolume: response[pair].QuoteVolume,
-        High_24hr: response[pair].High_24hr,
-        Low_24hr: response[pair].Low_24hr,
-      };
-    });
-
-    return dtoResponse;
-=======
-  @Get('/get-open-orders')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(
     new ResponseValidationInterceptor(assetOpenOrderResponseSchema),
   )
+  @Get('/get-open-orders')
   @ApiOperation({ summary: 'Fetch asset open order' })
   @ApiCreatedResponse({
     description: 'The asset open order history has been successfully fetched.',
@@ -330,6 +290,38 @@ export class OrderController {
       data: transformedData,
       currencyPrice: currencyPrice.Price,
     });
->>>>>>> 8853a040202ac67ef4504a572ec0aa310b0a6e1e
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(marketSummaryResponseSchema),
+  )
+  @Get('get-market-summary')
+  @ApiOperation({
+    summary: 'This endpoint returns a summary of all listed currency pairs',
+  })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The market summary has successfully been fetched.',
+    type: MarketSummaryDtoResponse,
+  })
+  async getMarketSummary() {
+    const response = await this.orderService.getMarketSummary();
+    const dtoResponse: MarketSummaryDtoResponse = {};
+
+    Object.keys(response).forEach((pair) => {
+      dtoResponse[pair] = {
+        Last: response[pair].Last,
+        LowestAsk: response[pair].LowestAsk,
+        HeighestBid: response[pair].HeighestBid,
+        PercentChange: response[pair].PercentChange,
+        BaseVolume: response[pair].BaseVolume,
+        QuoteVolume: response[pair].QuoteVolume,
+        High_24hr: response[pair].High_24hr,
+        Low_24hr: response[pair].Low_24hr,
+      };
+    });
+
+    return dtoResponse;
   }
 }
