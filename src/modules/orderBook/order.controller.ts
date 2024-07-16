@@ -37,7 +37,7 @@ import {
   placeOrderPricedResponseSchema,
   placeOrderResponseSchema,
   tradeHistoryResponseSchema,
-  // marketSummaryResponseSchema,
+  marketSummaryResponseSchema,
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
@@ -50,11 +50,7 @@ import {
   TradeHistoryResponseDto,
   TradeResponseDto,
 } from './dto/tradeHistoryResponse.dto';
-import {
-  MarketSummaryDataDto,
-  MarketSummaryPairDataDto,
-  MarketSummaryResponseDto,
-} from './dto/marketSummary.dto';
+import { MarketSummaryDtoResponse } from './dto/marketSummary.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -249,25 +245,37 @@ export class OrderController {
     return new TradeHistoryResponseDto({ pageInfo, result });
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(marketSummaryResponseSchema),
+  )
   @Get('get-market-summary')
-  // @UseInterceptors(ClassSerializerInterceptor)
-  // @UseInterceptors(
-  //   new ResponseValidationInterceptor(marketSummaryResponseSchema),
-  // )
   @ApiOperation({
     summary: 'This endpoint returns a summary of all listed currency pairs',
   })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiCreatedResponse({
     description: 'The market summary has successfully been fetched.',
-    type: MarketSummaryDataDto,
+    type: MarketSummaryDtoResponse,
   })
   async getMarketSummary() {
     const response = await this.orderService.getMarketSummary();
-    console.log('logged pair most', response.data);
+    console.log('logged pair most', response);
+    const dtoResponse: MarketSummaryDtoResponse = {};
 
-    return new MarketSummaryDataDto({
-      pair: response,
+    Object.keys(response).forEach((pair) => {
+      dtoResponse[pair] = {
+        Last: response[pair].Last,
+        LowestAsk: response[pair].LowestAsk,
+        HeighestBid: response[pair].HeighestBid,
+        PercentChange: response[pair].PercentChange,
+        BaseVolume: response[pair].BaseVolume,
+        QuoteVolume: response[pair].QuoteVolume,
+        High_24hr: response[pair].High_24hr,
+        Low_24hr: response[pair].Low_24hr,
+      };
     });
+
+    return dtoResponse;
   }
 }

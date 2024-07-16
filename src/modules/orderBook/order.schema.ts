@@ -315,3 +315,54 @@ export const tradeHistoryResponseSchema: JSONSchemaType<{
     },
   },
 };
+
+export const marketSummaryDataSchema: JSONSchemaType<{
+  Last: number;
+  LowestAsk: number;
+  HeighestBid: number;
+  PercentChange: number;
+  BaseVolume: number;
+  QuoteVolume: number;
+  High_24hr: number;
+  Low_24hr: number;
+}> = {
+  type: 'object',
+  properties: {
+    Last: { type: 'number' },
+    LowestAsk: { type: 'number' },
+    HeighestBid: { type: 'number' },
+    PercentChange: { type: 'number' },
+    BaseVolume: { type: 'number' },
+    QuoteVolume: { type: 'number' },
+    High_24hr: { type: 'number' },
+    Low_24hr: { type: 'number' },
+  },
+  required: [
+    'Last',
+    'LowestAsk',
+    'HeighestBid',
+    'PercentChange',
+    'BaseVolume',
+    'QuoteVolume',
+    'High_24hr',
+    'Low_24hr',
+  ],
+  additionalProperties: false,
+};
+
+export const marketSummaryResponseSchema: JSONSchemaType<{
+  [key: string]: {
+    Last: number;
+    LowestAsk: number;
+    HeighestBid: number;
+    PercentChange: number;
+    BaseVolume: number;
+    QuoteVolume: number;
+    High_24hr: number;
+    Low_24hr: number;
+  };
+}> = {
+  type: 'object',
+  required: [],
+  additionalProperties: marketSummaryDataSchema,
+};

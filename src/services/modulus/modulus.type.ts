@@ -494,10 +494,10 @@ export type MarketSummaryPairData = {
   Low_24hr: number;
 };
 
-export type MarketSummaryData = Record<string, MarketSummaryPairData>;
-
 export type MarketSummaryResponse = {
   status: 'Success';
   message: string;
-  data: MarketSummaryData;
+  data: {
+    [key: string]: MarketSummaryPairData;
+  };
 };
