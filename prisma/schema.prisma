@@ -25,13 +25,22 @@ model OrderBook {
 }
 
 model User {
-  id                String         @id @default(cuid())
-  safeAddress       String         @unique
-  userAddress       String         @unique
-  modulusCustomerID Int            @unique
-  activities        UserActivity[]
-  createdAt         DateTime       @default(now()) @db.Timestamp(6)
-  updateAt          DateTime       @updatedAt @db.Timestamp(6)
+  id                   String         @id @default(cuid())
+  safeAddress          String         @unique
+  userAddress          String         @unique
+  modulusCustomerID    Int            @unique
+  modulusCustomerEmail String         @unique
+  username             String?        @unique
+  publicID             String         @unique
+  timezone             String?
+  currency             String?
+  language             String?
+  emailAnnouncements   Boolean        @default(false)
+  emailNewsletter      Boolean        @default(false)
+  emailTradeUpdates    Boolean        @default(false)
+  activities           UserActivity[]
+  createdAt            DateTime       @default(now()) @db.Timestamp(6)
+  updateAt             DateTime       @updatedAt @db.Timestamp(6)
 
   @@map("user")
 }
@@ -62,11 +71,11 @@ model UserActivity {
 }
 
 model CoinGeckoResponse {
-  id          String                @id @default(cuid())
-  type        CoinGeckoResponseType @unique
-  data        Json[]
-  createdAt   DateTime              @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime              @updatedAt @db.Timestamp(6)
+  id        String                @id @default(cuid())
+  type      CoinGeckoResponseType @unique
+  data      Json[]
+  createdAt DateTime              @default(now()) @db.Timestamp(6)
+  updatedAt DateTime              @updatedAt @db.Timestamp(6)
 
   @@map("coingeckoResponse")
 }

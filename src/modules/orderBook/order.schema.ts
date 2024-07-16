@@ -316,6 +316,68 @@ export const tradeHistoryResponseSchema: JSONSchemaType<{
   },
 };
 
+export const assetOpenOrderResponseSchema: JSONSchemaType<{
+  data: {
+    Pair: string;
+    Type: string;
+    Orders: {
+      MarketType: string;
+      CurrencyType: string;
+      Rate: number;
+      Volume: number;
+      Total: number;
+    }[];
+  };
+  currencyPrice: number;
+}> = {
+  type: 'object',
+  properties: {
+    data: {
+      type: 'object',
+      properties: {
+        Pair: {
+          type: 'string',
+        },
+        Type: {
+          type: 'string',
+        },
+        Orders: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              MarketType: {
+                type: 'string',
+              },
+              CurrencyType: {
+                type: 'string',
+              },
+              Rate: {
+                type: 'number',
+              },
+              Volume: {
+                type: 'number',
+              },
+              Total: {
+                type: 'number',
+              },
+            },
+            required: ['MarketType', 'CurrencyType', 'Rate', 'Volume', 'Total'],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ['Pair', 'Type', 'Orders'],
+      additionalProperties: false,
+    },
+    currencyPrice: {
+      type: 'number',
+    },
+  },
+  required: ['data', 'currencyPrice'],
+  additionalProperties: false,
+};
+
 export const marketSummaryDataSchema: JSONSchemaType<{
   Last: number;
   LowestAsk: number;

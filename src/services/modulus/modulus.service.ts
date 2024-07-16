@@ -33,6 +33,23 @@ import {
   VerifyAccountResponse,
   SignupResendEmailRequest,
   SignupResendEmailResponse,
+  GAuthCheckStatusResponse,
+  GAuthEnableRequestResponse,
+  GAuthSetEnableRequest,
+  GAuthSetEnableResponse,
+  GAuthDisableRequestRequest,
+  GAuthDisableRequestResponse,
+  RequestChangePasswordOTPResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  ChangeEmailRequest,
+  ChangeEmailResponse,
+  ChangeEmailVerifyOtpRequest,
+  ChangeEmailVerifyOtpResponse,
+  AssetOpenOrderRequest,
+  AssetOpenOrderResponse,
+  AssetCurrencyPriceRequest,
+  AssetCurrencyPriceResponse,
   MarketSummaryResponse,
 } from './modulus.type';
 
@@ -166,6 +183,72 @@ export class ModulusService {
     return await this.post<SignupResendEmailResponse>(
       '/api/SignUp_Resend_Email',
       request,
+    );
+  }
+
+  async gAuthCheckStatus() {
+    return await this.get<GAuthCheckStatusResponse>(
+      '/api/GAuth_Check_Status',
+      {},
+    );
+  }
+
+  async gAuthEnableRequest() {
+    return await this.get<GAuthEnableRequestResponse>(
+      '/api/GAuth_Enable_Request',
+      {},
+    );
+  }
+
+  async gAuthSetEnable(request: GAuthSetEnableRequest) {
+    return await this.post<GAuthSetEnableResponse>(
+      '/api/GAuth_Set_Enable',
+      request,
+    );
+  }
+
+  async gAuthDisableRequest(request: GAuthDisableRequestRequest) {
+    return await this.post<GAuthDisableRequestResponse>(
+      '/api/GAuth_Disable_Request',
+      request,
+    );
+  }
+
+  async changePassword(request: ChangePasswordRequest) {
+    return await this.post<ChangePasswordResponse>(
+      '/api/ChangePassword',
+      request,
+    );
+  }
+
+  async requestChangePasswordOTP() {
+    return await this.post<RequestChangePasswordOTPResponse>(
+      '/api/RequestChangePasswordOTP',
+    );
+  }
+
+  async changeEmail(request: ChangeEmailRequest) {
+    return await this.post<ChangeEmailResponse>('/api/Change_Email', request);
+  }
+
+  async changeEmailVerifyOtp(request: ChangeEmailVerifyOtpRequest) {
+    return await this.post<ChangeEmailVerifyOtpResponse>(
+      '/api/ChangeEmail_Verify_EmailOTP',
+      request,
+    );
+  }
+
+  async getAssetOpenOrder(request: AssetOpenOrderRequest) {
+    return await this.get<AssetOpenOrderResponse>(
+      `/market/get-open-orders/${request.pair}/${request.side}/${request.depth}`,
+      {},
+    );
+  }
+
+  async getCurrencyPrice(request: AssetCurrencyPriceRequest) {
+    return await this.get<AssetCurrencyPriceResponse>(
+      `/market/get-currency-price/${request.pair}`,
+      {},
     );
   }
 

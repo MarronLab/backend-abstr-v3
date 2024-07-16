@@ -37,7 +37,11 @@ import {
   placeOrderPricedResponseSchema,
   placeOrderResponseSchema,
   tradeHistoryResponseSchema,
+<<<<<<< HEAD
   marketSummaryResponseSchema,
+=======
+  assetOpenOrderResponseSchema,
+>>>>>>> 8853a040202ac67ef4504a572ec0aa310b0a6e1e
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
@@ -50,7 +54,16 @@ import {
   TradeHistoryResponseDto,
   TradeResponseDto,
 } from './dto/tradeHistoryResponse.dto';
+<<<<<<< HEAD
 import { MarketSummaryDtoResponse } from './dto/marketSummary.dto';
+=======
+import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
+import {
+  AssetOpenOrderResponseDto,
+  OpenOrderDataDto,
+  AssetOpenOrderDataDto,
+} from './dto/openOrderResponse.dto';
+>>>>>>> 8853a040202ac67ef4504a572ec0aa310b0a6e1e
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -245,6 +258,7 @@ export class OrderController {
     return new TradeHistoryResponseDto({ pageInfo, result });
   }
 
+<<<<<<< HEAD
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(
     new ResponseValidationInterceptor(marketSummaryResponseSchema),
@@ -277,5 +291,45 @@ export class OrderController {
     });
 
     return dtoResponse;
+=======
+  @Get('/get-open-orders')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(assetOpenOrderResponseSchema),
+  )
+  @ApiOperation({ summary: 'Fetch asset open order' })
+  @ApiCreatedResponse({
+    description: 'The asset open order history has been successfully fetched.',
+    type: AssetOpenOrderResponseDto,
+  })
+  async OpenOrders(
+    @Query() assetOpenOrderRequestDto: AssetOpenOrderRequestDto,
+  ) {
+    const response = await this.orderService.getAssetOpenOrder(
+      assetOpenOrderRequestDto,
+    );
+
+    const { currencyPrice, assetOpenOrderData } = response;
+    const transformedOrders: OpenOrderDataDto[] = assetOpenOrderData.Orders.map(
+      (order) => ({
+        MarketType: order.MarketType,
+        CurrencyType: order.CurrencyType,
+        Rate: order.Rate,
+        Volume: order.Volume,
+        Total: order.Rate * order.Volume,
+      }),
+    );
+
+    const transformedData: AssetOpenOrderDataDto = {
+      Pair: assetOpenOrderData.Pair,
+      Type: assetOpenOrderData.Type,
+      Orders: transformedOrders,
+    };
+
+    return new AssetOpenOrderResponseDto({
+      data: transformedData,
+      currencyPrice: currencyPrice.Price,
+    });
+>>>>>>> 8853a040202ac67ef4504a572ec0aa310b0a6e1e
   }
 }
