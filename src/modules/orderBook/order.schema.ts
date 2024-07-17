@@ -3,11 +3,6 @@ import {
   OrderSideEnum,
   OrderTypeEnum,
 } from 'src/services/modulus/modulus.enum';
-// import {
-//   MarketSummaryResponseDto,
-//   MarketSummaryPairDataDto,
-//   MarketSummaryDataDto,
-// } from './dto/marketSummary.dto';
 
 export const placeOrderResponseSchema: JSONSchemaType<{
   id: number;
