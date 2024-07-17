@@ -50,6 +50,7 @@ import {
   AssetOpenOrderResponse,
   AssetCurrencyPriceRequest,
   AssetCurrencyPriceResponse,
+  MarketSummaryResponse,
 } from './modulus.type';
 
 @Injectable()
@@ -82,7 +83,6 @@ export class ModulusService {
       });
       return response;
     } catch (error) {
-      // console.log('Error: ', error);
       throw new Error(error);
     }
   }
@@ -248,6 +248,13 @@ export class ModulusService {
   async getCurrencyPrice(request: AssetCurrencyPriceRequest) {
     return await this.get<AssetCurrencyPriceResponse>(
       `/market/get-currency-price/${request.pair}`,
+      {},
+    );
+  }
+
+  async getMarketSummary() {
+    return await this.get<MarketSummaryResponse>(
+      '/market/get-market-summary',
       {},
     );
   }

@@ -11,6 +11,7 @@ import { Request } from 'express';
 import { BaseService } from '../../../common/base.service';
 import { PrismaService } from '../../../services/prisma.service';
 import { CoingeckoService } from '../../../services/coingecko/coingecko.service';
+import { ModulusService } from 'src/services/modulus/modulus.service';
 import {
   CoinGeckoMarketDataResponse,
   CoingeckoTrendingItem,
@@ -48,6 +49,7 @@ export class MarketService extends BaseService {
 
   constructor(
     private readonly coingeckoService: CoingeckoService,
+    private readonly modulusService: ModulusService,
     private readonly prismaService: PrismaService,
     @Inject(REQUEST) req: Request,
   ) {

@@ -672,3 +672,22 @@ export type AssetCurrencyPriceResponse = {
   message: string;
   data: AssetCurrencyData;
 };
+
+export type MarketSummaryPairData = {
+  Last: number;
+  LowestAsk: number;
+  HeighestBid: number;
+  PercentChange: number;
+  BaseVolume: number;
+  QuoteVolume: number;
+  High_24hr: number;
+  Low_24hr: number;
+};
+
+export type MarketSummaryResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    [key: string]: MarketSummaryPairData;
+  };
+};
