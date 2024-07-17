@@ -48,6 +48,7 @@ export class UserService extends BaseService {
       const internalUser = await this.getClient().user.findUnique({
         where: { modulusCustomerID: data.data.customerID },
         select: {
+          id: true,
           language: true,
           currency: true,
           timezone: true,
