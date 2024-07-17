@@ -23,6 +23,8 @@ import {
   TopGainerLoserDataResponseDto,
 } from '../dto/market.dto';
 
+import { paginate } from 'src/utils/pagination';
+
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
   private readonly params = {
@@ -168,7 +170,7 @@ export class MarketService extends BaseService {
   private toNumberOrNull(value: any): number | null {
     return value === null || value === undefined ? null : Number(value);
   }
-  async trendingMarket() {
+  async trendingMarket(params: { page: number; per_page: number }) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'TRENDING_DATA' },
@@ -187,7 +189,8 @@ export class MarketService extends BaseService {
             const parsedItem = JSON.parse(item);
             return parsedItem;
           }) as CoingeckoTrendingItem[];
-          return this.transformTrendingResponse(parsedData);
+          const trendingData = this.transformTrendingResponse(parsedData);
+          return paginate(trendingData, params.page, params.per_page);
         }
       }
 
@@ -195,7 +198,7 @@ export class MarketService extends BaseService {
       const trendingData = this.transformTrendingResponse(response.coins);
 
       await this.saveTrendingMarketData(trendingData);
-      return trendingData;
+      return paginate(trendingData, params.page, params.per_page);
     } catch (error) {
       this.handleError(error);
     }
