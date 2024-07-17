@@ -28,8 +28,8 @@ import {
   registerResponseSchema,
 } from '../../../schema/auth/auth.schema';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
-import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
+import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
 import AuthResponseDto from '../dto/auth.response.dto';
 import RegisterResponseDto from '../dto/auth.registerResponse.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
@@ -62,21 +62,15 @@ export class AuthController {
 
   @Post('register')
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseInterceptors(new ResponseValidationInterceptor(registerResponseSchema))
   @ApiOperation({ summary: 'Register user' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiCreatedResponse({
     description: 'The user has been successfully registered.',
     type: RegisterResponseDto,
   })
   async register(@Body() account: RegisterDto) {
-    const response = await this.authService.register(account);
-
-    return new RegisterResponseDto({
-      status: response.status,
-      message: response.message,
-      data: response.data,
-    });
+    return await this.authService.register(account);
   }
 
   @Post('verify-account')
