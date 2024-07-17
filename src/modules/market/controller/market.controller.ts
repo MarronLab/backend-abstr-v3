@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   UseInterceptors,
+  Param,
 } from '@nestjs/common';
 import { MarketService } from '../service/market.service';
 import {
@@ -15,6 +16,7 @@ import MarketResponseValidationInterceptor from '../../../schema/market/market.v
 import {
   trendingMarketSchema,
   topGainerLoserDataSchema,
+  SingleCoinGeckoDataResponseSchema,
 } from '../../../schema/market/market.schema';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import {
@@ -22,6 +24,7 @@ import {
   TrendingMarketDataResponseDto,
   TopGainerLoserDataResponseDto,
 } from '../dto/market.dto';
+import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
 
 @ApiTags('market')
 @Controller('market')
@@ -79,5 +82,24 @@ export class MarketController {
       });
     }
     return topGainerLoserData;
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(SingleCoinGeckoDataResponseSchema),
+  )
+  @Get('coins/:id')
+  @ApiOperation({
+    summary: 'This endpoint allows you to query all the coin data of a coin',
+  })
+  @ApiOkResponse({
+    description: 'The coin data has been successfully fetched.',
+    type: [SingleCoinGeckoDataResponseDto],
+  })
+  async getSingleCoinData(@Param('id') id: string) {
+    const response = await this.marketService.getSingleCoinData(id);
+    const dtoResponse = new SingleCoinGeckoDataResponseDto();
+    Object.assign(dtoResponse, response);
+    return dtoResponse;
   }
 }

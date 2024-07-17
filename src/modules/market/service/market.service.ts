@@ -40,6 +40,13 @@ export class MarketService extends BaseService {
     top_coins: '1000',
   };
 
+  private readonly singleCoinDataparams = {
+    localization: false,
+    community_data: false,
+    developer_data: false,
+    sparkline: true,
+  };
+
   constructor(
     private readonly coingeckoService: CoingeckoService,
     private readonly modulusService: ModulusService,
@@ -316,6 +323,18 @@ export class MarketService extends BaseService {
       });
     } catch (error) {
       throw error;
+    }
+  }
+
+  async getSingleCoinData(id: string) {
+    try {
+      const response = await this.coingeckoService.getSingleCoinData(
+        id,
+        this.singleCoinDataparams,
+      );
+      return response;
+    } catch (error) {
+      this.handleError(error);
     }
   }
 

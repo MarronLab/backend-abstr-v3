@@ -5,6 +5,7 @@ import {
   CoinGeckoMarketDataResponse,
   CoingeckoTrendingDataResponse,
   CoinGeckoTopGainerLoserResponse,
+  SingleCoinGeckoDataResponse,
 } from './coingecko.type';
 
 @Injectable()
@@ -33,7 +34,6 @@ export class CoingeckoService {
       const response = await firstValueFrom(
         this.httpService.get<T>(endpoint, { params }),
       );
-
       return response.data;
     } catch (error) {
       throw new HttpException(
@@ -62,5 +62,9 @@ export class CoingeckoService {
       '/coins/top_gainers_losers',
       params,
     );
+  }
+
+  async getSingleCoinData(id: string, params: any) {
+    return await this.get<SingleCoinGeckoDataResponse>(`/coins/${id}`, params);
   }
 }

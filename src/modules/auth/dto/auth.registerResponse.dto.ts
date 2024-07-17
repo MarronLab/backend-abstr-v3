@@ -15,8 +15,9 @@ export default class RegisterResponseDto {
   @ApiProperty({
     description: 'The data of the response',
     nullable: true,
+    type: 'string',
   })
-  data: any;
+  data: string | null;
 
   constructor(partial: Partial<RegisterResponseDto>) {
     Object.assign(this, partial);
