@@ -27,11 +27,5 @@ export function ApiMarketDataQueries() {
       type: Number,
       description: 'Default: 1',
     }),
-    ApiQuery({
-      name: 'sparkline',
-      required: false,
-      type: Boolean,
-      description: 'Default: true',
-    }),
   );
 }

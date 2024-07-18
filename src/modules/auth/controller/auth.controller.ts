@@ -23,10 +23,7 @@ import {
 } from '@nestjs/swagger';
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
-import {
-  getGoogleAuthenticatorEnableResponseSchema,
-  registerResponseSchema,
-} from '../../../schema/auth/auth.schema';
+import { getGoogleAuthenticatorEnableResponseSchema } from '../../../schema/auth/auth.schema';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';

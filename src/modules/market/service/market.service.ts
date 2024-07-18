@@ -64,6 +64,7 @@ export class MarketService extends BaseService {
       const params = {
         ...this.defaultParams,
         ...queryParams,
+        sparkline: true,
       };
 
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
@@ -83,7 +84,8 @@ export class MarketService extends BaseService {
           const parsedData = lastUpdated.data.map((item: string) =>
             JSON.parse(item),
           ) as CoinGeckoMarketDataResponse[];
-          return this.transformResponse(parsedData);
+          const marketData = this.transformResponse(parsedData);
+          return paginate(marketData, params.page, params.per_page);
         }
       }
 
@@ -91,8 +93,7 @@ export class MarketService extends BaseService {
       const marketData = this.transformResponse(response);
 
       await this.saveMarketData(marketData);
-
-      return marketData;
+      return paginate(marketData, params.page, params.per_page);
     } catch (error) {
       this.handleError(error);
     }
