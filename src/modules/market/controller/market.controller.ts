@@ -25,13 +25,11 @@ import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
   TopGainerLoserDataResponseDto,
-<<<<<<< HEAD
   GetMarketDataQueryDto,
-=======
   PaginationQueryDto,
->>>>>>> f5cff13ab61f1e8e844f0ffb19b57383fb0261ed
 } from '../dto/market.dto';
 import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
+import { ApiMarketDataQueries } from '../dto/marketDataQuery.decorator';
 
 @ApiTags('market')
 @Controller('market')
@@ -42,34 +40,7 @@ export class MarketController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(MarketResponseValidationInterceptor)
   @ApiOperation({ summary: 'Fetch market data' })
-  @ApiQuery({
-    name: 'vs_currency',
-    required: false,
-    description: 'Default: usd',
-  })
-  @ApiQuery({
-    name: 'order',
-    required: false,
-    description: 'Default: market_cap_desc',
-  })
-  @ApiQuery({
-    name: 'per_page',
-    required: false,
-    type: Number,
-    description: 'Default: 10',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Default: 1',
-  })
-  @ApiQuery({
-    name: 'sparkline',
-    required: false,
-    type: Boolean,
-    description: 'Default: true',
-  })
+  @ApiMarketDataQueries()
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
     description: 'The market data has been successfully fetched.',
