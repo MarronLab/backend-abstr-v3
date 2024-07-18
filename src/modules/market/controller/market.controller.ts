@@ -24,7 +24,7 @@ import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
   TopGainerLoserDataResponseDto,
-  GetMarketDataQueryDto,
+  PaginationQueryDto,
 } from '../dto/market.dto';
 import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
 import { ApiMarketDataQueries } from '../dto/marketDataQuery.decorator';
@@ -44,7 +44,7 @@ export class MarketController {
     description: 'The market data has been successfully fetched.',
     type: [MarketDataResponseDto],
   })
-  async getMarketData(@Query() query: GetMarketDataQueryDto) {
+  async getMarketData(@Query() query: PaginationQueryDto) {
     const marketData = await this.marketService.getMarketData(query);
     if (!marketData) {
       return [];
@@ -61,7 +61,7 @@ export class MarketController {
     type: [TrendingMarketDataResponseDto],
   })
   @ApiMarketDataQueries()
-  async getTrendingCoin(@Query() query: GetMarketDataQueryDto) {
+  async getTrendingCoin(@Query() query: PaginationQueryDto) {
     const trendingData = await this.marketService.trendingMarket(query);
 
     if (!trendingData) {
@@ -82,7 +82,7 @@ export class MarketController {
     type: [TopGainerLoserDataResponseDto],
   })
   @ApiMarketDataQueries()
-  async getTopGainerLoserCoin(@Query() query: GetMarketDataQueryDto) {
+  async getTopGainerLoserCoin(@Query() query: PaginationQueryDto) {
     const topGainerLoserData =
       await this.marketService.getTopGainerLoserData(query);
 
