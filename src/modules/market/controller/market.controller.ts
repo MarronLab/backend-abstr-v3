@@ -14,20 +14,22 @@ import {
   ApiTags,
   ApiQuery,
 } from '@nestjs/swagger';
-import MarketResponseValidationInterceptor from '../../../schema/market/market.validation';
 import {
   trendingMarketSchema,
   topGainerLoserDataSchema,
   SingleCoinGeckoDataResponseSchema,
+  marketDataSchema,
 } from '../../../schema/market/market.schema';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
   TopGainerLoserDataResponseDto,
+  GetMarketDataQueryDto,
   PaginationQueryDto,
 } from '../dto/market.dto';
 import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
+import { ApiMarketDataQueries } from '../dto/marketDataQuery.decorator';
 
 @ApiTags('market')
 @Controller('market')
@@ -36,19 +38,20 @@ export class MarketController {
 
   @Get('coins')
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseInterceptors(MarketResponseValidationInterceptor)
+  @UseInterceptors(new ResponseValidationInterceptor(marketDataSchema))
   @ApiOperation({ summary: 'Fetch market data' })
+  @ApiMarketDataQueries()
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
     description: 'The market data has been successfully fetched.',
     type: [MarketDataResponseDto],
   })
-  async getMarketData() {
-    const marketData = await this.marketService.getMarketData();
+  async getMarketData(@Query() query: GetMarketDataQueryDto) {
+    const marketData = await this.marketService.getMarketData(query);
     if (!marketData) {
       return [];
     }
-    return marketData.map((data) => new MarketDataResponseDto(data));
+    return marketData.items.map((data) => new MarketDataResponseDto(data));
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

@@ -22,6 +22,7 @@ import {
   TrendingMarketDataResponseDto,
   TopGainerLoserResponseDto,
   TopGainerLoserDataResponseDto,
+  GetMarketDataQueryDto,
 } from '../dto/market.dto';
 
 import { paginate } from 'src/utils/pagination';
@@ -31,7 +32,7 @@ export class MarketService extends BaseService {
   private readonly params = {
     vs_currency: 'usd',
     order: 'market_cap_desc',
-    per_page: 10,
+    per_page: 250,
     page: 1,
     sparkline: true,
   };
@@ -58,7 +59,7 @@ export class MarketService extends BaseService {
     super(prismaService, req);
   }
 
-  async getMarketData() {
+  async getMarketData(queryParams: GetMarketDataQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'MARKET_DATA' },
@@ -77,7 +78,12 @@ export class MarketService extends BaseService {
           const parsedData = lastUpdated.data.map((item: string) =>
             JSON.parse(item),
           ) as CoinGeckoMarketDataResponse[];
-          return this.transformResponse(parsedData);
+          const marketData = this.transformResponse(parsedData);
+          return paginate(
+            marketData,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
         }
       }
 
@@ -85,8 +91,11 @@ export class MarketService extends BaseService {
       const marketData = this.transformResponse(response);
 
       await this.saveMarketData(marketData);
-
-      return marketData;
+      return paginate(
+        marketData,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
     } catch (error) {
       this.handleError(error);
     }
