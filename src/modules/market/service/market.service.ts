@@ -267,7 +267,7 @@ export class MarketService extends BaseService {
     }
   }
 
-  async getTopGainerLoserData() {
+  async getTopGainerLoserData(params: { page: number; pageSize: number }) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'TOPGAINERLOSER_DATA' },
@@ -286,7 +286,21 @@ export class MarketService extends BaseService {
           const parsedData = lastUpdated.data.map((item: string) =>
             JSON.parse(item),
           ) as CoinGeckoTopGainerLoserResponse[];
-          return this.transformTopGainerLoserData(parsedData[0]);
+          const topGainers = paginate(
+            parsedData[0].top_gainers,
+            params.page,
+            params.pageSize,
+          );
+          const topLosers = paginate(
+            parsedData[0].top_losers,
+            params.page,
+            params.pageSize,
+          );
+          // return this.transformTopGainerLoserData(parsedData[0]);
+          return new TopGainerLoserDataResponseDto({
+            top_gainers: topGainers.items,
+            top_losers: topLosers.items,
+          });
         }
       }
 
@@ -297,7 +311,20 @@ export class MarketService extends BaseService {
 
       await this.saveTopGainerLoserData(topGainerLoserData);
 
-      return topGainerLoserData;
+      const topGainers = paginate(
+        topGainerLoserData.top_gainers,
+        params.page,
+        params.pageSize,
+      );
+      const topLosers = paginate(
+        topGainerLoserData.top_losers,
+        params.page,
+        params.pageSize,
+      );
+      return new TopGainerLoserDataResponseDto({
+        top_gainers: topGainers.items,
+        top_losers: topLosers.items,
+      });
     } catch (error) {
       this.handleError(error);
     }

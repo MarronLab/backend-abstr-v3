@@ -98,8 +98,26 @@ export class MarketController {
       'The top gainer and loser market coin data has been successfully fetched.',
     type: [TopGainerLoserDataResponseDto],
   })
-  async getTopGainerLoserCoin() {
-    const topGainerLoserData = await this.marketService.getTopGainerLoserData();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default is 1)',
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+    description: 'Page size (default is 10)',
+  })
+  async getTopGainerLoserCoin(@Query() query: PaginationQueryDto) {
+    const params = {
+      page: query.page ?? 1,
+      pageSize: query.pageSize ?? 10,
+    };
+    const topGainerLoserData =
+      await this.marketService.getTopGainerLoserData(params);
+
     if (!topGainerLoserData) {
       return new TopGainerLoserDataResponseDto({
         top_gainers: [],
