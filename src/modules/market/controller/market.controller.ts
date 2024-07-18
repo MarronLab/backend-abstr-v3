@@ -25,7 +25,11 @@ import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
   TopGainerLoserDataResponseDto,
+<<<<<<< HEAD
   GetMarketDataQueryDto,
+=======
+  PaginationQueryDto,
+>>>>>>> f5cff13ab61f1e8e844f0ffb19b57383fb0261ed
 } from '../dto/market.dto';
 import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
 
@@ -79,20 +83,39 @@ export class MarketController {
     return marketData.map((data) => new MarketDataResponseDto(data));
   }
 
-  @Get('trending')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(new ResponseValidationInterceptor(trendingMarketSchema))
+  @Get('trending')
   @ApiOperation({ summary: 'Fetch trending market coins data' })
   @ApiOkResponse({
     description: 'The trending market coin data has been successfully fetched.',
     type: [TrendingMarketDataResponseDto],
   })
-  async getTrendingCoin() {
-    const trendingData = await this.marketService.trendingMarket();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default is 1)',
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+    description: 'Page size (default is 10)',
+  })
+  async getTrendingCoin(@Query() query: PaginationQueryDto) {
+    const params = {
+      page: query.page ?? 1,
+      per_page: query.pageSize ?? 10,
+    };
+    const trendingData = await this.marketService.trendingMarket(params);
+
     if (!trendingData) {
       return [];
     }
-    return trendingData.map((data) => new TrendingMarketDataResponseDto(data));
+    return trendingData.items.map(
+      (data) => new TrendingMarketDataResponseDto(data),
+    );
   }
 
   @Get('top_gainers_losers')
