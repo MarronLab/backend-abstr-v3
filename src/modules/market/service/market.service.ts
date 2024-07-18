@@ -29,10 +29,10 @@ import { paginate } from 'src/utils/pagination';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
-  private readonly defaultParams = {
+  private readonly params = {
     vs_currency: 'usd',
     order: 'market_cap_desc',
-    per_page: 10,
+    per_page: 250,
     page: 1,
     sparkline: true,
   };
@@ -61,12 +61,6 @@ export class MarketService extends BaseService {
 
   async getMarketData(queryParams: GetMarketDataQueryDto) {
     try {
-      const params = {
-        ...this.defaultParams,
-        ...queryParams,
-        sparkline: true,
-      };
-
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'MARKET_DATA' },
         orderBy: {
@@ -85,15 +79,23 @@ export class MarketService extends BaseService {
             JSON.parse(item),
           ) as CoinGeckoMarketDataResponse[];
           const marketData = this.transformResponse(parsedData);
-          return paginate(marketData, params.page, params.per_page);
+          return paginate(
+            marketData,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
         }
       }
 
-      const response = await this.coingeckoService.getMarketData(params);
+      const response = await this.coingeckoService.getMarketData(this.params);
       const marketData = this.transformResponse(response);
 
       await this.saveMarketData(marketData);
-      return paginate(marketData, params.page, params.per_page);
+      return paginate(
+        marketData,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
     } catch (error) {
       this.handleError(error);
     }

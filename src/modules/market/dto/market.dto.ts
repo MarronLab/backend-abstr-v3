@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsNumber, IsInt, Min } from 'class-validator';
+import { IsOptional, IsNumber, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class SparklineIn7dDto {
@@ -25,14 +25,6 @@ export class PaginationQueryDto {
 }
 
 export class GetMarketDataQueryDto {
-  @IsOptional()
-  @IsString()
-  vs_currency?: string;
-
-  @IsOptional()
-  @IsString()
-  order?: string;
-
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
