@@ -22,11 +22,12 @@ import {
   TrendingMarketDataResponseDto,
   TopGainerLoserResponseDto,
   TopGainerLoserDataResponseDto,
+  GetMarketDataQueryDto,
 } from '../dto/market.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
-  private readonly params = {
+  private readonly defaultParams = {
     vs_currency: 'usd',
     order: 'market_cap_desc',
     per_page: 10,
@@ -56,8 +57,13 @@ export class MarketService extends BaseService {
     super(prismaService, req);
   }
 
-  async getMarketData() {
+  async getMarketData(queryParams: GetMarketDataQueryDto) {
     try {
+      const params = {
+        ...this.defaultParams,
+        ...queryParams,
+      };
+
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'MARKET_DATA' },
         orderBy: {
@@ -79,7 +85,7 @@ export class MarketService extends BaseService {
         }
       }
 
-      const response = await this.coingeckoService.getMarketData(this.params);
+      const response = await this.coingeckoService.getMarketData(params);
       const marketData = this.transformResponse(response);
 
       await this.saveMarketData(marketData);

@@ -4,6 +4,7 @@ import {
   Get,
   UseInterceptors,
   Param,
+  Query,
 } from '@nestjs/common';
 import { MarketService } from '../service/market.service';
 import {
@@ -11,6 +12,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiQuery,
 } from '@nestjs/swagger';
 import MarketResponseValidationInterceptor from '../../../schema/market/market.validation';
 import {
@@ -23,6 +25,7 @@ import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
   TopGainerLoserDataResponseDto,
+  GetMarketDataQueryDto,
 } from '../dto/market.dto';
 import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
 
@@ -35,13 +38,41 @@ export class MarketController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(MarketResponseValidationInterceptor)
   @ApiOperation({ summary: 'Fetch market data' })
+  @ApiQuery({
+    name: 'vs_currency',
+    required: false,
+    description: 'Default: usd',
+  })
+  @ApiQuery({
+    name: 'order',
+    required: false,
+    description: 'Default: market_cap_desc',
+  })
+  @ApiQuery({
+    name: 'per_page',
+    required: false,
+    type: Number,
+    description: 'Default: 10',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Default: 1',
+  })
+  @ApiQuery({
+    name: 'sparkline',
+    required: false,
+    type: Boolean,
+    description: 'Default: true',
+  })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
     description: 'The market data has been successfully fetched.',
     type: [MarketDataResponseDto],
   })
-  async getMarketData() {
-    const marketData = await this.marketService.getMarketData();
+  async getMarketData(@Query() query: GetMarketDataQueryDto) {
+    const marketData = await this.marketService.getMarketData(query);
     if (!marketData) {
       return [];
     }

@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString, IsNumber, IsBoolean } from 'class-validator';
+import { Type } from 'class-transformer';
 
 class SparklineIn7dDto {
   @ApiProperty({
@@ -6,6 +8,31 @@ class SparklineIn7dDto {
     description: 'Price change sparkline for the last 7 days',
   })
   price: number[];
+}
+
+export class GetMarketDataQueryDto {
+  @IsOptional()
+  @IsString()
+  vs_currency?: string;
+
+  @IsOptional()
+  @IsString()
+  order?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  per_page?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  page?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  sparkline?: boolean;
 }
 
 export class MarketDataResponseDto {
