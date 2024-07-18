@@ -6,11 +6,13 @@ export function ApiMarketDataQueries() {
     ApiQuery({
       name: 'vs_currency',
       required: false,
+      type: String,
       description: 'Default: usd',
     }),
     ApiQuery({
       name: 'order',
       required: false,
+      type: String,
       description: 'Default: market_cap_desc',
     }),
     ApiQuery({
