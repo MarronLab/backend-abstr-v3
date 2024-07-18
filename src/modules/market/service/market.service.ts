@@ -181,7 +181,7 @@ export class MarketService extends BaseService {
   private toNumberOrNull(value: any): number | null {
     return value === null || value === undefined ? null : Number(value);
   }
-  async trendingMarket(params: { page: number; per_page: number }) {
+  async trendingMarket(queryParams: GetMarketDataQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'TRENDING_DATA' },
@@ -201,7 +201,7 @@ export class MarketService extends BaseService {
             return parsedItem;
           }) as CoingeckoTrendingItem[];
           const trendingData = this.transformTrendingResponse(parsedData);
-          return paginate(trendingData, params.page, params.per_page);
+          return paginate(trendingData, queryParams.page, queryParams.per_page);
         }
       }
 
@@ -209,7 +209,7 @@ export class MarketService extends BaseService {
       const trendingData = this.transformTrendingResponse(response.coins);
 
       await this.saveTrendingMarketData(trendingData);
-      return paginate(trendingData, params.page, params.per_page);
+      return paginate(trendingData, queryParams.page, queryParams.per_page);
     } catch (error) {
       this.handleError(error);
     }
@@ -267,7 +267,7 @@ export class MarketService extends BaseService {
     }
   }
 
-  async getTopGainerLoserData(params: { page: number; pageSize: number }) {
+  async getTopGainerLoserData(queryParams: GetMarketDataQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'TOPGAINERLOSER_DATA' },
@@ -288,15 +288,14 @@ export class MarketService extends BaseService {
           ) as CoinGeckoTopGainerLoserResponse[];
           const topGainers = paginate(
             parsedData[0].top_gainers,
-            params.page,
-            params.pageSize,
+            queryParams.page,
+            queryParams.per_page,
           );
           const topLosers = paginate(
             parsedData[0].top_losers,
-            params.page,
-            params.pageSize,
+            queryParams.page,
+            queryParams.per_page,
           );
-          // return this.transformTopGainerLoserData(parsedData[0]);
           return new TopGainerLoserDataResponseDto({
             top_gainers: topGainers.items,
             top_losers: topLosers.items,
@@ -313,13 +312,13 @@ export class MarketService extends BaseService {
 
       const topGainers = paginate(
         topGainerLoserData.top_gainers,
-        params.page,
-        params.pageSize,
+        queryParams.page,
+        queryParams.per_page,
       );
       const topLosers = paginate(
         topGainerLoserData.top_losers,
-        params.page,
-        params.pageSize,
+        queryParams.page,
+        queryParams.per_page,
       );
       return new TopGainerLoserDataResponseDto({
         top_gainers: topGainers.items,
