@@ -25,7 +25,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     const status = this.getStatus(exception);
-    const message = this.getMessage(exception);
+    const message = this.formatMessage(this.getMessage(exception));
 
     const errorResponse: ErrorResponse = {
       statusCode: status,
@@ -33,7 +33,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       error: HttpStatus[status] || 'Error',
     };
 
-    console.log(errorResponse);
     if (!validate(errorResponse)) {
       console.error('Validation failed:', validate.errors);
       response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -56,7 +55,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
-  private getMessage(exception: unknown): string {
+  private getMessage(exception: unknown): string | string[] {
     if (exception instanceof HttpException) {
       const response = exception.getResponse();
       return this.extractMessageFromResponse(response);
@@ -64,12 +63,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
     return (exception as Error).message || 'Internal server error';
   }
 
-  private extractMessageFromResponse(response: string | object): string {
+  private extractMessageFromResponse(
+    response: string | object,
+  ): string | string[] {
     if (typeof response === 'string') {
       return response;
     } else if (typeof response === 'object' && 'message' in response) {
       return (response as any).message;
     }
     return 'Internal server error';
+  }
+
+  private formatMessage(message: string | string[]): string {
+    if (Array.isArray(message)) {
+      return message.join(', ');
+    }
+    return message;
   }
 }

@@ -21,7 +21,9 @@ export class AssetOpenOrderRequestDto {
   })
   @IsString()
   @IsNotEmpty()
-  @IsEnum(['BUY', 'SELL'])
+  @IsEnum(['BUY', 'SELL'], {
+    message: 'Side must be one of the following values: BUY or SELL',
+  })
   side: 'SELL' | 'BUY';
 
   @ApiPropertyOptional()
