@@ -6,12 +6,17 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+import Ajv from 'ajv';
+import { errorResponseSchema } from 'src/schema/common/error-response.schema';
 
 interface ErrorResponse {
   statusCode: number;
   message: string;
   error: string;
 }
+
+const ajv = new Ajv();
+const validate = ajv.compile<ErrorResponse>(errorResponseSchema);
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -23,12 +28,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const message = this.getMessage(exception);
 
     const errorResponse: ErrorResponse = {
+      statusCode: status,
       message: message,
       error: HttpStatus[status] || 'Error',
-      statusCode: status,
     };
 
-    response.status(status).json(errorResponse);
+    console.log(errorResponse);
+    if (!validate(errorResponse)) {
+      console.error('Validation failed:', validate.errors);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message:
+          validate.errors
+            ?.map((err) => `${err.instancePath} ${err.message}`)
+            .join(', ') || 'Validation error',
+        error: 'Validation Failed',
+      });
+    } else {
+      response.status(status).json(errorResponse);
+    }
   }
 
   private getStatus(exception: unknown): number {
