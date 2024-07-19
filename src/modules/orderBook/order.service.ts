@@ -241,6 +241,7 @@ export class OrderService extends BaseService {
 
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.errorMessage);
+        // console.log('logged');
       }
 
       const currencyPrice = await this.modulusService.getCurrencyPrice({
@@ -252,7 +253,7 @@ export class OrderService extends BaseService {
         currencyPrice: currencyPrice.data.data,
       };
     } catch (error) {
-      throw new UnprocessableEntityException(error);
+      throw error;
     }
   }
 

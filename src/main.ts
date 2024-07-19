@@ -11,6 +11,7 @@ import { UserActivityInterceptor } from './common/user-activity.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { TransactionInterceptor } from './common/transaction.interceptor';
 import { PrismaService } from './services/prisma.service';
+import { AllExceptionsFilter } from './common/all-exceptions.filter';
 
 async function bootstrap() {
   Sentry.init({
@@ -50,6 +51,8 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, doc);
 
   Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const port = process.env.PORT || 4000;
   await app.listen(port);
