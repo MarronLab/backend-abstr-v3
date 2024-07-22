@@ -262,4 +262,16 @@ export class AuthService {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async getWhitelistedDevices() {
+    try {
+      const { data } = await this.modulusService.getwhitelistedDevices();
+
+      console.log('logging whitelisted devices', data);
+
+      return data.data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

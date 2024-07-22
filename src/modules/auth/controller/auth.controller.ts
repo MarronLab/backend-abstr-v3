@@ -315,4 +315,13 @@ export class AuthController {
 
     return { data: response };
   }
+
+  @Get('list-whitelisted-devices')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  async getWhitelistedDevice() {
+    const response = await this.authService.getWhitelistedDevices();
+    console.log(response);
+    return response;
+  }
 }
