@@ -11,6 +11,8 @@ import { UserActivityInterceptor } from './common/user-activity.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { TransactionInterceptor } from './common/transaction.interceptor';
 import { PrismaService } from './services/prisma.service';
+import { AllExceptionsFilter } from './common/all-exceptions.filter';
+import { JsonParseMiddleware } from './utils/JsonParseMiddleware';
 
 async function bootstrap() {
   Sentry.init({
@@ -28,6 +30,8 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
+
+  app.use(new JsonParseMiddleware().use);
 
   app.useGlobalInterceptors(
     new UserActivityInterceptor(app.get(PrismaService)),
@@ -50,6 +54,8 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, doc);
 
   Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const port = process.env.PORT || 4000;
   await app.listen(port);

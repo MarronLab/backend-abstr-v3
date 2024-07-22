@@ -252,7 +252,7 @@ export class OrderService extends BaseService {
         currencyPrice: currencyPrice.data.data,
       };
     } catch (error) {
-      throw new UnprocessableEntityException(error);
+      throw error;
     }
   }
 
