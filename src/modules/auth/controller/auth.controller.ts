@@ -54,7 +54,9 @@ export class AuthController {
     type: AuthResponseDto,
   })
   async login(@Body() account: LoginDto) {
-    return await this.authService.login(account.email, account.password);
+    const response = this.authService.login(account.email, account.password);
+    console.log(response);
+    return response;
   }
 
   @Post('register')

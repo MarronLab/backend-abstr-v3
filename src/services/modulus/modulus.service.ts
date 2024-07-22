@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {
   AuthenticateUserResponse,
@@ -66,13 +66,7 @@ export class ModulusService {
 
       return response;
     } catch (error) {
-      throw new HttpException(
-        {
-          message: error.response?.data?.Message,
-          details: error.message,
-        },
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new Error(error);
     }
   }
 

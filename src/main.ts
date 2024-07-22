@@ -12,6 +12,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { TransactionInterceptor } from './common/transaction.interceptor';
 import { PrismaService } from './services/prisma.service';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
+import { JsonParseMiddleware } from './utils/JsonParseMiddleware';
 
 async function bootstrap() {
   Sentry.init({
@@ -29,6 +30,8 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
+
+  app.use(new JsonParseMiddleware().use);
 
   app.useGlobalInterceptors(
     new UserActivityInterceptor(app.get(PrismaService)),

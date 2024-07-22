@@ -178,6 +178,7 @@ export class OrderService extends BaseService {
 
       return { ...data.data, metadata: placeOrderDto.metadata };
     } catch (error) {
+      console.log('ah', error);
       throw new UnprocessableEntityException(error);
     }
   }
@@ -241,7 +242,6 @@ export class OrderService extends BaseService {
 
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.errorMessage);
-        // console.log('logged');
       }
 
       const currencyPrice = await this.modulusService.getCurrencyPrice({

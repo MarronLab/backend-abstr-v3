@@ -19,13 +19,7 @@ export class CoingeckoService {
       );
       return response.data;
     } catch (error) {
-      throw new HttpException(
-        {
-          message: error.response?.data?.Message,
-          details: error.message,
-        },
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new Error(error);
     }
   }
 
@@ -36,13 +30,7 @@ export class CoingeckoService {
       );
       return response.data;
     } catch (error) {
-      throw new HttpException(
-        {
-          message: error.response?.data?.Message,
-          details: error.message,
-        },
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new Error(error);
     }
   }
 

@@ -11,7 +11,7 @@ import { errorResponseSchema } from 'src/schema/common/error-response.schema';
 
 interface ErrorResponse {
   statusCode: number;
-  message: string;
+  message: string | string[];
   error: string;
 }
 
