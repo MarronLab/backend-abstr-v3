@@ -16,23 +16,24 @@ import EnableGoogleAuthenticatorDto from '../dto/auth.enable-google-authenticato
 import ChangePasswordDto from '../dto/auth.change-password.dto';
 import ChangeEmailDto from '../dto/auth.change-email.dto';
 import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
+import TokenDto from '../dto/auth.token.dto';
+import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly modulusService: ModulusService) {}
 
-  async login(
-    email: string,
-    password: string,
-  ): Promise<AuthenticateUserResponse> {
+  async login(email: string, password: string) {
     try {
-      const response = await this.modulusService.login(email, password);
+      const { data } = await this.modulusService.login(email, password);
 
-      if (!response.data.access_token) {
+      if ('status' in data && data.status === 'Error') {
         throw new UnauthorizedException();
+      } else if ('status' in data && data.status === 'Success') {
+        return data.data;
       }
 
-      return response.data;
+      return data;
     } catch (error) {
       throw new UnauthorizedException();
     }
@@ -208,6 +209,54 @@ export class AuthService {
 
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async token(tokenDto: TokenDto) {
+    try {
+      const { data } = await this.modulusService.token({
+        grant_type: tokenDto.grantType,
+        username: tokenDto.username,
+        password: tokenDto.password,
+      });
+
+      if ('error' in data) {
+        throw new UnprocessableEntityException(data.error_description);
+      }
+
+      return data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async resendEmailOtp(resendEmailOtpDto: ResendEmailOtpDto) {
+    try {
+      const { data } = await this.modulusService.resentEmailOTP(
+        resendEmailOtpDto.token,
+      );
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async validateBearerToken() {
+    try {
+      const { data } = await this.modulusService.validateBearerToken();
+
+      if ('Message' in data) {
+        throw new UnprocessableEntityException(data.Message);
       }
 
       return data.data;

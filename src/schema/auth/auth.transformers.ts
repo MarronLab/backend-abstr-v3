@@ -36,15 +36,17 @@ export class ResponseTransformInterceptor implements NestInterceptor {
   ): Promise<Observable<any>> {
     return next.handle().pipe(
       map(async (data) => {
-        if (data.access_token) {
-          const responseDto = plainToClass(AuthResponseDto, data);
-          await validateOrReject(responseDto);
-          return responseDto;
+        if (data && data.status !== 'Error') {
+          // const responseDto = plainToClass(AuthResponseDto, data);
+          // await validateOrReject(responseDto);
+          // return responseDto;
         } else {
-          const errorResponse = plainToClass(ErrorResponseDto, data);
-          await validateOrReject(errorResponse);
-          return errorResponse;
+          // const errorResponse = plainToClass(ErrorResponseDto, data);
+          // await validateOrReject(errorResponse);
+          // return errorResponse;
         }
+
+        return data;
       }),
     );
   }

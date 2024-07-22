@@ -5,11 +5,27 @@ import {
   OrderTypeEnum,
 } from './modulus.enum';
 
-export type AuthenticateUserResponse = {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-};
+export type AuthenticateUserSuccessResponse =
+  | {
+      access_token: string;
+      token_type: string;
+      expires_in: number;
+    }
+  | {
+      status: 'Success';
+      message: string;
+      data: {
+        tempAuthToken: string;
+        tokenExpiry: string;
+        twoFAMehtod: string;
+      };
+    };
+
+export type AuthenticateUserErrorResponse = ModulusBaseErrorResponseData;
+
+export type AuthenticateUserResponse =
+  | AuthenticateUserErrorResponse
+  | AuthenticateUserSuccessResponse;
 
 export type PageInfo = {
   totalRows: number;
@@ -691,3 +707,51 @@ export type MarketSummaryResponse = {
     [key: string]: MarketSummaryPairData;
   };
 };
+
+//Sign in - Access token
+export type TokenRequest = {
+  grant_type: string;
+  username: string;
+  password: string;
+};
+
+export type TokenErrorResponse = {
+  error: string;
+  error_description: string;
+};
+
+export type TokenSuccessResponse = {
+  access_token: string;
+  token_type: string;
+  expires_in: string;
+};
+
+export type TokenResponse = TokenErrorResponse | TokenSuccessResponse;
+
+//Resend email OTP
+export type ResendEmailOTPErrorResponse = ModulusBaseErrorResponseData;
+
+export type ResendEmailOTPSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ResendEmailOTPResponse =
+  | ResendEmailOTPErrorResponse
+  | ResendEmailOTPSuccessResponse;
+
+//Validate bearer token
+export type ValidateBearerTokenErrorResponse = {
+  Message: string;
+};
+
+export type ValidateBearerTokenSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ValidateBearerTokenResponse =
+  | ValidateBearerTokenErrorResponse
+  | ValidateBearerTokenSuccessResponse;
