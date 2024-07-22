@@ -12,7 +12,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiQuery,
 } from '@nestjs/swagger';
 import {
   trendingMarketSchema,
@@ -25,7 +24,6 @@ import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
   TopGainerLoserDataResponseDto,
-  GetMarketDataQueryDto,
   PaginationQueryDto,
 } from '../dto/market.dto';
 import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
@@ -46,7 +44,7 @@ export class MarketController {
     description: 'The market data has been successfully fetched.',
     type: [MarketDataResponseDto],
   })
-  async getMarketData(@Query() query: GetMarketDataQueryDto) {
+  async getMarketData(@Query() query: PaginationQueryDto) {
     const marketData = await this.marketService.getMarketData(query);
     if (!marketData) {
       return [];
@@ -62,24 +60,9 @@ export class MarketController {
     description: 'The trending market coin data has been successfully fetched.',
     type: [TrendingMarketDataResponseDto],
   })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number (default is 1)',
-  })
-  @ApiQuery({
-    name: 'pageSize',
-    required: false,
-    type: Number,
-    description: 'Page size (default is 10)',
-  })
+  @ApiMarketDataQueries()
   async getTrendingCoin(@Query() query: PaginationQueryDto) {
-    const params = {
-      page: query.page ?? 1,
-      per_page: query.pageSize ?? 10,
-    };
-    const trendingData = await this.marketService.trendingMarket(params);
+    const trendingData = await this.marketService.trendingMarket(query);
 
     if (!trendingData) {
       return [];
@@ -98,8 +81,11 @@ export class MarketController {
       'The top gainer and loser market coin data has been successfully fetched.',
     type: [TopGainerLoserDataResponseDto],
   })
-  async getTopGainerLoserCoin() {
-    const topGainerLoserData = await this.marketService.getTopGainerLoserData();
+  @ApiMarketDataQueries()
+  async getTopGainerLoserCoin(@Query() query: PaginationQueryDto) {
+    const topGainerLoserData =
+      await this.marketService.getTopGainerLoserData(query);
+
     if (!topGainerLoserData) {
       return new TopGainerLoserDataResponseDto({
         top_gainers: [],

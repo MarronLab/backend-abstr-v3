@@ -22,7 +22,7 @@ import {
   TrendingMarketDataResponseDto,
   TopGainerLoserResponseDto,
   TopGainerLoserDataResponseDto,
-  GetMarketDataQueryDto,
+  PaginationQueryDto,
 } from '../dto/market.dto';
 
 import { paginate } from 'src/utils/pagination';
@@ -59,7 +59,7 @@ export class MarketService extends BaseService {
     super(prismaService, req);
   }
 
-  async getMarketData(queryParams: GetMarketDataQueryDto) {
+  async getMarketData(queryParams: PaginationQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'MARKET_DATA' },
@@ -181,7 +181,7 @@ export class MarketService extends BaseService {
   private toNumberOrNull(value: any): number | null {
     return value === null || value === undefined ? null : Number(value);
   }
-  async trendingMarket(params: { page: number; per_page: number }) {
+  async trendingMarket(queryParams: PaginationQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'TRENDING_DATA' },
@@ -201,7 +201,11 @@ export class MarketService extends BaseService {
             return parsedItem;
           }) as CoingeckoTrendingItem[];
           const trendingData = this.transformTrendingResponse(parsedData);
-          return paginate(trendingData, params.page, params.per_page);
+          return paginate(
+            trendingData,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
         }
       }
 
@@ -209,7 +213,11 @@ export class MarketService extends BaseService {
       const trendingData = this.transformTrendingResponse(response.coins);
 
       await this.saveTrendingMarketData(trendingData);
-      return paginate(trendingData, params.page, params.per_page);
+      return paginate(
+        trendingData,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
     } catch (error) {
       this.handleError(error);
     }
@@ -267,7 +275,7 @@ export class MarketService extends BaseService {
     }
   }
 
-  async getTopGainerLoserData() {
+  async getTopGainerLoserData(queryParams: PaginationQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'TOPGAINERLOSER_DATA' },
@@ -286,7 +294,20 @@ export class MarketService extends BaseService {
           const parsedData = lastUpdated.data.map((item: string) =>
             JSON.parse(item),
           ) as CoinGeckoTopGainerLoserResponse[];
-          return this.transformTopGainerLoserData(parsedData[0]);
+          const topGainers = paginate(
+            parsedData[0].top_gainers,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
+          const topLosers = paginate(
+            parsedData[0].top_losers,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
+          return new TopGainerLoserDataResponseDto({
+            top_gainers: topGainers.items,
+            top_losers: topLosers.items,
+          });
         }
       }
 
@@ -297,7 +318,20 @@ export class MarketService extends BaseService {
 
       await this.saveTopGainerLoserData(topGainerLoserData);
 
-      return topGainerLoserData;
+      const topGainers = paginate(
+        topGainerLoserData.top_gainers,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
+      const topLosers = paginate(
+        topGainerLoserData.top_losers,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
+      return new TopGainerLoserDataResponseDto({
+        top_gainers: topGainers.items,
+        top_losers: topLosers.items,
+      });
     } catch (error) {
       this.handleError(error);
     }
