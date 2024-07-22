@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import qs from 'qs';
 import {
   AuthenticateUserResponse,
   CancelOrderRequest,
@@ -57,7 +56,7 @@ import {
   ResendEmailOTPResponse,
   ValidateBearerTokenResponse,
 } from './modulus.type';
-import { AxiosError, AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class ModulusService {

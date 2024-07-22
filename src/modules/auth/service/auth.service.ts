@@ -6,8 +6,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
-
-import { AuthenticateUserResponse } from 'src/services/modulus/modulus.type';
 import RegisterDto from '../dto/auth.register.dto';
 import VerifyAccountDto from '../dto/auth.verify.dto';
 import SignupResendEmailDto from '../dto/auth.signup.resend.email.dto';
