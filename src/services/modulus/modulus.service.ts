@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import qs from 'qs';
 import {
   AuthenticateUserResponse,
   CancelOrderRequest,
@@ -51,17 +52,27 @@ import {
   AssetCurrencyPriceRequest,
   AssetCurrencyPriceResponse,
   MarketSummaryResponse,
+  TokenResponse,
+  TokenRequest,
+  ResendEmailOTPResponse,
+  ValidateBearerTokenResponse,
 } from './modulus.type';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class ModulusService {
   constructor(private readonly httpService: HttpService) {}
 
-  private async post<T>(endpoint: string, request?: any) {
+  private async post<T>(
+    endpoint: string,
+    request?: any,
+    config?: AxiosRequestConfig,
+  ) {
     try {
       const response = await this.httpService.axiosRef.post<T>(
         endpoint,
         request,
+        config,
       );
 
       return response;
@@ -250,6 +261,31 @@ export class ModulusService {
     return await this.get<MarketSummaryResponse>(
       '/market/get-market-summary',
       {},
+    );
+  }
+
+  async token(request: TokenRequest) {
+    const data = Object.keys(request)
+      .map((key) => `${key}=${encodeURIComponent((request as any)[key])}`)
+      .join('&');
+
+    return await this.post<TokenResponse>('/token', data, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+    });
+  }
+
+  async resentEmailOTP(token: string) {
+    return await this.post<ResendEmailOTPResponse>(
+      `/api/AuthenticateUser_Resend_EmailOTP/${token}`,
+    );
+  }
+
+  async validateBearerToken() {
+    return await this.post<ValidateBearerTokenResponse>(
+      `/Validate_BearerToken`,
     );
   }
 }

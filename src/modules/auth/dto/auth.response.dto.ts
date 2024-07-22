@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber } from 'class-validator';
+import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsString, IsNumber, ValidateNested } from 'class-validator';
 
-export default class AuthResponseDto {
+export class AuthAccessTokenResponseDto {
   @ApiProperty({
     description: 'Access token',
     required: true,
@@ -22,4 +23,55 @@ export default class AuthResponseDto {
   })
   @IsNumber()
   expires_in: number;
+}
+
+export class AuthVerificationResponseDto {
+  @ApiProperty({
+    description: 'Auth login token',
+    required: true,
+  })
+  @IsString()
+  tempAuthToken: string;
+
+  @ApiProperty({
+    description: 'Token expiry date',
+    required: true,
+  })
+  @IsString()
+  tokenExpiry: string;
+
+  @ApiProperty({
+    description: '2FA method',
+    required: true,
+  })
+  @IsNumber()
+  twoFAMehtod: number;
+}
+
+export default class AuthResponseDto {
+  @ApiProperty({
+    description: '2FA method',
+    required: true,
+    oneOf: [
+      { $ref: getSchemaPath(AuthAccessTokenResponseDto) },
+      { $ref: getSchemaPath(AuthVerificationResponseDto) },
+    ],
+  })
+  @ValidateNested()
+  @Type(() => AuthAccessTokenResponseDto, {
+    discriminator: {
+      property: '__type',
+      subTypes: [
+        {
+          value: AuthAccessTokenResponseDto,
+          name: 'AuthAccessTokenResponseDto',
+        },
+        {
+          value: AuthVerificationResponseDto,
+          name: 'AuthVerificationResponseDto',
+        },
+      ],
+    },
+  })
+  data: AuthAccessTokenResponseDto | AuthVerificationResponseDto;
 }
