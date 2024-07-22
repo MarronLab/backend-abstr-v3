@@ -285,7 +285,7 @@ export class ModulusService {
 
   async resentEmailOTP(token: string) {
     return await this.post<ResendEmailOTPResponse>(
-      `/AuthenticateUser_Resend_EmailOTP/${token}`,
+      `/api/AuthenticateUser_Resend_EmailOTP/${token}`,
     );
   }
 

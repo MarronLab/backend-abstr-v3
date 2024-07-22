@@ -244,8 +244,6 @@ export class AuthController {
 
   @Post('token')
   @HttpCode(200)
-  // @UseGuards(AuthGuard)
-  // @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Obtain access token' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
@@ -265,8 +263,6 @@ export class AuthController {
 
   @Post('email/otp/resend')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Request Email OTP again' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
