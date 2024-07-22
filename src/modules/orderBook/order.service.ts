@@ -178,7 +178,6 @@ export class OrderService extends BaseService {
 
       return { ...data.data, metadata: placeOrderDto.metadata };
     } catch (error) {
-      console.log('ah', error);
       throw new UnprocessableEntityException(error);
     }
   }
