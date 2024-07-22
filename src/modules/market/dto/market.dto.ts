@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
 class SparklineIn7dDto {
   @ApiProperty({
@@ -6,6 +8,18 @@ class SparklineIn7dDto {
     description: 'Price change sparkline for the last 7 days',
   })
   price: number[];
+}
+
+export class PaginationQueryDto {
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  per_page?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  page?: number;
 }
 
 export class MarketDataResponseDto {

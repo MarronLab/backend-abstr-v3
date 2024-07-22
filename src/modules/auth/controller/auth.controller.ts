@@ -23,10 +23,7 @@ import {
 } from '@nestjs/swagger';
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
-import {
-  getGoogleAuthenticatorEnableResponseSchema,
-  registerResponseSchema,
-} from '../../../schema/auth/auth.schema';
+import { getGoogleAuthenticatorEnableResponseSchema } from '../../../schema/auth/auth.schema';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
@@ -41,6 +38,8 @@ import ChangePasswordDto from '../dto/auth.change-password.dto';
 import ChangeEmailDto from '../dto/auth.change-email.dto';
 import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
 import { AuthGuard } from '../auth.guard';
+import TokenDto from '../dto/auth.token.dto';
+import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -57,7 +56,12 @@ export class AuthController {
     type: AuthResponseDto,
   })
   async login(@Body() account: LoginDto) {
-    return await this.authService.login(account.email, account.password);
+    const response = await this.authService.login(
+      account.email,
+      account.password,
+    );
+
+    return { data: response };
   }
 
   @Post('register')
@@ -235,6 +239,65 @@ export class AuthController {
   })
   async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
     const response = await this.authService.changePassword(changePasswordDto);
+    return { data: response };
+  }
+
+  @Post('token')
+  @HttpCode(200)
+  // @UseGuards(AuthGuard)
+  // @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Obtain access token' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description:
+      'This endpoint is used to obtain an access token which remains valid for 24 hours from the time it is issued.',
+  })
+  async token(@Body() tokenDto: TokenDto) {
+    return await this.authService.token({
+      grantType: tokenDto.grantType,
+      username: tokenDto.username,
+      password: tokenDto.password,
+    });
+  }
+
+  @Post('email/otp/resend')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Request Email OTP again' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'Used to request Email OTP again using tempAuthToken',
+  })
+  async resendEmailOTP(@Body() resendEmailOtpDto: ResendEmailOtpDto) {
+    const response = await this.authService.resendEmailOtp({
+      token: resendEmailOtpDto.token,
+    });
+
+    return { data: response };
+  }
+
+  @Get('token/validate')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Validate token' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'Can be used to validate a Bearer token',
+  })
+  async validateBearerToken() {
+    const response = await this.authService.validateBearerToken();
+
     return { data: response };
   }
 

@@ -22,14 +22,17 @@ import {
   TrendingMarketDataResponseDto,
   TopGainerLoserResponseDto,
   TopGainerLoserDataResponseDto,
+  PaginationQueryDto,
 } from '../dto/market.dto';
+
+import { paginate } from 'src/utils/pagination';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
   private readonly params = {
     vs_currency: 'usd',
     order: 'market_cap_desc',
-    per_page: 10,
+    per_page: 250,
     page: 1,
     sparkline: true,
   };
@@ -56,7 +59,7 @@ export class MarketService extends BaseService {
     super(prismaService, req);
   }
 
-  async getMarketData() {
+  async getMarketData(queryParams: PaginationQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'MARKET_DATA' },
@@ -75,7 +78,12 @@ export class MarketService extends BaseService {
           const parsedData = lastUpdated.data.map((item: string) =>
             JSON.parse(item),
           ) as CoinGeckoMarketDataResponse[];
-          return this.transformResponse(parsedData);
+          const marketData = this.transformResponse(parsedData);
+          return paginate(
+            marketData,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
         }
       }
 
@@ -83,8 +91,11 @@ export class MarketService extends BaseService {
       const marketData = this.transformResponse(response);
 
       await this.saveMarketData(marketData);
-
-      return marketData;
+      return paginate(
+        marketData,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
     } catch (error) {
       this.handleError(error);
     }
@@ -170,7 +181,7 @@ export class MarketService extends BaseService {
   private toNumberOrNull(value: any): number | null {
     return value === null || value === undefined ? null : Number(value);
   }
-  async trendingMarket() {
+  async trendingMarket(queryParams: PaginationQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'TRENDING_DATA' },
@@ -189,7 +200,12 @@ export class MarketService extends BaseService {
             const parsedItem = JSON.parse(item);
             return parsedItem;
           }) as CoingeckoTrendingItem[];
-          return this.transformTrendingResponse(parsedData);
+          const trendingData = this.transformTrendingResponse(parsedData);
+          return paginate(
+            trendingData,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
         }
       }
 
@@ -197,7 +213,11 @@ export class MarketService extends BaseService {
       const trendingData = this.transformTrendingResponse(response.coins);
 
       await this.saveTrendingMarketData(trendingData);
-      return trendingData;
+      return paginate(
+        trendingData,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
     } catch (error) {
       this.handleError(error);
     }
@@ -255,7 +275,7 @@ export class MarketService extends BaseService {
     }
   }
 
-  async getTopGainerLoserData() {
+  async getTopGainerLoserData(queryParams: PaginationQueryDto) {
     try {
       const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
         where: { type: 'TOPGAINERLOSER_DATA' },
@@ -274,7 +294,20 @@ export class MarketService extends BaseService {
           const parsedData = lastUpdated.data.map((item: string) =>
             JSON.parse(item),
           ) as CoinGeckoTopGainerLoserResponse[];
-          return this.transformTopGainerLoserData(parsedData[0]);
+          const topGainers = paginate(
+            parsedData[0].top_gainers,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
+          const topLosers = paginate(
+            parsedData[0].top_losers,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
+          return new TopGainerLoserDataResponseDto({
+            top_gainers: topGainers.items,
+            top_losers: topLosers.items,
+          });
         }
       }
 
@@ -285,7 +318,20 @@ export class MarketService extends BaseService {
 
       await this.saveTopGainerLoserData(topGainerLoserData);
 
-      return topGainerLoserData;
+      const topGainers = paginate(
+        topGainerLoserData.top_gainers,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
+      const topLosers = paginate(
+        topGainerLoserData.top_losers,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
+      return new TopGainerLoserDataResponseDto({
+        top_gainers: topGainers.items,
+        top_losers: topLosers.items,
+      });
     } catch (error) {
       this.handleError(error);
     }
