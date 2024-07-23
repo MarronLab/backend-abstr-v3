@@ -80,9 +80,9 @@ export class UserController {
 
     return new GetProfileResponseDto({
       id: response.customerID,
-      firstName: response.firstName,
+      firstName: 'response.firstName',
       middleName: response.middleName,
-      lastName: response.lastName,
+      lastName: 'response.lastName',
       loginName: response.loginName,
       email: response.email,
       country: response.country,
