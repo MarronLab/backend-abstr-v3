@@ -3,7 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Scope,
-  UnauthorizedException,
+  // UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
@@ -62,9 +62,9 @@ export class UserService extends BaseService {
         },
       });
 
-      if (!internalUser) {
-        throw new UnauthorizedException('');
-      }
+      // if (!internalUser) {
+      //   throw new UnauthorizedException('');
+      // }
 
       return { ...data.data, ...internalUser };
     } catch (error) {
