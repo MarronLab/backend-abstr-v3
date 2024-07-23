@@ -3,7 +3,6 @@ import {
   Injectable,
   InternalServerErrorException,
   Scope,
-  UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
@@ -45,28 +44,29 @@ export class UserService extends BaseService {
         throw new UnprocessableEntityException(data.data);
       }
 
-      const internalUser = await this.getClient().user.findUnique({
-        where: { modulusCustomerID: data.data.customerID },
-        select: {
-          id: true,
-          language: true,
-          currency: true,
-          timezone: true,
-          username: true,
-          safeAddress: true,
-          userAddress: true,
-          emailNewsletter: true,
-          emailTradeUpdates: true,
-          emailAnnouncements: true,
-          publicID: true,
-        },
-      });
+      // TODO: replace with https://documenter.getpostman.com/view/7523114/2s84Dmx444#e0b51e8a-4325-497b-8a4b-0525bed4055a
+      // const internalUser = await this.getClient().user.findUnique({
+      //   where: { modulusCustomerID: data.data.customerID },
+      //   select: {
+      //     id: true,
+      //     language: true,
+      //     currency: true,
+      //     timezone: true,
+      //     username: true,
+      //     safeAddress: true,
+      //     userAddress: true,
+      //     emailNewsletter: true,
+      //     emailTradeUpdates: true,
+      //     emailAnnouncements: true,
+      //     publicID: true,
+      //   },
+      // });
 
-      if (!internalUser) {
-        throw new UnauthorizedException('');
-      }
+      // if (!internalUser) {
+      //   throw new UnauthorizedException('');
+      // }
 
-      return { ...data.data, ...internalUser };
+      return { ...data.data };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
