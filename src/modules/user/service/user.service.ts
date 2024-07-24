@@ -72,6 +72,16 @@ export class UserService extends BaseService {
     }
   }
 
+  async getWhitelistedDevices() {
+    try {
+      const { data } = await this.modulusService.getwhitelistedDevices();
+
+      return data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   async deleteWhiteListedDevices(param: { id: number }) {
     try {
       const data = await this.modulusService.deleteWhitelistedDevices(param);

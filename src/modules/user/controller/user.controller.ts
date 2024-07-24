@@ -6,6 +6,7 @@ import {
   Post,
   UseGuards,
   UseInterceptors,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import {
@@ -23,6 +24,7 @@ import { GetProfileResponseDto } from '../dto/get-profile.dto';
 import {
   generateSafeAddressResponseSchema,
   getProfileResponseSchema,
+  getWhiteListedDevicesResponseSchema,
 } from '../schema/user.schema';
 import GenerateSafeAddressDto, {
   GenerateSafeAddressResponseDto,
@@ -31,6 +33,9 @@ import {
   DeleteWhiteListedDeviceResponseDto,
   DeleteWhiteListedDeviceRequestDto,
 } from '../dto/delete-whitelisted-device.dto';
+import GetWhiteListedDevicesResponseDto, {
+  GetWhiteListedDevicesDataDto,
+} from '../dto/user.whiteListedDevice.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -122,6 +127,35 @@ export class UserController {
       emailTradeUpdates: false,
       emailAnnouncements: false,
       publicID: 'response.publicID',
+    });
+  }
+
+  @Get('list-whitelisted-devices')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(getWhiteListedDevicesResponseSchema),
+  )
+  @ApiOperation({ summary: 'Whitelisted Devices' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'Can be used get all whitelisted Devices',
+    type: GetWhiteListedDevicesResponseDto,
+  })
+  async getWhitelistedDevice() {
+    const response = await this.userService.getWhitelistedDevices();
+
+    const deviceData = response.data.map(
+      (device: any) => new GetWhiteListedDevicesDataDto(device),
+    );
+    return new GetWhiteListedDevicesResponseDto({
+      status: response.status,
+      message: response.message,
+      data: deviceData,
     });
   }
 
