@@ -120,4 +120,14 @@ export class UserController {
       publicID: 'response.publicID',
     });
   }
+
+  @Post('delete-whitelisted-device')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async deleteWhitelistedDevice(id: number) {
+    const response = await this.userService.deleteWhiteListedDevices({ id });
+
+    return response;
+  }
 }

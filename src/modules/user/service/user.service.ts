@@ -71,4 +71,14 @@ export class UserService extends BaseService {
       throw new InternalServerErrorException(error);
     }
   }
+
+  async deleteWhiteListedDevices(id: number) {
+    try {
+      const { data } = await this.modulusService.deleteWhitelistedDevices({
+        id,
+      });
+    } catch (error) {
+      throw Error(error);
+    }
+  }
 }
