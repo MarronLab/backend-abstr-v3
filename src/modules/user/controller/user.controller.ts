@@ -27,6 +27,7 @@ import {
 import GenerateSafeAddressDto, {
   GenerateSafeAddressResponseDto,
 } from '../dto/generate-safe-address.dto';
+import { UpdateProfileRequestDto } from '../dto/update-profile.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -119,5 +120,26 @@ export class UserController {
       emailAnnouncements: false,
       publicID: 'response.publicID',
     });
+  }
+
+  @Post('/profile')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Update user profile' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user profile has been successfully updated',
+  })
+  async updateProfile(
+    @Body() updateProfileRequestDto: UpdateProfileRequestDto,
+  ) {
+    const response = await this.userService.updateProfile(
+      updateProfileRequestDto,
+    );
+
+    return { data: response };
   }
 }
