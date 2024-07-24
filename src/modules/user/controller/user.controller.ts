@@ -174,8 +174,6 @@ export class UserController {
   async deleteWhitelistedDevice(
     @Body() param: DeleteWhiteListedDeviceRequestDto,
   ) {
-    const response = await this.userService.deleteWhiteListedDevices(param);
-
-    return response;
+    await this.userService.deleteWhiteListedDevices(param);
   }
 }
