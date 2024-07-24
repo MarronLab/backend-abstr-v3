@@ -297,10 +297,10 @@ export class ModulusService {
     );
   }
 
-  async deleteWhitelistedDevices(id: number) {
+  async deleteWhitelistedDevices(param: { id: number }) {
     return await this.post<DeleteWhiteListedDevicesResponse>(
       '/api/delete-whitelisted-device',
-      id,
+      param,
     );
   }
 }

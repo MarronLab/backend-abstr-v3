@@ -27,6 +27,10 @@ import {
 import GenerateSafeAddressDto, {
   GenerateSafeAddressResponseDto,
 } from '../dto/generate-safe-address.dto';
+import {
+  DeleteWhiteListedDeviceResponseDto,
+  DeleteWhiteListedDeviceRequestDto,
+} from '../dto/delete-whitelisted-device.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -125,8 +129,18 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  async deleteWhitelistedDevice(id: number) {
-    const response = await this.userService.deleteWhiteListedDevices({ id });
+  @ApiOperation({ summary: 'Delete whitelisted device' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The device has been successfully deleted',
+    type: DeleteWhiteListedDeviceResponseDto,
+  })
+  async deleteWhitelistedDevice(
+    @Body() param: DeleteWhiteListedDeviceRequestDto,
+  ) {
+    const response = await this.userService.deleteWhiteListedDevices(param);
 
     return response;
   }

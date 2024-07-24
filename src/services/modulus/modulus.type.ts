@@ -779,7 +779,9 @@ export type DeleteWhiteListedDevicesSuccessResponse = {
 };
 
 export type DeleteWhiteListedDevicesErrorResponse = {
+  status: 'Error';
   message: string;
+  data: null;
 };
 
 export type DeleteWhiteListedDevicesResponse =

@@ -69,7 +69,6 @@ export const getWhiteListedDevicesDataSchema: JSONSchemaType<{
     },
     addedOn: {
       type: 'string',
-      format: 'date-time',
     },
   },
   required: ['id', 'deviceID', 'browser', 'os', 'device', 'ip', 'addedOn'],
