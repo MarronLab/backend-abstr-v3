@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsDateString,
   ValidateNested,
+  IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -32,8 +33,13 @@ export class GetWhiteListedDevicesDataDto {
   @IsString()
   ip: string;
 
+  @ApiProperty()
   @IsDateString()
   addedOn: string;
+
+  constructor(partial: Partial<GetWhiteListedDevicesDataDto>) {
+    Object.assign(this, partial);
+  }
 }
 
 export default class GetWhiteListedDevicesResponseDto {
@@ -43,7 +49,13 @@ export default class GetWhiteListedDevicesResponseDto {
   @IsString()
   message: string;
 
-  @ValidateNested()
+  @ApiProperty({ type: [GetWhiteListedDevicesDataDto] })
+  @ValidateNested({ each: true })
   @Type(() => GetWhiteListedDevicesDataDto)
-  data: GetWhiteListedDevicesDataDto;
+  @IsArray()
+  data: GetWhiteListedDevicesDataDto[];
+
+  constructor(partial: Partial<GetWhiteListedDevicesResponseDto>) {
+    Object.assign(this, partial);
+  }
 }

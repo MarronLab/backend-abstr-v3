@@ -267,9 +267,7 @@ export class AuthService {
     try {
       const { data } = await this.modulusService.getwhitelistedDevices();
 
-      console.log('logging whitelisted devices', data);
-
-      return data.data;
+      return data;
     } catch (error) {
       throw new Error(error);
     }

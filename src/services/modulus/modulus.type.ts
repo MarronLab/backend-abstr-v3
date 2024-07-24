@@ -769,5 +769,5 @@ export type GetWhiteListedDevicesData = {
 export type GetWhiteListedDevicesResponse = {
   status: 'Success';
   message: string;
-  data: GetWhiteListedDevicesData;
+  data: GetWhiteListedDevicesData[];
 };

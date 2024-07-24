@@ -86,7 +86,6 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
-
       return response;
     } catch (error) {
       throw new Error(error);
@@ -292,7 +291,7 @@ export class ModulusService {
 
   async getwhitelistedDevices() {
     return await this.get<GetWhiteListedDevicesResponse>(
-      'list-whitelisted-devices',
+      '/api/list-whitelisted-devices',
       {},
     );
   }
