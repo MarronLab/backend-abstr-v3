@@ -55,6 +55,7 @@ import {
   TokenRequest,
   ResendEmailOTPResponse,
   ValidateBearerTokenResponse,
+  GetWhiteListedDevicesResponse,
 } from './modulus.type';
 import { AxiosRequestConfig } from 'axios';
 
@@ -285,6 +286,13 @@ export class ModulusService {
   async validateBearerToken() {
     return await this.post<ValidateBearerTokenResponse>(
       `/Validate_BearerToken`,
+    );
+  }
+
+  async getwhitelistedDevices() {
+    return await this.get<GetWhiteListedDevicesResponse>(
+      '/api/list-whitelisted-devices',
+      {},
     );
   }
 }
