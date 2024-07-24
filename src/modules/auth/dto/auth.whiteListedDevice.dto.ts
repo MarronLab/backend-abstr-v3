@@ -36,7 +36,7 @@ export class GetWhiteListedDevicesDataDto {
   addedOn: string;
 }
 
-export class GetWhiteListedDevicesResponseDto {
+export default class GetWhiteListedDevicesResponseDto {
   @IsString()
   status: 'Success';
 

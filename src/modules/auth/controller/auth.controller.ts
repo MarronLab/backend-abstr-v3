@@ -40,6 +40,7 @@ import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
 import { AuthGuard } from '../auth.guard';
 import TokenDto from '../dto/auth.token.dto';
 import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
+import GetWhiteListedDevicesResponseDto from '../dto/auth.whiteListedDevice.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -319,6 +320,14 @@ export class AuthController {
   @Get('list-whitelisted-devices')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Whitelisted Devices' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'Can be used get all whitelisted Devices',
+    type: GetWhiteListedDevicesResponseDto,
+  })
   async getWhitelistedDevice() {
     const response = await this.authService.getWhitelistedDevices();
     console.log(response);
