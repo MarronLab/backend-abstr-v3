@@ -74,7 +74,7 @@ export class ModulusService {
         request,
         config,
       );
-
+      console.log('response', response);
       return response;
     } catch (error) {
       throw new Error(error);
