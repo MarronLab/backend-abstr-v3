@@ -755,3 +755,17 @@ export type ValidateBearerTokenSuccessResponse = {
 export type ValidateBearerTokenResponse =
   | ValidateBearerTokenErrorResponse
   | ValidateBearerTokenSuccessResponse;
+
+export type DeleteWhiteListedDevicesSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type DeleteWhiteListedDevicesErrorResponse = {
+  message: string;
+};
+
+export type DeleteWhiteListedDevicesResponse =
+  | DeleteWhiteListedDevicesErrorResponse
+  | DeleteWhiteListedDevicesSuccessResponse;

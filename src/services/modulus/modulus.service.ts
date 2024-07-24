@@ -55,6 +55,7 @@ import {
   TokenRequest,
   ResendEmailOTPResponse,
   ValidateBearerTokenResponse,
+  DeleteWhiteListedDevicesResponse,
 } from './modulus.type';
 import { AxiosRequestConfig } from 'axios';
 
@@ -285,6 +286,13 @@ export class ModulusService {
   async validateBearerToken() {
     return await this.post<ValidateBearerTokenResponse>(
       `/Validate_BearerToken`,
+    );
+  }
+
+  async deleteWhitelistedDevices(id: number) {
+    return await this.post<DeleteWhiteListedDevicesResponse>(
+      '/api/delete-whitelisted-device',
+      id,
     );
   }
 }
