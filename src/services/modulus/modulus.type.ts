@@ -756,6 +756,22 @@ export type ValidateBearerTokenResponse =
   | ValidateBearerTokenErrorResponse
   | ValidateBearerTokenSuccessResponse;
 
+export type GetWhiteListedDevicesData = {
+  id: number;
+  deviceID: string;
+  browser: string;
+  os: string;
+  device: string;
+  ip: string;
+  addedOn: string;
+};
+
+export type GetWhiteListedDevicesResponse = {
+  status: 'Success';
+  message: string;
+  data: GetWhiteListedDevicesData[];
+};
+
 export type DeleteWhiteListedDevicesSuccessResponse = {
   status: 'Success';
   message: string;

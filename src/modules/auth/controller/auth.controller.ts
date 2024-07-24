@@ -23,7 +23,10 @@ import {
 } from '@nestjs/swagger';
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
-import { getGoogleAuthenticatorEnableResponseSchema } from '../../../schema/auth/auth.schema';
+import {
+  getGoogleAuthenticatorEnableResponseSchema,
+  getWhiteListedDevicesResponseSchema,
+} from '../../../schema/auth/auth.schema';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
@@ -40,6 +43,9 @@ import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
 import { AuthGuard } from '../auth.guard';
 import TokenDto from '../dto/auth.token.dto';
 import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
+import GetWhiteListedDevicesResponseDto, {
+  GetWhiteListedDevicesDataDto,
+} from '../dto/auth.whiteListedDevice.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -314,5 +320,34 @@ export class AuthController {
     const response = await this.authService.requestChangePasswordOTP();
 
     return { data: response };
+  }
+
+  @Get('list-whitelisted-devices')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(getWhiteListedDevicesResponseSchema),
+  )
+  @ApiOperation({ summary: 'Whitelisted Devices' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'Can be used get all whitelisted Devices',
+    type: GetWhiteListedDevicesResponseDto,
+  })
+  async getWhitelistedDevice() {
+    const response = await this.authService.getWhitelistedDevices();
+
+    const deviceData = response.data.map(
+      (device: any) => new GetWhiteListedDevicesDataDto(device),
+    );
+    return new GetWhiteListedDevicesResponseDto({
+      status: response.status,
+      message: response.message,
+      data: deviceData,
+    });
   }
 }
