@@ -109,6 +109,73 @@ export const generateSafeAddressResponseSchema: JSONSchemaType<GenerateSafeAddre
     },
   };
 
+export const getWhiteListedDevicesDataSchema: JSONSchemaType<{
+  id: number;
+  deviceID: string;
+  browser: string;
+  os: string;
+  device: string;
+  ip: string;
+  addedOn: string;
+}> = {
+  type: 'object',
+  properties: {
+    id: {
+      type: 'number',
+    },
+    deviceID: {
+      type: 'string',
+    },
+    browser: {
+      type: 'string',
+    },
+    os: {
+      type: 'string',
+    },
+    device: {
+      type: 'string',
+    },
+    ip: {
+      type: 'string',
+    },
+    addedOn: {
+      type: 'string',
+    },
+  },
+  required: ['id', 'deviceID', 'browser', 'os', 'device', 'ip', 'addedOn'],
+  additionalProperties: false,
+};
+
+export const getWhiteListedDevicesResponseSchema: JSONSchemaType<{
+  status: string;
+  message: string;
+  data: {
+    id: number;
+    deviceID: string;
+    browser: string;
+    os: string;
+    device: string;
+    ip: string;
+    addedOn: string;
+  }[];
+}> = {
+  type: 'object',
+  properties: {
+    status: {
+      type: 'string',
+    },
+    message: {
+      type: 'string',
+    },
+    data: {
+      type: 'array',
+      items: getWhiteListedDevicesDataSchema,
+    },
+  },
+  required: ['status', 'message', 'data'],
+  additionalProperties: false,
+};
+
 export const saveFavoriteCoinsResponseSchema: JSONSchemaType<{
   status: 'Success' | 'Error';
   message: string;

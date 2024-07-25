@@ -56,6 +56,11 @@ import {
   ResendEmailOTPResponse,
   ValidateBearerTokenResponse,
   GetWhiteListedDevicesResponse,
+  ForgotPasswordOTPRequest,
+  ForgotPasswordOTPResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  DeleteWhiteListedDevicesResponse,
   SaveFavoriteCoinsResponse,
 } from './modulus.type';
 import { AxiosRequestConfig } from 'axios';
@@ -295,6 +300,27 @@ export class ModulusService {
     return await this.get<GetWhiteListedDevicesResponse>(
       '/api/list-whitelisted-devices',
       {},
+    );
+  }
+
+  async forgotPasswordOtp(request: ForgotPasswordOTPRequest) {
+    return await this.post<ForgotPasswordOTPResponse>(
+      `/api/forgot-password-otp`,
+      request,
+    );
+  }
+
+  async forgotPassword(request: ForgotPasswordRequest) {
+    return await this.post<ForgotPasswordResponse>(
+      '/api/forgot-password',
+      request,
+    );
+  }
+
+  async deleteWhitelistedDevices(param: { id: number }) {
+    return await this.post<DeleteWhiteListedDevicesResponse>(
+      '/api/delete-whitelisted-device',
+      param,
     );
   }
 
