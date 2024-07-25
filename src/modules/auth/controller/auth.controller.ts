@@ -358,11 +358,8 @@ export class AuthController {
 
   @Post('forgot-password-otp')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Request forgot user login password OTP' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
@@ -384,11 +381,8 @@ export class AuthController {
 
   @Post('forgot-password')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Forgot user login password' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
