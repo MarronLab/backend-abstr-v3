@@ -78,8 +78,11 @@ export class UserService extends BaseService {
         data: params,
       });
 
-      console.log('res serv', response);
-      return response;
+      if (response.data.status === 'Error') {
+        throw new UnprocessableEntityException(response.data.message);
+      }
+
+      return response.data;
     } catch (error) {
       throw new Error(error);
     }

@@ -23,11 +23,15 @@ import { GetProfileResponseDto } from '../dto/get-profile.dto';
 import {
   generateSafeAddressResponseSchema,
   getProfileResponseSchema,
+  saveFavoriteCoinsResponseSchema,
 } from '../schema/user.schema';
 import GenerateSafeAddressDto, {
   GenerateSafeAddressResponseDto,
 } from '../dto/generate-safe-address.dto';
-import { SaveFavoriteCoinsDto } from '../dto/save-favorite-coins.dto';
+import {
+  SaveFavoriteCoinsDto,
+  SaveFavoriteCoinsResponseDto,
+} from '../dto/save-favorite-coins.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -125,11 +129,27 @@ export class UserController {
   @Post('customer_favourite_coins')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(saveFavoriteCoinsResponseSchema),
+  )
+  @ApiOperation({ summary: 'Add user favorite coins' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user has successfully saved favorite coins.',
+    type: SaveFavoriteCoinsResponseDto,
+  })
   async saveFavoriteCoins(@Body() saveFavoriteCoinsDto: SaveFavoriteCoinsDto) {
     const response = await this.userService.saveFavoriteCoins(
       saveFavoriteCoinsDto.data,
     );
-    console.log('res controller', response.data);
-    return response.data;
+
+    return new SaveFavoriteCoinsResponseDto({
+      status: response.status,
+      message: response.message,
+      data: response.data,
+    });
   }
 }

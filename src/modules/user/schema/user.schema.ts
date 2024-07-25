@@ -108,3 +108,23 @@ export const generateSafeAddressResponseSchema: JSONSchemaType<GenerateSafeAddre
       initCode: { type: 'string' },
     },
   };
+
+export const saveFavoriteCoinsResponseSchema: JSONSchemaType<{
+  status: 'Success' | 'Error';
+  message: string;
+  data: string | null;
+}> = {
+  type: 'object',
+  properties: {
+    status: {
+      type: 'string',
+      enum: ['Success', 'Error'],
+    },
+    message: {
+      type: 'string',
+    },
+    data: { type: 'string', nullable: true as any },
+  },
+  required: ['status', 'message', 'data'],
+  additionalProperties: false,
+};

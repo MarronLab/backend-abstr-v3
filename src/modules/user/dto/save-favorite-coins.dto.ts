@@ -20,4 +20,8 @@ export class SaveFavoriteCoinsResponseDto {
 
   @ApiProperty()
   data: any;
+
+  constructor(partial: Partial<SaveFavoriteCoinsResponseDto>) {
+    Object.assign(this, partial);
+  }
 }
