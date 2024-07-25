@@ -208,4 +208,11 @@ export class UserController {
       data: response.data,
     });
   }
+
+  @Get('customer_favourite_coins')
+  async getSaveFavoriteCoins() {
+    const response = await this.userService.getSaveFavoriteCoins();
+
+    return response;
+  }
 }

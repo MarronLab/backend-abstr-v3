@@ -841,3 +841,9 @@ export type SaveFavoriteCoinsResponse = {
   message: string;
   data: null;
 };
+
+export type GetFavoriteCoinsResponse = {
+  status: 'Success' | 'Error';
+  message: string | null;
+  data: string[];
+};

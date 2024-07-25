@@ -111,4 +111,14 @@ export class UserService extends BaseService {
       throw new Error(error);
     }
   }
+
+  async getSaveFavoriteCoins() {
+    try {
+      const { data } = await this.modulusService.getSaveFavoriteCoins();
+
+      return data.data;
+    } catch (error) {
+      throw Error(error);
+    }
+  }
 }
