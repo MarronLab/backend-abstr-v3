@@ -819,3 +819,19 @@ export type ForgotPasswordSuccessResponse = {
 export type ForgotPasswordResponse =
   | ForgotPasswordErrorResponse
   | ForgotPasswordSuccessResponse;
+
+export type DeleteWhiteListedDevicesSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type DeleteWhiteListedDevicesErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: null;
+};
+
+export type DeleteWhiteListedDevicesResponse =
+  | DeleteWhiteListedDevicesErrorResponse
+  | DeleteWhiteListedDevicesSuccessResponse;

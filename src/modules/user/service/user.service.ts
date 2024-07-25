@@ -71,4 +71,28 @@ export class UserService extends BaseService {
       throw new InternalServerErrorException(error);
     }
   }
+
+  async getWhitelistedDevices() {
+    try {
+      const { data } = await this.modulusService.getwhitelistedDevices();
+
+      return data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async deleteWhiteListedDevices(param: { id: number }) {
+    try {
+      const data = await this.modulusService.deleteWhitelistedDevices(param);
+
+      if (data.data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 }

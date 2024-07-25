@@ -60,6 +60,7 @@ import {
   ForgotPasswordOTPResponse,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
+  DeleteWhiteListedDevicesResponse,
 } from './modulus.type';
 import { AxiosRequestConfig } from 'axios';
 
@@ -311,6 +312,13 @@ export class ModulusService {
     return await this.post<ForgotPasswordResponse>(
       '/api/forgot-password',
       request,
+    );
+  }
+
+  async deleteWhitelistedDevices(param: { id: number }) {
+    return await this.post<DeleteWhiteListedDevicesResponse>(
+      '/api/delete-whitelisted-device',
+      param,
     );
   }
 }
