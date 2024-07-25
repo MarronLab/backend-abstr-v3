@@ -775,9 +775,9 @@ export type GetWhiteListedDevicesResponse = {
 //Forgot Password - Request Otp
 export type ForgotPasswordOTPRequest = {
   captcha_code: string;
-  email?: string;
-  country_code?: string;
-  mobile?: string;
+  email: string;
+  country_code: string;
+  mobile: string;
 };
 
 export type ForgotPasswordOTPErrorResponse = ModulusBaseErrorResponseData;
@@ -798,14 +798,14 @@ export type ForgotPasswordOTPResponse =
 //Forgot Password
 export type ForgotPasswordRequest = {
   captcha_code: string;
-  email?: string;
-  country_code?: string;
-  mobile?: string;
+  email: string;
+  country_code: string;
+  mobile: string;
   new_password: string;
-  email_token?: string;
-  email_otp?: string;
-  sms_token?: string;
-  sms_otp?: string;
+  email_token: string;
+  email_otp: string;
+  sms_token: string;
+  sms_otp: string;
 };
 
 export type ForgotPasswordErrorResponse = ModulusBaseErrorResponseData;

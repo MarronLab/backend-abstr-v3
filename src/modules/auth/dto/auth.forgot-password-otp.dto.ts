@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsDefined, IsNotEmpty } from 'class-validator';
 
 export class ForgotPasswordOtpRequestDto {
@@ -11,27 +11,30 @@ export class ForgotPasswordOtpRequestDto {
   @IsNotEmpty()
   captchaCode: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'The user email',
     required: true,
   })
   @IsString()
+  @IsDefined()
   @IsNotEmpty()
   email: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'The user mobile number country code',
   })
   @IsString()
+  @IsDefined()
   @IsNotEmpty()
-  countryCode?: string;
+  countryCode: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'The user mobile number',
   })
   @IsString()
+  @IsDefined()
   @IsNotEmpty()
-  mobile?: string;
+  mobile: string;
 }
 
 export class ForgotPasswordOtpResponseDto {
