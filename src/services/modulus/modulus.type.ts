@@ -771,3 +771,19 @@ export type GetWhiteListedDevicesResponse = {
   message: string;
   data: GetWhiteListedDevicesData[];
 };
+
+export type DeleteWhiteListedDevicesSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type DeleteWhiteListedDevicesErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: null;
+};
+
+export type DeleteWhiteListedDevicesResponse =
+  | DeleteWhiteListedDevicesErrorResponse
+  | DeleteWhiteListedDevicesSuccessResponse;
