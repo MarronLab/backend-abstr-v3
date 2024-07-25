@@ -27,6 +27,7 @@ import {
 import GenerateSafeAddressDto, {
   GenerateSafeAddressResponseDto,
 } from '../dto/generate-safe-address.dto';
+import { SaveFavoriteCoinsDto } from '../dto/save-favorite-coins.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -121,12 +122,14 @@ export class UserController {
     });
   }
 
-  @Post('Customer_Favourite_Coins')
+  @Post('customer_favourite_coins')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  async saveFavoriteCoins(@Body { params: any }) {
-    const response = await this.userService.saveFavoriteCoins(params);
-
-    return response;
+  async saveFavoriteCoins(@Body() saveFavoriteCoinsDto: SaveFavoriteCoinsDto) {
+    const response = await this.userService.saveFavoriteCoins(
+      saveFavoriteCoinsDto.data,
+    );
+    console.log('res controller', response.data);
+    return response.data;
   }
 }

@@ -72,10 +72,13 @@ export class UserService extends BaseService {
     }
   }
 
-  async saveFavoriteCoins(params: any) {
+  async saveFavoriteCoins(params: string[]) {
     try {
-      const response = await this.modulusService.saveFavoriteCoins({ params });
+      const response = await this.modulusService.saveFavoriteCoins({
+        data: params,
+      });
 
+      console.log('res serv', response);
       return response;
     } catch (error) {
       throw new Error(error);

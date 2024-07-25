@@ -87,6 +87,7 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
+
       return response;
     } catch (error) {
       throw new Error(error);
@@ -297,7 +298,7 @@ export class ModulusService {
     );
   }
 
-  async saveFavoriteCoins(params: any) {
+  async saveFavoriteCoins(params: { data: string[] }) {
     return await this.post<SaveFavoriteCoinsResponse>(
       '/api/Customer_Favourite_Coins',
       params,
