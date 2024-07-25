@@ -771,3 +771,51 @@ export type GetWhiteListedDevicesResponse = {
   message: string;
   data: GetWhiteListedDevicesData[];
 };
+
+//Forgot Password - Request Otp
+export type ForgotPasswordOTPRequest = {
+  captcha_code: string;
+  email?: string;
+  country_code?: string;
+  mobile?: string;
+};
+
+export type ForgotPasswordOTPErrorResponse = ModulusBaseErrorResponseData;
+
+export type ForgotPasswordOTPSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    emailToken: string;
+    smsToken: string;
+  };
+};
+
+export type ForgotPasswordOTPResponse =
+  | ForgotPasswordOTPErrorResponse
+  | ForgotPasswordOTPSuccessResponse;
+
+//Forgot Password
+export type ForgotPasswordRequest = {
+  captcha_code: string;
+  email?: string;
+  country_code?: string;
+  mobile?: string;
+  new_password: string;
+  email_token?: string;
+  email_otp?: string;
+  sms_token?: string;
+  sms_otp?: string;
+};
+
+export type ForgotPasswordErrorResponse = ModulusBaseErrorResponseData;
+
+export type ForgotPasswordSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type ForgotPasswordResponse =
+  | ForgotPasswordErrorResponse
+  | ForgotPasswordSuccessResponse;
