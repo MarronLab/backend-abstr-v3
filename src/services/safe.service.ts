@@ -11,6 +11,7 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { customAlphabet } from 'nanoid';
 import { UserSettingsService } from 'src/modules/user/service/user-settings.service';
+import { ModulusService } from './modulus/modulus.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class SafeService extends BaseService {
@@ -18,6 +19,7 @@ export class SafeService extends BaseService {
     prisma: PrismaService,
     @Inject(REQUEST) req: Request,
     private readonly userSettingsService: UserSettingsService,
+    private readonly modulusService: ModulusService,
   ) {
     super(prisma, req);
   }
@@ -83,6 +85,19 @@ export class SafeService extends BaseService {
       const nanoid = customAlphabet(alphabet, 16);
 
       const userSettings = this.userSettingsService.getUserSettings();
+
+      const additionalFields = [
+        { fieldID: 'userAddress', fieldValue: userAddress },
+        { fieldID: 'safeAddress', fieldValue: safeAddress },
+        { fieldID: 'publicID', fieldValue: nanoid() },
+        { fieldID: 'timezone', fieldValue: userSettings.timezone },
+        { fieldID: 'currency', fieldValue: userSettings.currency },
+        { fieldID: 'language', fieldValue: userSettings.language },
+      ];
+
+      for (const field of additionalFields) {
+        await this.modulusService.addCustomerAdditionalField(field);
+      }
 
       await this.getClient().user.create({
         data: {

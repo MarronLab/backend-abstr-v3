@@ -755,3 +755,23 @@ export type ValidateBearerTokenSuccessResponse = {
 export type ValidateBearerTokenResponse =
   | ValidateBearerTokenErrorResponse
   | ValidateBearerTokenSuccessResponse;
+
+// Add customer addtional fields
+export type AddCustomerAdditionalFieldErrorResponse = {
+  Message: string;
+};
+
+export type AddCustomerAdditionalFieldSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: string;
+};
+
+export type AddCustomerAdditionalFieldResponse =
+  | AddCustomerAdditionalFieldErrorResponse
+  | AddCustomerAdditionalFieldSuccessResponse;
+
+export type CustomerAdditionalFieldRequest = {
+  fieldID: string;
+  fieldValue: string;
+};

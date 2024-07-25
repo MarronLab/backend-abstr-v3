@@ -55,6 +55,8 @@ import {
   TokenRequest,
   ResendEmailOTPResponse,
   ValidateBearerTokenResponse,
+  AddCustomerAdditionalFieldResponse,
+  CustomerAdditionalFieldRequest,
 } from './modulus.type';
 import { AxiosRequestConfig } from 'axios';
 
@@ -285,6 +287,13 @@ export class ModulusService {
   async validateBearerToken() {
     return await this.post<ValidateBearerTokenResponse>(
       `/Validate_BearerToken`,
+    );
+  }
+
+  async addCustomerAdditionalField(request: CustomerAdditionalFieldRequest) {
+    return await this.post<AddCustomerAdditionalFieldResponse>(
+      `/api/Customer_AddtionalFields`,
+      request,
     );
   }
 }
