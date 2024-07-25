@@ -71,4 +71,14 @@ export class UserService extends BaseService {
       throw new InternalServerErrorException(error);
     }
   }
+
+  async saveFavoriteCoins(params: any) {
+    try {
+      const response = await this.modulusService.saveFavoriteCoins({ params });
+
+      return response;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

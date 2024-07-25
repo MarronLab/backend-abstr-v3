@@ -771,3 +771,19 @@ export type GetWhiteListedDevicesResponse = {
   message: string;
   data: GetWhiteListedDevicesData[];
 };
+
+export type SaveFavoriteCoinsSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type SaveFavoriteCoinsErrorResponse = {
+  status: 'Error';
+  message: string;
+  data: null;
+};
+
+export type SaveFavoriteCoinsResponse =
+  | SaveFavoriteCoinsErrorResponse
+  | SaveFavoriteCoinsSuccessResponse;

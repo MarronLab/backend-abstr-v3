@@ -56,6 +56,7 @@ import {
   ResendEmailOTPResponse,
   ValidateBearerTokenResponse,
   GetWhiteListedDevicesResponse,
+  SaveFavoriteCoinsResponse,
 } from './modulus.type';
 import { AxiosRequestConfig } from 'axios';
 
@@ -293,6 +294,13 @@ export class ModulusService {
     return await this.get<GetWhiteListedDevicesResponse>(
       '/api/list-whitelisted-devices',
       {},
+    );
+  }
+
+  async saveFavoriteCoins(params: any) {
+    return await this.post<SaveFavoriteCoinsResponse>(
+      '/api/Customer_Favourite_Coins',
+      params,
     );
   }
 }

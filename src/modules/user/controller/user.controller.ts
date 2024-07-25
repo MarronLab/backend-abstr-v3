@@ -120,4 +120,13 @@ export class UserController {
       publicID: 'response.publicID',
     });
   }
+
+  @Post('Customer_Favourite_Coins')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  async saveFavoriteCoins(@Body { params: any }) {
+    const response = await this.userService.saveFavoriteCoins(params);
+
+    return response;
+  }
 }
