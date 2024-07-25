@@ -16,6 +16,8 @@ import ChangeEmailDto from '../dto/auth.change-email.dto';
 import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
 import TokenDto from '../dto/auth.token.dto';
 import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
+import { ForgotPasswordOtpRequestDto } from '../dto/auth.forgot-password-otp.dto';
+import { ForgotPasswordRequestDto } from '../dto/auth.forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -255,6 +257,61 @@ export class AuthService {
 
       if ('Message' in data) {
         throw new UnprocessableEntityException(data.Message);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getWhitelistedDevices() {
+    try {
+      const { data } = await this.modulusService.getwhitelistedDevices();
+
+      return data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async forgotPasswordOtp(
+    forgotPasswordOtpRequestDto: ForgotPasswordOtpRequestDto,
+  ) {
+    try {
+      const { data } = await this.modulusService.forgotPasswordOtp({
+        mobile: forgotPasswordOtpRequestDto.mobile,
+        email: forgotPasswordOtpRequestDto.email,
+        captcha_code: forgotPasswordOtpRequestDto.captchaCode,
+        country_code: forgotPasswordOtpRequestDto.countryCode,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async forgotPassword(forgotPasswordRequestDto: ForgotPasswordRequestDto) {
+    try {
+      const { data } = await this.modulusService.forgotPassword({
+        mobile: forgotPasswordRequestDto.mobile,
+        email: forgotPasswordRequestDto.email,
+        captcha_code: forgotPasswordRequestDto.captchaCode,
+        country_code: forgotPasswordRequestDto.countryCode,
+        sms_otp: forgotPasswordRequestDto.smsOtp,
+        email_otp: forgotPasswordRequestDto.emailOtp,
+        sms_token: forgotPasswordRequestDto.smsToken,
+        new_password: forgotPasswordRequestDto.newPassword,
+        email_token: forgotPasswordRequestDto.emailToken,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.data);
       }
 
       return data.data;

@@ -41,6 +41,12 @@ import { AuthGuard } from '../auth.guard';
 import TokenDto from '../dto/auth.token.dto';
 import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
 
+import {
+  ForgotPasswordOtpRequestDto,
+  ForgotPasswordOtpResponseDto,
+} from '../dto/auth.forgot-password-otp.dto';
+import { ForgotPasswordRequestDto } from '../dto/auth.forgot-password.dto';
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -314,5 +320,50 @@ export class AuthController {
     const response = await this.authService.requestChangePasswordOTP();
 
     return { data: response };
+  }
+
+  @Post('forgot-password-otp')
+  @HttpCode(200)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Request forgot user login password OTP' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description:
+      'The user request forgot login password OTP has been successfully sent.',
+  })
+  async forgotPasswordOTP(
+    @Body() forgotPasswordOtpRequestDto: ForgotPasswordOtpRequestDto,
+  ) {
+    const response = await this.authService.forgotPasswordOtp(
+      forgotPasswordOtpRequestDto,
+    );
+
+    return new ForgotPasswordOtpResponseDto({
+      emailToken: response.emailToken,
+      smsToken: response.smsToken,
+    });
+  }
+
+  @Post('forgot-password')
+  @HttpCode(200)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Forgot user login password' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description:
+      'The user forgot login password has been successfully updated.',
+  })
+  async forgotPassword(
+    @Body() forgotPasswordRequestDto: ForgotPasswordRequestDto,
+  ) {
+    const response = await this.authService.forgotPassword(
+      forgotPasswordRequestDto,
+    );
+
+    return {
+      data: response,
+    };
   }
 }
