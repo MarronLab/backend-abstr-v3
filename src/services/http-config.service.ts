@@ -9,3 +9,13 @@ export class HttpConfigService implements HttpModuleOptionsFactory {
     };
   }
 }
+
+@Injectable()
+export class CoingeckoConfigService implements HttpModuleOptionsFactory {
+  createHttpOptions(): HttpModuleOptions {
+    return {
+      baseURL: process.env.COINGECKO_BASE_URL,
+      headers: { 'X-CG-Pro-API-Key': process.env.COINGECKO_API_KEY },
+    };
+  }
+}
