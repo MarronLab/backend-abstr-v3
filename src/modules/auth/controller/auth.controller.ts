@@ -23,10 +23,7 @@ import {
 } from '@nestjs/swagger';
 import LoginDto from '../dto/auth.dto';
 import RegisterDto from '../dto/auth.register.dto';
-import {
-  getGoogleAuthenticatorEnableResponseSchema,
-  getWhiteListedDevicesResponseSchema,
-} from '../../../schema/auth/auth.schema';
+import { getGoogleAuthenticatorEnableResponseSchema } from '../../../schema/auth/auth.schema';
 import { AuthValidationPipe } from 'src/schema/auth/auth.validation';
 import { ResponseValidationInterceptor } from '../../../common/response-validator.interceptor';
 import { ResponseTransformInterceptor } from 'src/schema/auth/auth.transformers';
@@ -43,9 +40,12 @@ import VerifyChangeEmailOtpDto from '../dto/auth.verify-change-email-otp.dto';
 import { AuthGuard } from '../auth.guard';
 import TokenDto from '../dto/auth.token.dto';
 import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
-import GetWhiteListedDevicesResponseDto, {
-  GetWhiteListedDevicesDataDto,
-} from '../dto/auth.whiteListedDevice.dto';
+
+import {
+  ForgotPasswordOtpRequestDto,
+  ForgotPasswordOtpResponseDto,
+} from '../dto/auth.forgot-password-otp.dto';
+import { ForgotPasswordRequestDto } from '../dto/auth.forgot-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -322,32 +322,48 @@ export class AuthController {
     return { data: response };
   }
 
-  @Get('list-whitelisted-devices')
+  @Post('forgot-password-otp')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseInterceptors(
-    new ResponseValidationInterceptor(getWhiteListedDevicesResponseSchema),
-  )
-  @ApiOperation({ summary: 'Whitelisted Devices' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiOperation({ summary: 'Request forgot user login password OTP' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
   @ApiOkResponse({
-    description: 'Can be used get all whitelisted Devices',
-    type: GetWhiteListedDevicesResponseDto,
+    description:
+      'The user request forgot login password OTP has been successfully sent.',
   })
-  async getWhitelistedDevice() {
-    const response = await this.authService.getWhitelistedDevices();
-
-    const deviceData = response.data.map(
-      (device: any) => new GetWhiteListedDevicesDataDto(device),
+  async forgotPasswordOTP(
+    @Body() forgotPasswordOtpRequestDto: ForgotPasswordOtpRequestDto,
+  ) {
+    const response = await this.authService.forgotPasswordOtp(
+      forgotPasswordOtpRequestDto,
     );
-    return new GetWhiteListedDevicesResponseDto({
-      status: response.status,
-      message: response.message,
-      data: deviceData,
+
+    return new ForgotPasswordOtpResponseDto({
+      emailToken: response.emailToken,
+      smsToken: response.smsToken,
     });
+  }
+
+  @Post('forgot-password')
+  @HttpCode(200)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Forgot user login password' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description:
+      'The user forgot login password has been successfully updated.',
+  })
+  async forgotPassword(
+    @Body() forgotPasswordRequestDto: ForgotPasswordRequestDto,
+  ) {
+    const response = await this.authService.forgotPassword(
+      forgotPasswordRequestDto,
+    );
+
+    return {
+      data: response,
+    };
   }
 }
