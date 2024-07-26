@@ -341,7 +341,6 @@ export class AuthController {
 
     return new ForgotPasswordOtpResponseDto({
       emailToken: response.emailToken,
-      smsToken: response.smsToken,
     });
   }
 

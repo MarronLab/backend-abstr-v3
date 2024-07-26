@@ -309,6 +309,7 @@ export class ModulusService {
   }
 
   async forgotPassword(request: ForgotPasswordRequest) {
+    console.log('request: ', request);
     return await this.post<ForgotPasswordResponse>(
       '/api/forgot-password',
       request,
