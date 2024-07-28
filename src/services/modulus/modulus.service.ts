@@ -56,6 +56,8 @@ import {
   ResendEmailOTPResponse,
   ValidateBearerTokenResponse,
   GetWhiteListedDevicesResponse,
+  UpdateProfileResponse,
+  UpdateProfileRequest,
   ForgotPasswordOTPRequest,
   ForgotPasswordOTPResponse,
   ForgotPasswordRequest,
@@ -298,6 +300,13 @@ export class ModulusService {
     return await this.get<GetWhiteListedDevicesResponse>(
       '/api/list-whitelisted-devices',
       {},
+    );
+  }
+
+  async updateProfile(request: UpdateProfileRequest) {
+    return await this.post<UpdateProfileResponse>(
+      '/api/UpdateProfile',
+      request,
     );
   }
 
