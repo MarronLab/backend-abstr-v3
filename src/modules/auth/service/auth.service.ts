@@ -18,6 +18,9 @@ import TokenDto from '../dto/auth.token.dto';
 import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
 import { ForgotPasswordOtpRequestDto } from '../dto/auth.forgot-password-otp.dto';
 import { ForgotPasswordRequestDto } from '../dto/auth.forgot-password.dto';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -280,10 +283,7 @@ export class AuthService {
   ) {
     try {
       const { data } = await this.modulusService.forgotPasswordOtp({
-        mobile: forgotPasswordOtpRequestDto.mobile,
         email: forgotPasswordOtpRequestDto.email,
-        captcha_code: forgotPasswordOtpRequestDto.captchaCode,
-        country_code: forgotPasswordOtpRequestDto.countryCode,
       });
 
       if (data.status === 'Error') {
@@ -297,17 +297,22 @@ export class AuthService {
   }
 
   async forgotPassword(forgotPasswordRequestDto: ForgotPasswordRequestDto) {
+    const publicKey = fs.readFileSync(
+      path.resolve(__dirname, '../../../public.pem'),
+      'utf8',
+    );
+    const buffer = Buffer.from(forgotPasswordRequestDto.newPassword, 'utf16le');
+    const encrypted = crypto.publicEncrypt(publicKey, buffer);
+    const encryptedPassword = encrypted.toString('base64');
+
     try {
       const { data } = await this.modulusService.forgotPassword({
-        mobile: forgotPasswordRequestDto.mobile,
         email: forgotPasswordRequestDto.email,
-        captcha_code: forgotPasswordRequestDto.captchaCode,
-        country_code: forgotPasswordRequestDto.countryCode,
-        sms_otp: forgotPasswordRequestDto.smsOtp,
         email_otp: forgotPasswordRequestDto.emailOtp,
-        sms_token: forgotPasswordRequestDto.smsToken,
-        new_password: forgotPasswordRequestDto.newPassword,
+        new_password: encryptedPassword,
         email_token: forgotPasswordRequestDto.emailToken,
+        sms_token: '',
+        sms_otp: '',
       });
 
       if (data.status === 'Error') {
