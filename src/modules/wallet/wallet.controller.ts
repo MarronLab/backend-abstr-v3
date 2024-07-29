@@ -11,6 +11,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -44,12 +45,18 @@ export class WalletController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiQuery({
+    name: 'safeAddress',
+    required: true,
+    description: 'The user safe address',
+  })
   @ApiOkResponse({
     description: 'The balances has been successfully fetched.',
     type: [GetBalancesResponseDto],
   })
-  async balances() {
-    const response = await this.walletService.getBalances();
+  async balances(@Query('safeAddress') safeAddress: string) {
+    const response =
+      await this.walletService.getSafeAddressBalances(safeAddress);
 
     return response.map((row) => {
       return new GetBalancesResponseDto({

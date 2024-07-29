@@ -44,13 +44,19 @@ export class UserService extends BaseService {
     }
   }
 
-  async getProfile() {
+  async getProfile(userAddress: string) {
     try {
       const { data } = await this.modulusService.getProfile();
 
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);
       }
+
+      await this.generateSafeAddress({
+        userAddress: userAddress,
+        modulusCustomerID: data.data.customerID,
+        modulusCustomerEmail: data.data.email,
+      });
 
       const internalUser = await this.getClient().user.findUnique({
         where: { modulusCustomerID: data.data.customerID },
@@ -69,11 +75,30 @@ export class UserService extends BaseService {
         },
       });
 
-      // if (!internalUser) {
-      //   throw new UnauthorizedException('');
-      // }
-
       return { ...data.data, ...internalUser };
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async getInternalUserProfile(modulusCustomerID: number) {
+    try {
+      return await this.getClient().user.findUnique({
+        where: { modulusCustomerID },
+        select: {
+          id: true,
+          language: true,
+          currency: true,
+          timezone: true,
+          username: true,
+          safeAddress: true,
+          userAddress: true,
+          emailNewsletter: true,
+          emailTradeUpdates: true,
+          emailAnnouncements: true,
+          publicID: true,
+        },
+      });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
