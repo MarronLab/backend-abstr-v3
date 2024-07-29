@@ -7,10 +7,58 @@ import { ModulusService } from 'src/services/modulus/modulus.service';
 import { TransactionData } from 'src/services/modulus/modulus.type';
 import { WalletPerformanceDurationEnum } from './wallet.enum';
 import { WalletPerformanceDto } from './dto/performance.dto';
+import axios from 'axios';
+import HelperProvider from 'src/utils/helperProvider';
+import ConstantProvider from 'src/utils/constantProvider';
+import { MoralisTokenInfo } from './wallet.interface';
 
 @Injectable()
 export class WalletService {
   constructor(private readonly modulusService: ModulusService) {}
+
+  async getSafeAddressBalances(safeAddress: string) {
+    try {
+      const url = `https://deep-index.moralis.io/api/v2.2/${safeAddress}/erc20?chain=${HelperProvider.getNetworkName()}`;
+      const headers = {
+        accept: 'application/json',
+        'X-API-Key': ConstantProvider.MORALIS_API_KEY,
+      };
+      const tokenBalanceResponse = await axios.get<MoralisTokenInfo[]>(url, {
+        headers,
+      });
+
+      const { data: balanceData } = await this.modulusService.getBalance();
+      const { data: coinStatsData } = await this.modulusService.getCoinStats();
+
+      console.log({
+        balanceData: balanceData.data,
+        coinStatsData: coinStatsData.data,
+      });
+
+      if (balanceData.status === 'Error') {
+        throw new UnprocessableEntityException(balanceData.data);
+      }
+
+      return balanceData.data.map((balance) => {
+        const stats = coinStatsData.data[balance.currency.toLowerCase()];
+        const tokenBalance = tokenBalanceResponse.data.find(
+          (x) => x.symbol === balance.currency,
+        );
+
+        const currentBalance = tokenBalance ? Number(tokenBalance.balance) : 0;
+
+        return {
+          balance: currentBalance,
+          currency: balance.currency,
+          holdDeposits: balance.holdDeposits,
+          balanceInTrade: balance.balanceInTrade,
+          priceChangePercent24hr: stats?.priceChangePercent24hr || null,
+        };
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 
   async getBalances() {
     try {

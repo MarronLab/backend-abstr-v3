@@ -1,4 +1,5 @@
 import { BigNumber as BigDecimal } from 'bignumber.js';
+import ConstantProvider from './constantProvider';
 
 class HelperProvider {
   static convertNumToBigInt(
@@ -34,6 +35,15 @@ class HelperProvider {
 
   static sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  static getNetworkName() {
+    switch (ConstantProvider.NETWORK_CHAIN_ID) {
+      case 137:
+        return 'polygon';
+      default:
+        throw Error('Network name not found');
+    }
   }
 }
 
