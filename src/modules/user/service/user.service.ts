@@ -7,6 +7,7 @@ import {
   // UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import axios from 'axios';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { SafeService } from 'src/services/safe.service';
 import GenerateSafeAddressDto from '../dto/generate-safe-address.dto';
@@ -20,9 +21,20 @@ import {
   UpdateProfileRequest,
 } from 'src/services/modulus/modulus.type';
 import { Prisma } from '@prisma/client';
+import {
+  GetSaveFavoriteCoinMarketData,
+  GetSaveFavoriteCoinType,
+} from 'src/services/coingecko/coingecko.type';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService extends BaseService {
+  private readonly singleCoinDataparams = {
+    localization: false,
+    community_data: false,
+    developer_data: false,
+    sparkline: true,
+  };
+
   constructor(
     prisma: PrismaService,
     @Inject(REQUEST) private readonly req: Request,
@@ -195,6 +207,100 @@ export class UserService extends BaseService {
       return data;
     } catch (error) {
       throw new InternalServerErrorException(error);
+    }
+  }
+
+  async saveFavoriteCoins(params: string[]) {
+    try {
+      const response = await this.modulusService.saveFavoriteCoins({
+        data: params,
+      });
+
+      if (response.data.status === 'Error') {
+        throw new UnprocessableEntityException(response.data.message);
+      }
+
+      return response.data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getSaveFavoriteCoins() {
+    try {
+      const { data: modulusData } =
+        await this.modulusService.getSaveFavoriteCoins();
+
+      if (!modulusData.data || modulusData.data.length === 0) {
+        throw new InternalServerErrorException('No favorite coins found.');
+      }
+
+      const coinListUrl = `${process.env.COINGECKO_BASE_URL}coins/list`;
+      const headers = {
+        accept: 'application/json',
+        'X-CG-Pro-API-Key': process.env.COINGECKO_API_KEY,
+      };
+
+      const coinListResponse = await axios.get<GetSaveFavoriteCoinType[]>(
+        coinListUrl,
+        {
+          headers,
+        },
+      );
+      const coinList = coinListResponse.data;
+
+      const idToCoinMap = coinList.reduce(
+        (
+          map: Record<string, GetSaveFavoriteCoinType>,
+          coin: GetSaveFavoriteCoinType,
+        ) => {
+          map[coin.id] = coin;
+          return map;
+        },
+        {},
+      );
+
+      const coinIds = modulusData.data
+        .map((id: string) => {
+          const coinId = idToCoinMap[id]?.id;
+          if (!coinId) {
+          }
+          return coinId;
+        })
+        .filter((coinId: string) => !!coinId)
+        .join(',');
+
+      if (!coinIds) {
+        throw new InternalServerErrorException(
+          'No valid coin IDs found for the provided IDs.',
+        );
+      }
+
+      const marketDataUrl = `${process.env.COINGECKO_BASE_URL}coins/markets`;
+      const marketDataParams = {
+        vs_currency: 'usd',
+        ids: coinIds,
+      };
+
+      const marketDataResponse = await axios.get<
+        GetSaveFavoriteCoinMarketData[]
+      >(marketDataUrl, {
+        headers,
+        params: marketDataParams,
+      });
+
+      const validatedData = marketDataResponse.data.filter((coin) => {
+        const originalCoin = idToCoinMap[coin.id];
+        return originalCoin && originalCoin.name === coin.name;
+      });
+
+      return {
+        status: 'Success',
+        message: 'Favorite coins market data fetched successfully.',
+        data: validatedData,
+      };
+    } catch (error) {
+      throw new Error(error);
     }
   }
 }

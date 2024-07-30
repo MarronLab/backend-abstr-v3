@@ -27,6 +27,8 @@ import {
   generateSafeAddressResponseSchema,
   getProfileResponseSchema,
   getWhiteListedDevicesResponseSchema,
+  saveFavoriteCoinsResponseSchema,
+  getSaveFavoriteCoinsResponseSchema,
 } from '../schema/user.schema';
 import GenerateSafeAddressDto, {
   GenerateSafeAddressResponseDto,
@@ -39,6 +41,14 @@ import {
 import GetWhiteListedDevicesResponseDto, {
   GetWhiteListedDevicesDataDto,
 } from '../dto/user.whiteListedDevice.dto';
+import {
+  SaveFavoriteCoinsDto,
+  SaveFavoriteCoinsResponseDto,
+} from '../dto/save-favorite-coins.dto';
+import {
+  CoinMarketDataDto,
+  GetSaveFavoriteCoinsResponseDto,
+} from '../dto/get-saveFavoriteCoins.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -204,5 +214,72 @@ export class UserController {
     @Body() param: DeleteWhiteListedDeviceRequestDto,
   ) {
     await this.userService.deleteWhiteListedDevices(param);
+  }
+
+  @Post('customer_favourite_coins')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(saveFavoriteCoinsResponseSchema),
+  )
+  @ApiOperation({ summary: 'Add user favorite coins' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description: 'The user has successfully saved favorite coins.',
+    type: SaveFavoriteCoinsResponseDto,
+  })
+  async saveFavoriteCoins(@Body() saveFavoriteCoinsDto: SaveFavoriteCoinsDto) {
+    const response = await this.userService.saveFavoriteCoins(
+      saveFavoriteCoinsDto.data,
+    );
+
+    return new SaveFavoriteCoinsResponseDto({
+      status: response.status,
+      message: response.message,
+      data: response.data,
+    });
+  }
+
+  @Get('customer_favourite_coins')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(getSaveFavoriteCoinsResponseSchema),
+  )
+  @ApiOperation({ summary: 'Get user favorite coins market data' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiOkResponse({
+    description:
+      'The user favorite coins market data has been successfully fetched.',
+    type: GetSaveFavoriteCoinsResponseDto,
+  })
+  async getSaveFavoriteCoins() {
+    const response = await this.userService.getSaveFavoriteCoins();
+
+    return new GetSaveFavoriteCoinsResponseDto({
+      status: response.status,
+      message: response.message,
+      data: response.data.map(
+        (coin) =>
+          new CoinMarketDataDto({
+            id: coin.id,
+            symbol: coin.symbol,
+            name: coin.name,
+            image: coin.image,
+            current_price: coin.current_price,
+            price_change_percentage_24h: coin.price_change_percentage_24h,
+            price_change_24h: coin.price_change_24h,
+            market_cap_rank: coin.market_cap_rank,
+            high_24h: coin.high_24h,
+            low_24h: coin.low_24h,
+          }),
+      ),
+    });
   }
 }

@@ -4,6 +4,11 @@ import {
   GetProfileResponseSchemaType,
 } from './user.schema.type';
 
+import {
+  GetSaveFavoriteCoinMarketData,
+  GetSaveFavoriteCoinsResponseData,
+} from 'src/services/coingecko/coingecko.type';
+
 export const getProfileResponseSchema: JSONSchemaType<GetProfileResponseSchemaType> =
   {
     type: 'object',
@@ -175,3 +180,68 @@ export const getWhiteListedDevicesResponseSchema: JSONSchemaType<{
   required: ['status', 'message', 'data'],
   additionalProperties: false,
 };
+
+export const saveFavoriteCoinsResponseSchema: JSONSchemaType<{
+  status: 'Success' | 'Error';
+  message: string;
+  data: string | null;
+}> = {
+  type: 'object',
+  properties: {
+    status: {
+      type: 'string',
+      enum: ['Success', 'Error'],
+    },
+    message: {
+      type: 'string',
+    },
+    data: { type: 'string', nullable: true as any },
+  },
+  required: ['status', 'message', 'data'],
+  additionalProperties: false,
+};
+
+export const coinMarketDataSchema: JSONSchemaType<GetSaveFavoriteCoinMarketData> =
+  {
+    type: 'object',
+    additionalProperties: false,
+    required: [
+      'id',
+      'symbol',
+      'name',
+      'image',
+      'current_price',
+      'price_change_percentage_24h',
+      'price_change_24h',
+      'market_cap_rank',
+      'high_24h',
+      'low_24h',
+    ],
+    properties: {
+      id: { type: 'string' },
+      symbol: { type: 'string' },
+      name: { type: 'string' },
+      image: { type: 'string' },
+      current_price: { type: 'number' },
+      price_change_percentage_24h: { type: 'number' },
+      price_change_24h: { type: 'number' },
+      market_cap_rank: { type: 'number' },
+      high_24h: { type: 'number' },
+      low_24h: { type: 'number' },
+    },
+  };
+
+export const getSaveFavoriteCoinsResponseSchema: JSONSchemaType<GetSaveFavoriteCoinsResponseData> =
+  {
+    type: 'object',
+    additionalProperties: false,
+    required: ['status', 'message', 'data'],
+    properties: {
+      status: { type: 'string' },
+      message: { type: 'string' },
+      data: {
+        type: 'array',
+        items: coinMarketDataSchema,
+      },
+    },
+  };

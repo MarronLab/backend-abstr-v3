@@ -63,6 +63,8 @@ import {
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   DeleteWhiteListedDevicesResponse,
+  SaveFavoriteCoinsResponse,
+  GetFavoriteCoinsResponse,
 } from './modulus.type';
 import { AxiosRequestConfig } from 'axios';
 
@@ -81,7 +83,6 @@ export class ModulusService {
         request,
         config,
       );
-
       return response;
     } catch (error) {
       throw new Error(error);
@@ -93,6 +94,7 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
+
       return response;
     } catch (error) {
       throw new Error(error);
@@ -328,6 +330,20 @@ export class ModulusService {
     return await this.post<DeleteWhiteListedDevicesResponse>(
       '/api/delete-whitelisted-device',
       param,
+    );
+  }
+
+  async saveFavoriteCoins(params: { data: string[] }) {
+    return await this.post<SaveFavoriteCoinsResponse>(
+      '/api/Customer_Favourite_Coins',
+      params,
+    );
+  }
+
+  async getSaveFavoriteCoins() {
+    return await this.get<GetFavoriteCoinsResponse>(
+      '/api/Customer_Favourite_Coins',
+      {},
     );
   }
 }

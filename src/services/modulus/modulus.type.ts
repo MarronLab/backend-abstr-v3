@@ -856,3 +856,15 @@ export type DeleteWhiteListedDevicesErrorResponse = {
 export type DeleteWhiteListedDevicesResponse =
   | DeleteWhiteListedDevicesErrorResponse
   | DeleteWhiteListedDevicesSuccessResponse;
+
+export type SaveFavoriteCoinsResponse = {
+  status: 'Success' | 'Error';
+  message: string;
+  data: null;
+};
+
+export type GetFavoriteCoinsResponse = {
+  status: 'Success' | 'Error';
+  message: string | null;
+  data: any;
+};

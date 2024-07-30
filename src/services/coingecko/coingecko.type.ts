@@ -261,3 +261,28 @@ export type SingleCoinGeckoDataResponse = {
     target_coin_id: string;
   }[];
 };
+
+export type GetSaveFavoriteCoinMarketData = {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap_rank: number;
+  high_24h: number;
+  low_24h: number;
+  price_change_percentage_24h: number;
+  price_change_24h: number;
+};
+
+export type GetSaveFavoriteCoinsResponseData = {
+  status: string;
+  message: string;
+  data: GetSaveFavoriteCoinMarketData[];
+};
+
+export type GetSaveFavoriteCoinType = {
+  id: string;
+  symbol: string;
+  name: string;
+};
