@@ -189,6 +189,7 @@ export class MarketService extends BaseService {
           updatedAt: 'desc',
         },
       });
+
       if (lastUpdated) {
         const now = new Date();
         const lastUpdatedDate = new Date(lastUpdated.updatedAt);
@@ -200,7 +201,7 @@ export class MarketService extends BaseService {
             const parsedItem = JSON.parse(item);
             return parsedItem;
           }) as CoingeckoTrendingItem[];
-          const trendingData = this.transformTrendingResponse(parsedData);
+          const trendingData = await this.addSparklineData(parsedData);
           return paginate(
             trendingData,
             queryParams.page ?? 1,
@@ -210,7 +211,7 @@ export class MarketService extends BaseService {
       }
 
       const response = await this.coingeckoService.getTrendingMarketData();
-      const trendingData = this.transformTrendingResponse(response.coins);
+      const trendingData = await this.addSparklineData(response.coins);
 
       await this.saveTrendingMarketData(trendingData);
       return paginate(
@@ -219,47 +220,101 @@ export class MarketService extends BaseService {
         queryParams.per_page ?? 10,
       );
     } catch (error) {
+      console.log('the error logged', error);
       this.handleError(error);
     }
   }
 
-  private transformTrendingResponse(
+  // private transformTrendingResponse(
+  //   data: CoingeckoTrendingItem[],
+  // ): TrendingMarketDataResponseDto[] {
+  //   return data.map((coin) => {
+  //     const item = coin.item || coin;
+  //     return new TrendingMarketDataResponseDto({
+  //       id: item.id,
+  //       coin_id: item.coin_id,
+  //       name: item.name,
+  //       symbol: item.symbol,
+  //       market_cap_rank: item.market_cap_rank,
+  //       thumb: item.thumb,
+  //       small: item.small,
+  //       large: item.large,
+  //       price_btc: item.price_btc,
+  //       score: item.score,
+  //       data: {
+  //         price: item.data.price,
+  //         price_btc: item.data.price_btc,
+  //         price_change_percentage_24h: {
+  //           btc: item.data.price_change_percentage_24h?.btc || 0,
+  //           usd: item.data.price_change_percentage_24h?.usd || 0,
+  //         },
+  //         market_cap: item.data.market_cap || '',
+  //         market_cap_btc: item.data.market_cap_btc || '',
+  //         total_volume: item.data.total_volume || '',
+  //         total_volume_btc: item.data.total_volume_btc || '',
+  //         sparkline: item.data.sparkline || '',
+  //       },
+  //     });
+  //   });
+  // }
+
+  private async addSparklineData(
     data: CoingeckoTrendingItem[],
-  ): TrendingMarketDataResponseDto[] {
-    return data.map((coin) => {
+  ): Promise<TrendingMarketDataResponseDto[]> {
+    const trendingDataWithSparkline = [];
+
+    for (const coin of data) {
       const item = coin.item || coin;
-      return new TrendingMarketDataResponseDto({
-        id: item.id,
-        coin_id: item.coin_id,
-        name: item.name,
-        symbol: item.symbol,
-        market_cap_rank: item.market_cap_rank,
-        thumb: item.thumb,
-        small: item.small,
-        large: item.large,
-        price_btc: item.price_btc,
-        score: item.score,
-        data: {
-          price: item.data.price,
-          price_btc: item.data.price_btc,
-          price_change_percentage_24h: {
-            btc: item.data.price_change_percentage_24h?.btc || 0,
-            usd: item.data.price_change_percentage_24h?.usd || 0,
+      const singleCoinData = await this.coingeckoService.getSingleCoinData(
+        item.id,
+        this.singleCoinDataparams,
+      );
+
+      // Add a check to ensure `singleCoinData.market_data.sparkline_in_7d` exists
+      const sparklineData =
+        singleCoinData?.market_data?.sparkline_in_7d?.price ?? [];
+
+      trendingDataWithSparkline.push(
+        new TrendingMarketDataResponseDto({
+          id: item.id,
+          coin_id: item.coin_id,
+          name: item.name,
+          symbol: item.symbol,
+          market_cap_rank: item.market_cap_rank,
+          thumb: item.thumb,
+          small: item.small,
+          large: item.large,
+          price_btc: item.price_btc,
+          score: item.score,
+          data: {
+            price: singleCoinData.market_data.current_price.usd,
+            price_btc: singleCoinData.market_data.current_price.btc,
+            price_change_percentage_24h: {
+              btc: singleCoinData.market_data
+                .price_change_percentage_24h_in_currency.btc,
+              usd: singleCoinData.market_data
+                .price_change_percentage_24h_in_currency.usd,
+            },
+            market_cap: singleCoinData.market_data.market_cap.usd,
+            market_cap_btc: singleCoinData.market_data.market_cap.btc,
+            total_volume: singleCoinData.market_data.total_volume.usd,
+            total_volume_btc: singleCoinData.market_data.total_volume.btc,
+            sparkline_in_7d: {
+              price: sparklineData,
+            },
           },
-          market_cap: item.data.market_cap || '',
-          market_cap_btc: item.data.market_cap_btc || '',
-          total_volume: item.data.total_volume || '',
-          total_volume_btc: item.data.total_volume_btc || '',
-          sparkline: item.data.sparkline || '',
-        },
-      });
-    });
+        }),
+      );
+    }
+
+    return trendingDataWithSparkline;
   }
 
   private async saveTrendingMarketData(data: TrendingMarketDataResponseDto[]) {
     try {
       const now = new Date();
       const jsonData = data.map((item) => JSON.stringify(item));
+      console.log('Saving trending data to DB', jsonData);
       await this.getClient().coinGeckoResponse.upsert({
         where: { type: 'TRENDING_DATA' },
         update: { data: jsonData, updatedAt: now },
@@ -271,6 +326,7 @@ export class MarketService extends BaseService {
         },
       });
     } catch (error) {
+      console.log('db error', error);
       throw error;
     }
   }
@@ -289,6 +345,7 @@ export class MarketService extends BaseService {
         const lastUpdatedDate = new Date(lastUpdated.updatedAt);
         const timeDiff = now.getTime() - lastUpdatedDate.getTime();
         const diffHours = timeDiff / (1000 * 3600);
+        console.log('db response', lastUpdated);
 
         if (diffHours < 1) {
           const parsedData = lastUpdated.data.map((item: string) =>
