@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, ArrayNotEmpty } from 'class-validator';
 
 export class SaveFavoriteCoinsDto {
   @ApiProperty({
@@ -9,6 +9,7 @@ export class SaveFavoriteCoinsDto {
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
+  @ArrayNotEmpty()
   data: string[];
 }
 
