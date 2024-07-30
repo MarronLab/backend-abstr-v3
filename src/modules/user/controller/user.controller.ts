@@ -8,6 +8,7 @@ import {
   UseInterceptors,
   HttpCode,
   Put,
+  Query,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import {
@@ -15,6 +16,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -82,18 +84,23 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
+  @ApiQuery({
+    name: 'userAddress',
+    required: true,
+    description: 'The user address',
+  })
   @ApiOkResponse({
     description: 'The user profile has been successfully fetched.',
     type: GetProfileResponseDto,
   })
-  async getProfile() {
-    const response = await this.userService.getProfile();
+  async getProfile(@Query('userAddress') userAddress: string) {
+    const response = await this.userService.getProfile(userAddress);
 
     return new GetProfileResponseDto({
       id: response.customerID,
-      firstName: response.firstName,
-      middleName: response.middleName,
-      lastName: response.lastName,
+      firstName: response.firstName ?? '',
+      middleName: response.middleName ?? '',
+      lastName: response.lastName ?? '',
       loginName: response.loginName,
       email: response.email,
       country: response.country,
@@ -119,16 +126,16 @@ export class UserController {
       kycApprovedLevel: response.kycApprovedLevel,
       priceChangeAlert: response.priceChangeAlert,
       priceChangePercentage: response.priceChangePercentage,
-      language: response.language,
-      currency: response.currency,
-      timezone: response.timezone,
-      username: response.username,
-      safeAddress: response.safeAddress,
-      userAddress: response.userAddress,
-      emailNewsletter: response.emailNewsletter,
-      emailTradeUpdates: response.emailTradeUpdates,
-      emailAnnouncements: response.emailAnnouncements,
-      publicID: response.publicID,
+      language: response?.language ?? '',
+      currency: response?.currency ?? '',
+      timezone: response?.timezone ?? '',
+      username: response?.username ?? '',
+      safeAddress: response?.safeAddress ?? '',
+      userAddress: response?.userAddress ?? '',
+      emailNewsletter: response?.emailNewsletter ?? false,
+      emailTradeUpdates: response?.emailTradeUpdates ?? false,
+      emailAnnouncements: response?.emailAnnouncements ?? false,
+      publicID: response?.publicID ?? '',
     });
   }
 

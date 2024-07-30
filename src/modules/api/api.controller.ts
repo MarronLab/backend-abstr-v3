@@ -13,7 +13,6 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
-  ApiDefaultResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
