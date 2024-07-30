@@ -81,10 +81,8 @@ export class ModulusService {
         request,
         config,
       );
-      console.log('post logged endpoint', response);
       return response;
     } catch (error) {
-      console.log('post logged gen', error);
       throw new Error(error);
     }
   }
@@ -95,10 +93,8 @@ export class ModulusService {
         params,
       });
 
-      console.log('logged endpoint', response);
       return response;
     } catch (error) {
-      console.log('logged gen', error);
       throw new Error(error);
     }
   }

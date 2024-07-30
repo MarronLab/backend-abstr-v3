@@ -14,25 +14,10 @@ import { BaseService } from 'src/common/base.service';
 import { REQUEST } from '@nestjs/core';
 import { PrismaService } from 'src/services/prisma.service';
 import { Request } from 'express';
-// import { SingleCoinGeckoDataResponse } from 'src/services/coingecko/coingecko.type';
-
-interface Coin {
-  id: string;
-  symbol: string;
-  name: string;
-}
-
-export interface MarketData {
-  id: string;
-  symbol: string;
-  name: string;
-  current_price: number;
-  market_cap: number;
-  total_volume: number;
-  high_24h: number;
-  low_24h: number;
-  price_change_percentage_24h: number;
-}
+import {
+  GetSaveFavoriteCoinMarketData,
+  GetSaveFavoriteCoinType,
+} from 'src/services/coingecko/coingecko.type';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService extends BaseService {
@@ -50,7 +35,6 @@ export class UserService extends BaseService {
     private readonly modulusService: ModulusService,
   ) {
     super(prisma, req);
-    console.log('user services');
   }
 
   async generateSafeAddress(generateSafeAddressDto: GenerateSafeAddressDto) {
@@ -142,34 +126,39 @@ export class UserService extends BaseService {
 
   async getSaveFavoriteCoins() {
     try {
-      const { data } = await this.modulusService.getSaveFavoriteCoins();
+      const { data: modulusData } =
+        await this.modulusService.getSaveFavoriteCoins();
 
-      if (!data.data || data.data.length === 0) {
+      if (!modulusData.data || modulusData.data.length === 0) {
         throw new InternalServerErrorException('No favorite coins found.');
       }
 
-      // Step 1: Fetch the list of all coins from CoinGecko
       const coinListUrl = `${process.env.COINGECKO_BASE_URL}coins/list`;
       const headers = {
         accept: 'application/json',
         'X-CG-Pro-API-Key': process.env.COINGECKO_API_KEY,
       };
 
-      const coinListResponse = await axios.get<Coin[]>(coinListUrl, {
-        headers,
-      });
+      const coinListResponse = await axios.get<GetSaveFavoriteCoinType[]>(
+        coinListUrl,
+        {
+          headers,
+        },
+      );
       const coinList = coinListResponse.data;
 
-      // Step 2: Map the IDs to Coin data
       const idToCoinMap = coinList.reduce(
-        (map: Record<string, Coin>, coin: Coin) => {
+        (
+          map: Record<string, GetSaveFavoriteCoinType>,
+          coin: GetSaveFavoriteCoinType,
+        ) => {
           map[coin.id] = coin;
           return map;
         },
         {},
       );
 
-      const coinIds = data.data
+      const coinIds = modulusData.data
         .map((id: string) => {
           const coinId = idToCoinMap[id]?.id;
           if (!coinId) {
@@ -191,7 +180,9 @@ export class UserService extends BaseService {
         ids: coinIds,
       };
 
-      const marketDataResponse = await axios.get<MarketData[]>(marketDataUrl, {
+      const marketDataResponse = await axios.get<
+        GetSaveFavoriteCoinMarketData[]
+      >(marketDataUrl, {
         headers,
         params: marketDataParams,
       });
@@ -201,7 +192,11 @@ export class UserService extends BaseService {
         return originalCoin && originalCoin.name === coin.name;
       });
 
-      return validatedData;
+      return {
+        status: 'Success',
+        message: 'Favorite coins market data fetched successfully.',
+        data: validatedData,
+      };
     } catch (error) {
       throw new Error(error);
     }
