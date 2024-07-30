@@ -7,6 +7,7 @@ import {
   UseGuards,
   UseInterceptors,
   HttpCode,
+  Put,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import {
@@ -90,9 +91,9 @@ export class UserController {
 
     return new GetProfileResponseDto({
       id: response.customerID,
-      firstName: 'response.firstName',
+      firstName: response.firstName,
       middleName: response.middleName,
-      lastName: 'response.lastName',
+      lastName: response.lastName,
       loginName: response.loginName,
       email: response.email,
       country: response.country,
@@ -118,20 +119,20 @@ export class UserController {
       kycApprovedLevel: response.kycApprovedLevel,
       priceChangeAlert: response.priceChangeAlert,
       priceChangePercentage: response.priceChangePercentage,
-      language: 'response.language',
-      currency: 'response.currency',
-      timezone: 'response.timezone',
-      username: 'response.username',
-      safeAddress: 'response.safeAddress',
-      userAddress: 'response.userAddress',
-      emailNewsletter: false,
-      emailTradeUpdates: false,
-      emailAnnouncements: false,
-      publicID: 'response.publicID',
+      language: response.language,
+      currency: response.currency,
+      timezone: response.timezone,
+      username: response.username,
+      safeAddress: response.safeAddress,
+      userAddress: response.userAddress,
+      emailNewsletter: response.emailNewsletter,
+      emailTradeUpdates: response.emailTradeUpdates,
+      emailAnnouncements: response.emailAnnouncements,
+      publicID: response.publicID,
     });
   }
 
-  @Post('/profile')
+  @Put('/profile')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
