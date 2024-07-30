@@ -1,13 +1,8 @@
 class ConstantProvider {
-  static clientId: string = process.env.NEXT_PUBLIC_WEBAUTH_CLIEND_ID as string;
-  static projectId: string = process.env
-    .NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID as string;
   static PLATFORM_PRIV_KEY: string = process.env.PLATFORM_PRIV_KEY as string;
-  static NETWORK_CHAIN_ID: number = Number(
-    process.env.NEXT_PUBLIC_PROJECT_NETWORK_ID,
-  );
+  static NETWORK_CHAIN_ID: number = Number(process.env.NETWORK_CHAIN_ID);
   static RPC_PROVIDER: string = process.env.RPC_PROVIDER as string;
-  static appName: string = 'Maroon POC';
+  static MORALIS_API_KEY: string = process.env.MORALIS_API_KEY as string;
   static safeModule: string = '0x833704B2687317d88bEFF2f6f0aDD420695c05b6';
   static SAFE_4337_MODULE_ADDRESS =
     '0xb82417Abbc53B123531770285B661E6be594563c';

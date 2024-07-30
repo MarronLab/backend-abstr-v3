@@ -772,6 +772,27 @@ export type GetWhiteListedDevicesResponse = {
   data: GetWhiteListedDevicesData[];
 };
 
+//update profile
+export type UpdateProfileRequest = {
+  firstname?: string;
+  middlename?: string;
+  lastname?: string;
+  country?: string;
+  mobile?: string;
+};
+
+export type UpdateProfileErrorResponse = ModulusBaseErrorResponseData;
+
+export type UpdateProfileSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type UpdateProfileResponse =
+  | UpdateProfileErrorResponse
+  | UpdateProfileSuccessResponse;
+
 //Forgot Password - Request Otp
 export type ForgotPasswordOTPRequest = {
   captcha_code?: string;

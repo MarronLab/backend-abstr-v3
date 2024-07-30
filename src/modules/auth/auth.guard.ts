@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { HttpService } from '@nestjs/axios';
+import { GetProfileResponse } from 'src/services/modulus/modulus.type';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -30,9 +31,12 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException();
       }
 
-      const user = await this.httpService.axiosRef.get('/api/GetProfile', {
-        headers: { Authorization: token },
-      });
+      const user = await this.httpService.axiosRef.get<GetProfileResponse>(
+        '/api/GetProfile',
+        {
+          headers: { Authorization: token },
+        },
+      );
 
       if (user.data.status !== 'Success') {
         throw new UnauthorizedException();
