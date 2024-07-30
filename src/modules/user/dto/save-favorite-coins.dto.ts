@@ -4,7 +4,7 @@ import { IsArray, IsNotEmpty, IsString, ArrayNotEmpty } from 'class-validator';
 export class SaveFavoriteCoinsDto {
   @ApiProperty({
     description: 'List of favorite coins',
-    example: ['LTC', 'BTC', 'USD'],
+    example: ['pepe', 'dai'],
   })
   @IsArray()
   @IsString({ each: true })
