@@ -8,15 +8,12 @@ import { HttpModule } from '@nestjs/axios';
 import { HttpConfigService } from 'src/services/http-config.service';
 import { AuthModule } from 'src/modules/auth/module/auth.module';
 import { UserSettingsService } from '../service/user-settings.service';
-import { CoingeckoService } from 'src/services/coingecko/coingecko.service';
-import { CoingeckoModule } from 'src/services/coingecko/coingecko.module';
 
 @Module({
   imports: [
     HttpModule.registerAsync({
       useClass: HttpConfigService,
     }),
-    CoingeckoModule,
     AuthModule,
   ],
   controllers: [UserController],
@@ -26,7 +23,6 @@ import { CoingeckoModule } from 'src/services/coingecko/coingecko.module';
     PrismaService,
     ModulusService,
     UserSettingsService,
-    CoingeckoService,
   ],
   exports: [UserService],
 })
