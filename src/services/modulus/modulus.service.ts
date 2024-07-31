@@ -294,7 +294,7 @@ export class ModulusService {
 
   async validateBearerToken() {
     return await this.post<ValidateBearerTokenResponse>(
-      `/Validate_BearerToken`,
+      `/api/Validate_BearerToken`,
     );
   }
 
