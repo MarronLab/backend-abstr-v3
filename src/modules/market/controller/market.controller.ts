@@ -113,4 +113,14 @@ export class MarketController {
     Object.assign(dtoResponse, response);
     return dtoResponse;
   }
+
+  @Get('newlistedcoins')
+  @ApiOperation({
+    summary: 'This endpoint allows you to query all recent added coins',
+  })
+  async getRecentAddedCoins() {
+    const response = await this.marketService.getRecentAddedCoins();
+    console.log('controller', response);
+    return response;
+  }
 }

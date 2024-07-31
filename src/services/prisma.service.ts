@@ -11,12 +11,11 @@ export class PrismaService
 {
   constructor() {
     super({
-      log: [
-        {
-          emit: 'event',
-          level: 'query',
-        },
-      ],
+      log: [{ emit: 'event', level: 'query' }],
+      // Add the transactionOptions with a higher timeout
+      transactionOptions: {
+        timeout: 30000,
+      },
     });
   }
   async onModuleInit() {

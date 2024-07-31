@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import Bottleneck from 'bottleneck';
 
 import { BaseService } from '../../../common/base.service';
 import { PrismaService } from '../../../services/prisma.service';
@@ -49,6 +50,11 @@ export class MarketService extends BaseService {
     developer_data: false,
     sparkline: true,
   };
+
+  private readonly limiter = new Bottleneck({
+    maxConcurrent: 5,
+    minTime: 200, // Minimum time in ms between each request
+  });
 
   constructor(
     private readonly coingeckoService: CoingeckoService,
@@ -379,6 +385,56 @@ export class MarketService extends BaseService {
         this.singleCoinDataparams,
       );
       return response;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getRecentAddedCoins() {
+    try {
+      const recentCoins = await this.coingeckoService.getRecentAddedCoins();
+      if (!Array.isArray(recentCoins) || recentCoins.length === 0) {
+        throw new HttpException(
+          'Failed to fetch recent coins data',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      const batchSize = 5;
+      let results = [] as any;
+
+      for (let i = 0; i < recentCoins.length; i += batchSize) {
+        const batch = recentCoins.slice(i, i + batchSize);
+        const dataPromises = batch.map((coin) =>
+          this.limiter
+            .schedule(() =>
+              this.coingeckoService.getSingleCoinData(
+                coin.id,
+                this.singleCoinDataparams,
+              ),
+            )
+            .catch((error) => {
+              throw new Error(error);
+            }),
+        );
+        const batchResults = await Promise.all(dataPromises);
+        results = [...results, ...batchResults.filter((item) => item !== null)];
+      }
+      const mainResponse = results.map((coin: any) => ({
+        id: coin.id,
+        symbol: coin.symbol,
+        name: coin.name,
+        image: coin.image.large,
+        current_price: coin.market_data.current_price.usd,
+        high_24h: coin.market_data.high_24h.usd,
+        low_24h: coin.market_data.low_24h.usd,
+        price_change_percentage_24h:
+          coin.market_data.price_change_percentage_24h,
+        price_change_24h: coin.market_data.price_change_24h,
+      }));
+
+      console.log('logged result main', mainResponse);
+      return mainResponse;
     } catch (error) {
       this.handleError(error);
     }

@@ -4,6 +4,6 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["public.pem"]
+    "assets": ["src/public.pem"]
   }
 }
