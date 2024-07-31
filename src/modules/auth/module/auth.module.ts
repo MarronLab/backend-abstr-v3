@@ -1,17 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { AuthController } from '../controller/auth.controller';
-import { HttpModule } from '@nestjs/axios';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { AuthGuard } from '../auth.guard';
-import { HttpConfigService } from 'src/services/http-config.service';
+import { ModulusModule } from 'src/services/modulus/modulus.module';
 
 @Module({
-  imports: [
-    HttpModule.registerAsync({
-      useClass: HttpConfigService,
-    }),
-  ],
+  imports: [ModulusModule],
   controllers: [AuthController],
   providers: [AuthService, ModulusService, AuthGuard],
   exports: [AuthService, AuthGuard],
