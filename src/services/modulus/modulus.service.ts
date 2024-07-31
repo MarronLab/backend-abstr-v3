@@ -298,6 +298,13 @@ export class ModulusService {
     );
   }
 
+  setBearerToken(token: string) {
+    this.httpService.axiosRef.interceptors.request.use((config) => {
+      config.headers['Authorization'] = token;
+      return config;
+    });
+  }
+
   async getwhitelistedDevices() {
     return await this.get<GetWhiteListedDevicesResponse>(
       '/api/list-whitelisted-devices',

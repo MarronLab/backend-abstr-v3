@@ -8,7 +8,7 @@ import { ModulusModule } from 'src/services/modulus/modulus.module';
 @Module({
   imports: [ModulusModule],
   controllers: [AuthController],
-  providers: [AuthService, ModulusService, AuthGuard],
+  providers: [AuthService, AuthGuard],
   exports: [AuthService, AuthGuard],
 })
 export class AuthModule {}

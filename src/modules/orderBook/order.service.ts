@@ -36,7 +36,7 @@ interface ReturnOrderI {
 @Injectable({ scope: Scope.REQUEST })
 export class OrderService extends BaseService {
   constructor(
-    private readonly httpService: HttpService,
+    // private readonly httpService: HttpService,
     private readonly prismaService: PrismaService,
     private readonly modulusService: ModulusService,
     @Inject(REQUEST) req: Request,
@@ -63,57 +63,59 @@ export class OrderService extends BaseService {
         // ExtraData: JSON.parse(createOrderDto.ExtraData),
       });
 
-      const modulusOrderResponse = await this.httpService.axiosRef.post(
-        '/SubmitOrder',
-        {
-          // CurrencyPair: 'FMAT_ETH',
-          CurrencyPair: createOrderDto.CurrencyPair,
-          Size: createOrderDto.Size,
-          Remaining: createOrderDto.Size,
-          Side: createOrderDto.Side,
-          Type: 2,
-          TimeInForce: 0,
-          LimitPrice: createOrderDto.LimitPrice,
-          StopPrice: 0,
-          TrailingAmount: 0,
-          OrderID: orderId,
-          UserID: createOrderDto.UserID,
-          ExtraData: JSON.parse(createOrderDto.ExtraData),
-        },
-      );
+      //@TODO: extract http call to it own service
 
-      const data = modulusOrderResponse.data;
-
-      console.log({ modulusOrderResponseData: data });
-      console.log({ modulusOrderResponseData: data?.Event?.NewTrades });
-
+      // const modulusOrderResponse = await this.httpService.axiosRef.post(
+      //   '/SubmitOrder',
+      //   {
+      //     // CurrencyPair: 'FMAT_ETH',
+      //     CurrencyPair: createOrderDto.CurrencyPair,
+      //     Size: createOrderDto.Size,
+      //     Remaining: createOrderDto.Size,
+      //     Side: createOrderDto.Side,
+      //     Type: 2,
+      //     TimeInForce: 0,
+      //     LimitPrice: createOrderDto.LimitPrice,
+      //     StopPrice: 0,
+      //     TrailingAmount: 0,
+      //     OrderID: orderId,
+      //     UserID: createOrderDto.UserID,
+      //     ExtraData: JSON.parse(createOrderDto.ExtraData),
+      //   },
+      // );
+      //
+      // const data = modulusOrderResponse.data;
+      //
+      // console.log({ modulusOrderResponseData: data });
+      // console.log({ modulusOrderResponseData: data?.Event?.NewTrades });
+      //
       const orders: ReturnOrderI[] = [];
-      const { Event } = data || {};
-
-      if (Event && Event.NewTrades.length > 0) {
-        const { NewTrades, UpdatedBuyOrders, UpdatedSellOrders } = Event;
-
-        console.log({ NewTrades, UpdatedBuyOrders, UpdatedSellOrders });
-
-        for (const newTrade of NewTrades) {
-          const relevantOrders = [...UpdatedBuyOrders, ...UpdatedSellOrders];
-          const matchingOrder = relevantOrders.find(
-            (order) => order.OrderID === newTrade.MakerOrderID,
-          );
-
-          console.log({ extraData: matchingOrder.extraData });
-
-          if (matchingOrder) {
-            orders.push({
-              extraData: matchingOrder.extraData,
-              size: newTrade.Size,
-              price: newTrade.Price,
-              timestamp: newTrade.Timestamp,
-            });
-          }
-        }
-      }
-
+      // const { Event } = data || {};
+      //
+      // if (Event && Event.NewTrades.length > 0) {
+      //   const { NewTrades, UpdatedBuyOrders, UpdatedSellOrders } = Event;
+      //
+      //   console.log({ NewTrades, UpdatedBuyOrders, UpdatedSellOrders });
+      //
+      //   for (const newTrade of NewTrades) {
+      //     const relevantOrders = [...UpdatedBuyOrders, ...UpdatedSellOrders];
+      //     const matchingOrder = relevantOrders.find(
+      //       (order) => order.OrderID === newTrade.MakerOrderID,
+      //     );
+      //
+      //     console.log({ extraData: matchingOrder.extraData });
+      //
+      //     if (matchingOrder) {
+      //       orders.push({
+      //         extraData: matchingOrder.extraData,
+      //         size: newTrade.Size,
+      //         price: newTrade.Price,
+      //         timestamp: newTrade.Timestamp,
+      //       });
+      //     }
+      //   }
+      // }
+      //
       return orders as any;
     } catch (error) {
       console.log(error);
