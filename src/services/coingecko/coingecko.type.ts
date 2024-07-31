@@ -287,19 +287,11 @@ export type GetSaveFavoriteCoinType = {
   name: string;
 };
 
-// export type GetRecentAddedCoinsResponse = {
-//   id: string;
-//   symbol: string;
-//   name: string;
-//   activated_at: number;
-// };
-
 export type CoinGeckoRecentAddedCoin = {
   id: string;
   symbol: string;
   name: string;
-  activated_at: number; // Added since your logs show this field exists
+  activated_at: number;
 };
 
-// The response is directly an array of these objects
 export type GetRecentAddedCoinsResponse = CoinGeckoRecentAddedCoin[];

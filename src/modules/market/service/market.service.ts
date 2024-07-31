@@ -53,7 +53,7 @@ export class MarketService extends BaseService {
 
   private readonly limiter = new Bottleneck({
     maxConcurrent: 5,
-    minTime: 200, // Minimum time in ms between each request
+    minTime: 200,
   });
 
   constructor(
@@ -432,8 +432,6 @@ export class MarketService extends BaseService {
           coin.market_data.price_change_percentage_24h,
         price_change_24h: coin.market_data.price_change_24h,
       }));
-
-      console.log('logged result main', mainResponse);
       return mainResponse;
     } catch (error) {
       this.handleError(error);
