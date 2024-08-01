@@ -275,12 +275,14 @@ export class WalletService {
       const response = await this.moralisService.networth(walletAddress);
 
       const totalNetworth = Number(response.total_networth_usd);
-      const cryptoPercentage = (totalNetworth / totalNetworth) * 100;
-      const fiatPercentage = (0 / totalNetworth) * 100;
+      const cryptoPercentage = totalNetworth
+        ? (totalNetworth / totalNetworth) * 100
+        : 0;
+      const fiatPercentage = totalNetworth ? (0 / totalNetworth) * 100 : 0;
 
       return {
-        fiatPercentage,
-        cryptoPercentage,
+        fiatPercentage: fiatPercentage ?? 0,
+        cryptoPercentage: cryptoPercentage ?? 0,
         totalNetworth,
         totalFiatAmount: 0,
         totalCryptoAmount: totalNetworth,
@@ -331,6 +333,7 @@ export class WalletService {
       balanceChangePercentage,
     };
   }
+
   async getMoralisWalletPerformace(
     walletAddress: string,
     walletPerformanceDto: WalletPerformanceDto,
@@ -340,11 +343,13 @@ export class WalletService {
     ).toISOString();
 
     try {
-      const transactionsResponse =
-        await this.moralisService.transactions(walletAddress);
+      const transactions =
+        await this.moralisService.getAllMoralisWalletTransactions(
+          walletAddress,
+        );
       const { data, finalBalance, balanceChange, balanceChangePercentage } =
         this.calculateMoralisPerformanceData(
-          transactionsResponse.result,
+          transactions,
           startDate,
           walletAddress,
         );

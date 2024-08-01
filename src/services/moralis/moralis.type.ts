@@ -36,5 +36,8 @@ export type MoralisTransactionData = {
 };
 
 export type MoralisTransactions = {
+  cursor: string;
+  page: number;
+  page_size: number;
   result: MoralisTransactionData[];
 };
