@@ -407,7 +407,7 @@ export class MarketService extends BaseService {
         const timeDiff = now.getTime() - lastUpdatedDate.getTime();
         const diffHours = timeDiff / (1000 * 3600);
 
-        if (diffHours > 1) {
+        if (diffHours < 1) {
           const parsedData = lastUpdated.data.map((item: string) =>
             JSON.parse(item),
           );
