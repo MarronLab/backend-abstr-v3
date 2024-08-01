@@ -30,6 +30,7 @@ export class CoingeckoService {
       const response = await firstValueFrom(
         this.httpService.get<T>(endpoint, { params }),
       );
+
       return response.data;
     } catch (error) {
       throw new Error(error);

@@ -26,6 +26,8 @@ import {
   PaginationQueryDto,
 } from '../dto/market.dto';
 
+import { RecentAddedCoinDto } from '../dto/recentaddedcoinResponse.dto';
+
 import { paginate } from 'src/utils/pagination';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -390,9 +392,35 @@ export class MarketService extends BaseService {
     }
   }
 
-  async getRecentAddedCoins() {
+  async getRecentAddedCoins(queryParams: PaginationQueryDto) {
     try {
+      const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
+        where: { type: 'NEWLISTED_DATA' },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+
+      if (lastUpdated) {
+        const now = new Date();
+        const lastUpdatedDate = new Date(lastUpdated.updatedAt);
+        const timeDiff = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = timeDiff / (1000 * 3600);
+
+        if (diffHours > 1) {
+          const parsedData = lastUpdated.data.map((item: string) =>
+            JSON.parse(item),
+          );
+          return paginate(
+            parsedData,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
+        }
+      }
+
       const recentCoins = await this.coingeckoService.getRecentAddedCoins();
+
       if (!Array.isArray(recentCoins) || recentCoins.length === 0) {
         throw new HttpException(
           'Failed to fetch recent coins data',
@@ -400,27 +428,35 @@ export class MarketService extends BaseService {
         );
       }
 
-      const batchSize = 5;
-      let results = [] as any;
+      const results = await this.processAndSaveNewCoins(recentCoins);
 
-      for (let i = 0; i < recentCoins.length; i += batchSize) {
-        const batch = recentCoins.slice(i, i + batchSize);
-        const dataPromises = batch.map((coin) =>
-          this.limiter
-            .schedule(() =>
-              this.coingeckoService.getSingleCoinData(
-                coin.id,
-                this.singleCoinDataparams,
-              ),
-            )
-            .catch((error) => {
-              throw new Error(error);
-            }),
-        );
-        const batchResults = await Promise.all(dataPromises);
-        results = [...results, ...batchResults.filter((item) => item !== null)];
-      }
-      const mainResponse = results.map((coin: any) => ({
+      return paginate(
+        results,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async processAndSaveNewCoins(
+    recentCoins: any,
+  ): Promise<RecentAddedCoinDto[]> {
+    const results = await Promise.all(
+      recentCoins.map((coin: any) =>
+        this.limiter.schedule(() =>
+          this.coingeckoService.getSingleCoinData(
+            coin.id,
+            this.singleCoinDataparams,
+          ),
+        ),
+      ),
+    );
+
+    const transformedData = results
+      .filter((item) => item !== null)
+      .map((coin) => ({
         id: coin.id,
         symbol: coin.symbol,
         name: coin.name,
@@ -432,10 +468,27 @@ export class MarketService extends BaseService {
           coin.market_data.price_change_percentage_24h,
         price_change_24h: coin.market_data.price_change_24h,
       }));
-      return mainResponse;
+
+    try {
+      const now = new Date();
+      await this.getClient().coinGeckoResponse.upsert({
+        where: { type: 'NEWLISTED_DATA' },
+        update: { data: transformedData, updatedAt: now },
+        create: {
+          type: 'NEWLISTED_DATA',
+          data: transformedData,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
     } catch (error) {
-      this.handleError(error);
+      throw error;
     }
+
+    const response = transformedData.map(
+      (data) => new RecentAddedCoinDto(data),
+    );
+    return response;
   }
 
   private handleError(error: any): void {

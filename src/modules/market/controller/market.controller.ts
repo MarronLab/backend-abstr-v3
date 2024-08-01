@@ -27,6 +27,7 @@ import {
   PaginationQueryDto,
 } from '../dto/market.dto';
 import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
+import { RecentAddedCoinsResponseDto } from '../dto/recentaddedcoinResponse.dto';
 import { ApiMarketDataQueries } from '../dto/marketDataQuery.decorator';
 
 @ApiTags('market')
@@ -118,9 +119,13 @@ export class MarketController {
   @ApiOperation({
     summary: 'This endpoint allows you to query all recent added coins',
   })
-  async getRecentAddedCoins() {
-    const response = await this.marketService.getRecentAddedCoins();
-    console.log('controller', response);
+  @ApiOkResponse({
+    description: 'The newlisted coin data has been successfully fetched.',
+    type: [RecentAddedCoinsResponseDto],
+  })
+  @ApiMarketDataQueries()
+  async getRecentAddedCoins(@Query() query: PaginationQueryDto) {
+    const response = await this.marketService.getRecentAddedCoins(query);
     return response;
   }
 }
