@@ -2,6 +2,7 @@ import { HttpModule, HttpService } from '@nestjs/axios';
 import { Module, OnModuleInit } from '@nestjs/common';
 import ConstantProvider from 'src/utils/constantProvider';
 import { MoralisHttpService } from '../http-config.service';
+import { MoralisService } from './moralis.service';
 
 @Module({
   imports: [
@@ -9,10 +10,13 @@ import { MoralisHttpService } from '../http-config.service';
       baseURL: 'https://deep-index.moralis.io/api',
     }),
   ],
-  providers: [{ provide: MoralisHttpService, useExisting: HttpService }],
-  exports: [MoralisHttpService],
+  providers: [
+    MoralisService,
+    { provide: MoralisHttpService, useExisting: HttpService },
+  ],
+  exports: [MoralisService, MoralisHttpService],
 })
-export class MoralisApiModule implements OnModuleInit {
+export class MoralisModule implements OnModuleInit {
   constructor(private readonly httpService: HttpService) {}
 
   onModuleInit() {

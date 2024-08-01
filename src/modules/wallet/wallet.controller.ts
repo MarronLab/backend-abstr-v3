@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   Query,
+  Req,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,12 +32,18 @@ import {
   WalletPerformanceResponseDto,
 } from './dto/performance.dto';
 import { WalletNetworthResponseDto } from './dto/networth.dto';
+import { Request } from 'express';
+import { ProfileData } from 'src/services/modulus/modulus.type';
+import { UserService } from '../user/service/user.service';
 
 @ApiBearerAuth()
 @ApiTags('wallets')
 @Controller('wallets')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(
+    private readonly walletService: WalletService,
+    private readonly userService: UserService,
+  ) {}
 
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -83,9 +91,26 @@ export class WalletController {
     description: 'The performance has been successfully fetched.',
     type: WalletPerformanceResponseDto,
   })
-  async performance(@Query() walletPerformanceDto: WalletPerformanceDto) {
-    const response =
-      await this.walletService.getWalletPerformance(walletPerformanceDto);
+  async performance(
+    @Query() walletPerformanceDto: WalletPerformanceDto,
+    @Req() req: Request,
+  ) {
+    const modulusCustomerID: number = (req.user as ProfileData)?.customerID;
+
+    if (!modulusCustomerID) {
+      throw new UnauthorizedException('Unauthorized user');
+    }
+
+    const internalUser =
+      await this.userService.getInternalUserProfile(modulusCustomerID);
+    if (!internalUser) {
+      throw new UnauthorizedException('Unauthorized user');
+    }
+
+    const response = await this.walletService.getMoralisWalletPerformace(
+      internalUser.safeAddress,
+      walletPerformanceDto,
+    );
 
     return new WalletPerformanceResponseDto({
       graph: response.graph,
@@ -108,8 +133,22 @@ export class WalletController {
     description: 'The networth has been successfully fetched.',
     type: WalletNetworthResponseDto,
   })
-  async networth() {
-    const response = await this.walletService.getWalletNetWorth();
+  async networth(@Req() req: Request) {
+    const modulusCustomerID: number = (req.user as ProfileData)?.customerID;
+
+    if (!modulusCustomerID) {
+      throw new UnauthorizedException('Unauthorized user');
+    }
+
+    const internalUser =
+      await this.userService.getInternalUserProfile(modulusCustomerID);
+    if (!internalUser) {
+      throw new UnauthorizedException('Unauthorized user');
+    }
+
+    const response = await this.walletService.getMoralisWalletNetWorth(
+      internalUser.safeAddress,
+    );
 
     return new WalletNetworthResponseDto({
       totalNetworth: response.totalNetworth,
