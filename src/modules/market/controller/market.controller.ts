@@ -63,7 +63,6 @@ export class MarketController {
   @ApiMarketDataQueries()
   async getTrendingCoin(@Query() query: PaginationQueryDto) {
     const trendingData = await this.marketService.trendingMarket(query);
-    console.log('controller response', trendingData);
 
     if (!trendingData) {
       return [];

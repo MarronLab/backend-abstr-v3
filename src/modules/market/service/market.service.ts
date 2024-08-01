@@ -220,43 +220,9 @@ export class MarketService extends BaseService {
         queryParams.per_page ?? 10,
       );
     } catch (error) {
-      console.log('the error logged', error);
       this.handleError(error);
     }
   }
-
-  // private transformTrendingResponse(
-  //   data: CoingeckoTrendingItem[],
-  // ): TrendingMarketDataResponseDto[] {
-  //   return data.map((coin) => {
-  //     const item = coin.item || coin;
-  //     return new TrendingMarketDataResponseDto({
-  //       id: item.id,
-  //       coin_id: item.coin_id,
-  //       name: item.name,
-  //       symbol: item.symbol,
-  //       market_cap_rank: item.market_cap_rank,
-  //       thumb: item.thumb,
-  //       small: item.small,
-  //       large: item.large,
-  //       price_btc: item.price_btc,
-  //       score: item.score,
-  //       data: {
-  //         price: item.data.price,
-  //         price_btc: item.data.price_btc,
-  //         price_change_percentage_24h: {
-  //           btc: item.data.price_change_percentage_24h?.btc || 0,
-  //           usd: item.data.price_change_percentage_24h?.usd || 0,
-  //         },
-  //         market_cap: item.data.market_cap || '',
-  //         market_cap_btc: item.data.market_cap_btc || '',
-  //         total_volume: item.data.total_volume || '',
-  //         total_volume_btc: item.data.total_volume_btc || '',
-  //         sparkline: item.data.sparkline || '',
-  //       },
-  //     });
-  //   });
-  // }
 
   private async addSparklineData(
     data: CoingeckoTrendingItem[],
@@ -270,7 +236,6 @@ export class MarketService extends BaseService {
         this.singleCoinDataparams,
       );
 
-      // Add a check to ensure `singleCoinData.market_data.sparkline_in_7d` exists
       const sparklineData =
         singleCoinData?.market_data?.sparkline_in_7d?.price ?? [];
 
@@ -326,7 +291,6 @@ export class MarketService extends BaseService {
         },
       });
     } catch (error) {
-      console.log('db error', error);
       throw error;
     }
   }
