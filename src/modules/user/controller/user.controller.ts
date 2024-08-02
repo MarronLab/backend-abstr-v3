@@ -7,6 +7,7 @@ import {
   UseGuards,
   UseInterceptors,
   HttpCode,
+  Put,
   Query,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
@@ -148,7 +149,7 @@ export class UserController {
     });
   }
 
-  @Post('/profile')
+  @Put('/profile')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)

@@ -122,29 +122,49 @@ export class UserService extends BaseService {
     const modulusProfileData: UpdateProfileRequest = {};
     const internalProfileData: Prisma.UserUpdateInput = {};
 
-    if (updateProfileRequestDto.mobile) {
+    if (updateProfileRequestDto.mobile !== undefined) {
       modulusProfileData.mobile = updateProfileRequestDto.mobile;
-    } else if (updateProfileRequestDto.firstname) {
+    }
+
+    if (updateProfileRequestDto.firstname !== undefined) {
       modulusProfileData.firstname = updateProfileRequestDto.firstname;
-    } else if (updateProfileRequestDto.middlename) {
+    }
+
+    if (updateProfileRequestDto.middlename !== undefined) {
       modulusProfileData.middlename = updateProfileRequestDto.middlename;
-    } else if (updateProfileRequestDto.lastname) {
+    }
+
+    if (updateProfileRequestDto.lastname !== undefined) {
       modulusProfileData.lastname = updateProfileRequestDto.lastname;
-    } else if (updateProfileRequestDto.country) {
+    }
+
+    if (updateProfileRequestDto.country !== undefined) {
       modulusProfileData.country = updateProfileRequestDto.country;
-    } else if (updateProfileRequestDto.currency) {
+    }
+
+    if (updateProfileRequestDto.currency !== undefined) {
       internalProfileData.currency = updateProfileRequestDto.currency;
-    } else if (updateProfileRequestDto.timezone) {
+    }
+
+    if (updateProfileRequestDto.timezone !== undefined) {
       internalProfileData.timezone = updateProfileRequestDto.timezone;
-    } else if (updateProfileRequestDto.language) {
+    }
+
+    if (updateProfileRequestDto.language !== undefined) {
       internalProfileData.language = updateProfileRequestDto.language;
-    } else if (updateProfileRequestDto.emailNewsletter) {
+    }
+
+    if (updateProfileRequestDto.emailNewsletter !== undefined) {
       internalProfileData.emailNewsletter =
         updateProfileRequestDto.emailNewsletter;
-    } else if (updateProfileRequestDto.emailTradeUpdates) {
+    }
+
+    if (updateProfileRequestDto.emailTradeUpdates !== undefined) {
       internalProfileData.emailTradeUpdates =
         updateProfileRequestDto.emailTradeUpdates;
-    } else if (updateProfileRequestDto.emailAnnouncements) {
+    }
+
+    if (updateProfileRequestDto.emailAnnouncements !== undefined) {
       internalProfileData.emailAnnouncements =
         updateProfileRequestDto.emailAnnouncements;
     }
