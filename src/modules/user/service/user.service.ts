@@ -219,7 +219,11 @@ export class UserService extends BaseService {
         await this.modulusService.getSaveFavoriteCoins();
 
       if (!modulusData.data || modulusData.data.length === 0) {
-        throw new InternalServerErrorException('No favorite coins found.');
+        return {
+          status: 'Success',
+          message: 'No favorite coins found.',
+          data: [],
+        };
       }
 
       const coinListUrl = `${process.env.COINGECKO_BASE_URL}coins/list`;
@@ -258,9 +262,11 @@ export class UserService extends BaseService {
         .join(',');
 
       if (!coinIds) {
-        throw new InternalServerErrorException(
-          'No valid coin IDs found for the provided IDs.',
-        );
+        return {
+          status: 'Success',
+          message: 'No valid coin IDs found for the provided IDs.',
+          data: [],
+        };
       }
 
       const marketDataUrl = `${process.env.COINGECKO_BASE_URL}coins/markets`;
