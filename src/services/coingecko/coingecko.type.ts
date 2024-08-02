@@ -27,6 +27,7 @@ export type CoinGeckoMarketDataResponse = {
   sparkline_in_7d: {
     price: number[];
   };
+  watchlist: boolean;
 };
 
 export type PriceChangePercentage24hData = {

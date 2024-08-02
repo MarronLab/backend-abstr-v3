@@ -49,6 +49,7 @@ export const marketDataSchema: JSONSchemaType<CoinGeckoMarketDataResponse[]> = {
         },
         required: ['price'],
       },
+      watchlist: { type: 'boolean' },
     },
     required: [
       'id',
