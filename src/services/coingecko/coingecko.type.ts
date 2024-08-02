@@ -289,3 +289,12 @@ export type GetSaveFavoriteCoinType = {
   symbol: string;
   name: string;
 };
+
+export type CoinGeckoRecentAddedCoin = {
+  id: string;
+  symbol: string;
+  name: string;
+  activated_at: number;
+};
+
+export type GetRecentAddedCoinsResponse = CoinGeckoRecentAddedCoin[];

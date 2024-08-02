@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import Bottleneck from 'bottleneck';
 
 import { BaseService } from '../../../common/base.service';
 import { PrismaService } from '../../../services/prisma.service';
@@ -24,6 +25,8 @@ import {
   TopGainerLoserDataResponseDto,
   PaginationQueryDto,
 } from '../dto/market.dto';
+
+import { RecentAddedCoinDto } from '../dto/recentaddedcoinResponse.dto';
 
 import { paginate } from 'src/utils/pagination';
 
@@ -49,6 +52,11 @@ export class MarketService extends BaseService {
     developer_data: false,
     sparkline: true,
   };
+
+  private readonly limiter = new Bottleneck({
+    maxConcurrent: 5,
+    minTime: 200,
+  });
 
   constructor(
     private readonly coingeckoService: CoingeckoService,
@@ -403,6 +411,105 @@ export class MarketService extends BaseService {
     } catch (error) {
       this.handleError(error);
     }
+  }
+
+  async getRecentAddedCoins(queryParams: PaginationQueryDto) {
+    try {
+      const lastUpdated = await this.getClient().coinGeckoResponse.findFirst({
+        where: { type: 'NEWLISTED_DATA' },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+
+      if (lastUpdated) {
+        const now = new Date();
+        const lastUpdatedDate = new Date(lastUpdated.updatedAt);
+        const timeDiff = now.getTime() - lastUpdatedDate.getTime();
+        const diffHours = timeDiff / (1000 * 3600);
+
+        if (diffHours < 1) {
+          const parsedData = lastUpdated.data.map((item: string) =>
+            JSON.parse(item),
+          );
+          return paginate(
+            parsedData,
+            queryParams.page ?? 1,
+            queryParams.per_page ?? 10,
+          );
+        }
+      }
+
+      const recentCoins = await this.coingeckoService.getRecentAddedCoins();
+
+      if (!Array.isArray(recentCoins) || recentCoins.length === 0) {
+        throw new HttpException(
+          'Failed to fetch recent coins data',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      const results = await this.processAndSaveNewCoins(recentCoins);
+
+      return paginate(
+        results,
+        queryParams.page ?? 1,
+        queryParams.per_page ?? 10,
+      );
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async processAndSaveNewCoins(
+    recentCoins: any,
+  ): Promise<RecentAddedCoinDto[]> {
+    const results = await Promise.all(
+      recentCoins.map((coin: any) =>
+        this.limiter.schedule(() =>
+          this.coingeckoService.getSingleCoinData(
+            coin.id,
+            this.singleCoinDataparams,
+          ),
+        ),
+      ),
+    );
+
+    const transformedData = results
+      .filter((item) => item !== null)
+      .map((coin) => ({
+        id: coin.id,
+        symbol: coin.symbol,
+        name: coin.name,
+        image: coin.image.large,
+        current_price: coin.market_data.current_price.usd,
+        high_24h: coin.market_data.high_24h.usd,
+        low_24h: coin.market_data.low_24h.usd,
+        price_change_percentage_24h:
+          coin.market_data.price_change_percentage_24h,
+        price_change_24h: coin.market_data.price_change_24h,
+      }));
+
+    try {
+      const now = new Date();
+      await this.getClient().coinGeckoResponse.upsert({
+        where: { type: 'NEWLISTED_DATA' },
+        update: { data: transformedData, updatedAt: now },
+        create: {
+          type: 'NEWLISTED_DATA',
+          data: transformedData,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+
+    const response = transformedData.map(
+      (data) => new RecentAddedCoinDto(data),
+    );
+    return response;
   }
 
   private handleError(error: any): void {
