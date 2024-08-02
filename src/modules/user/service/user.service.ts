@@ -70,22 +70,9 @@ export class UserService extends BaseService {
         modulusCustomerEmail: data.data.email,
       });
 
-      const internalUser = await this.getClient().user.findUnique({
-        where: { modulusCustomerID: data.data.customerID },
-        select: {
-          id: true,
-          language: true,
-          currency: true,
-          timezone: true,
-          username: true,
-          safeAddress: true,
-          userAddress: true,
-          emailNewsletter: true,
-          emailTradeUpdates: true,
-          emailAnnouncements: true,
-          publicID: true,
-        },
-      });
+      const internalUser = await this.getInternalUserProfile(
+        data.data.customerID,
+      );
 
       return { ...data.data, ...internalUser };
     } catch (error) {
