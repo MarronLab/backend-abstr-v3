@@ -163,6 +163,7 @@ export class MarketService extends BaseService {
               ? coin.sparkline_in_7d.price
               : [],
           },
+          watchlist: false,
         }),
     );
   }

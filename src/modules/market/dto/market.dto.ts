@@ -139,6 +139,9 @@ export class MarketDataResponseDto {
     description: 'Price change sparkline for the last 7 days',
   })
   sparkline_in_7d: SparklineIn7dDto;
+
+  @ApiProperty()
+  watchlist: boolean;
   constructor(partial: Partial<MarketDataResponseDto>) {
     Object.assign(this, partial);
   }
