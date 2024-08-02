@@ -315,7 +315,7 @@ export class WalletService {
       }
 
       return {
-        timestamp: transaction.block_timestamp,
+        timestamp: Date.parse(transaction.block_timestamp) / 1000,
         balance: Number(transaction.value),
       };
     });
@@ -347,6 +347,7 @@ export class WalletService {
         await this.moralisService.getAllMoralisWalletTransactions(
           walletAddress,
         );
+
       const { data, finalBalance, balanceChange, balanceChangePercentage } =
         this.calculateMoralisPerformanceData(
           transactions,

@@ -31,7 +31,7 @@ export class MoralisService {
   }) {
     try {
       const response = await this.httpService.axiosRef.get<MoralisTransactions>(
-        `/v2.2/${options.address}?chains=${options.chain}&order=DESC`,
+        `/v2.2/${options.address}?chain=${options.chain}&order=DESC&cursor=${options.cursor}&limit=${options.limit}`,
       );
 
       return response.data;
