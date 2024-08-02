@@ -294,8 +294,15 @@ export class ModulusService {
 
   async validateBearerToken() {
     return await this.post<ValidateBearerTokenResponse>(
-      `/Validate_BearerToken`,
+      `/api/Validate_BearerToken`,
     );
+  }
+
+  setBearerToken(token: string) {
+    this.httpService.axiosRef.interceptors.request.use((config) => {
+      config.headers['Authorization'] = token;
+      return config;
+    });
   }
 
   async getwhitelistedDevices() {
