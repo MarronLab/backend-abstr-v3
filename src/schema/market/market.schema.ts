@@ -91,27 +91,38 @@ export const priceChangePercentage24hSchema: JSONSchemaType<{
 
 export const coingeckoMarketDataSchema: JSONSchemaType<{
   price: number;
-  price_btc: string;
+  price_btc: number;
   price_change_percentage_24h: {
     btc: number;
     usd: number;
   };
-  market_cap: string;
-  market_cap_btc: string;
-  total_volume: string;
-  total_volume_btc: string;
-  sparkline: string;
+  market_cap: number;
+  market_cap_btc: number;
+  total_volume: number;
+  total_volume_btc: number;
+  sparkline_in_7d: {
+    price: number[];
+  };
 }> = {
   type: 'object',
   properties: {
     price: { type: 'number' },
-    price_btc: { type: 'string' },
+    price_btc: { type: 'number' },
     price_change_percentage_24h: priceChangePercentage24hSchema,
-    market_cap: { type: 'string' },
-    market_cap_btc: { type: 'string' },
-    total_volume: { type: 'string' },
-    total_volume_btc: { type: 'string' },
-    sparkline: { type: 'string' },
+    market_cap: { type: 'number' },
+    market_cap_btc: { type: 'number' },
+    total_volume: { type: 'number' },
+    total_volume_btc: { type: 'number' },
+    sparkline_in_7d: {
+      type: 'object',
+      properties: {
+        price: {
+          type: 'array',
+          items: { type: 'number' },
+        },
+      },
+      required: ['price'],
+    },
   },
   required: [
     'price',
@@ -121,7 +132,7 @@ export const coingeckoMarketDataSchema: JSONSchemaType<{
     'market_cap_btc',
     'total_volume',
     'total_volume_btc',
-    'sparkline',
+    'sparkline_in_7d',
   ],
 };
 
@@ -429,6 +440,16 @@ export const SingleCoinGeckoDataResponseSchema: JSONSchemaType<SingleCoinGeckoDa
           total_supply: { type: 'number' },
           max_supply: { type: ['number', 'null'] as any },
           circulating_supply: { type: 'number' },
+          sparkline_in_7d: {
+            type: 'object',
+            properties: {
+              price: {
+                type: 'array',
+                items: { type: 'number' },
+              },
+            },
+            required: ['price'],
+          },
           last_updated: { type: 'string' },
         },
         required: [

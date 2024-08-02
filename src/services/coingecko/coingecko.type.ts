@@ -224,6 +224,9 @@ export type SingleCoinGeckoDataResponse = {
     total_supply: number;
     max_supply: number | null;
     circulating_supply: number;
+    sparkline_in_7d: {
+      price: number[];
+    };
     last_updated: string;
   };
   status_updates: any[];

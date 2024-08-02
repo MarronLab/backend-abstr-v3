@@ -11,7 +11,7 @@ export class WalletPerformanceDto {
 
 class Graph {
   @ApiProperty()
-  timestamp: string;
+  timestamp: number;
 
   @ApiProperty()
   balance: number;

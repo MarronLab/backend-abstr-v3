@@ -5,12 +5,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { HttpService } from '@nestjs/axios';
-import { GetProfileResponse } from 'src/services/modulus/modulus.type';
+import { ModulusService } from 'src/services/modulus/modulus.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly modulusService: ModulusService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
@@ -21,35 +20,21 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.httpService.axiosRef.post(
-        '/api/Validate_BearerToken',
-        undefined,
-        { headers: { Authorization: token } },
-      );
+      this.modulusService.setBearerToken(token);
 
-      if (payload.data.status !== 'Success') {
+      const payload = await this.modulusService.validateBearerToken();
+
+      if ('Message' in payload.data) {
         throw new UnauthorizedException();
       }
 
-      const user = await this.httpService.axiosRef.get<GetProfileResponse>(
-        '/api/GetProfile',
-        {
-          headers: { Authorization: token },
-        },
-      );
+      const user = await this.modulusService.getProfile();
 
       if (user.data.status !== 'Success') {
         throw new UnauthorizedException();
       }
 
       request['user'] = user.data.data;
-
-      this.httpService.axiosRef.interceptors.request.use((config) => {
-        config.headers['Authorization'] = token;
-        return config;
-      });
-
-      // this.httpService.axiosRef.defaults.headers.common.Authorization = token;
     } catch (error) {
       throw new UnauthorizedException();
     }

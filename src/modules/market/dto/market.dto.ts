@@ -157,25 +157,28 @@ class CoingeckoMarketData {
   price: number;
 
   @ApiProperty()
-  price_btc: string;
+  price_btc: number;
 
   @ApiProperty({ type: PriceChangePercentage24hDto })
   price_change_percentage_24h: PriceChangePercentage24hDto;
 
   @ApiProperty()
-  market_cap: string;
+  market_cap: number;
 
   @ApiProperty()
-  market_cap_btc: string;
+  market_cap_btc: number;
 
   @ApiProperty()
-  total_volume: string;
+  total_volume: number;
 
   @ApiProperty()
-  total_volume_btc: string;
+  total_volume_btc: number;
 
-  @ApiProperty()
-  sparkline: string;
+  @ApiProperty({
+    type: [Number],
+    description: 'Price change sparkline for the last 7 days',
+  })
+  sparkline_in_7d: SparklineIn7dDto;
 }
 
 export class TrendingMarketDataResponseDto {

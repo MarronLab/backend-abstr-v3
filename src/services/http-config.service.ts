@@ -1,21 +1,5 @@
-import { HttpModuleOptions, HttpModuleOptionsFactory } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 
-@Injectable()
-export class HttpConfigService implements HttpModuleOptionsFactory {
-  createHttpOptions(): HttpModuleOptions {
-    return {
-      baseURL: process.env.MODULUS_BASE_URL,
-    };
-  }
-}
-
-@Injectable()
-export class CoingeckoConfigService implements HttpModuleOptionsFactory {
-  createHttpOptions(): HttpModuleOptions {
-    return {
-      baseURL: process.env.COINGECKO_BASE_URL,
-      headers: { 'X-CG-Pro-API-Key': process.env.COINGECKO_API_KEY },
-    };
-  }
-}
+export abstract class ModulusHttpService extends HttpService {}
+export abstract class CoingeckoHttpService extends HttpService {}
+export abstract class MoralisHttpService extends HttpService {}
