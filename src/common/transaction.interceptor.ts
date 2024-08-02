@@ -40,7 +40,7 @@ export class TransactionInterceptor implements NestInterceptor {
           });
         },
         {
-          timeout: 30000, // 30 seconds
+          timeout: 60000,
         },
       ),
     );
