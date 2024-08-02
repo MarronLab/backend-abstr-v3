@@ -21,23 +21,28 @@ export class TransactionInterceptor implements NestInterceptor {
     const req = context.switchToHttp().getRequest<Request>();
 
     return from(
-      this.prisma.$transaction(async (transactionPrisma) => {
-        // attach prisma transaction to the request
-        req[PRISMA_TRANSACTION_KEY] = transactionPrisma;
+      this.prisma.$transaction(
+        async (transactionPrisma) => {
+          // attach prisma transaction to the request
+          req[PRISMA_TRANSACTION_KEY] = transactionPrisma;
 
-        const observable = this.handleNext(context, next);
+          const observable = this.handleNext(context, next);
 
-        return new Promise((resolve, reject) => {
-          observable.subscribe({
-            next: async (data) => {
-              resolve(data);
-            },
-            error: async (e) => {
-              reject(e);
-            },
+          return new Promise((resolve, reject) => {
+            observable.subscribe({
+              next: async (data) => {
+                resolve(data);
+              },
+              error: async (e) => {
+                reject(e);
+              },
+            });
           });
-        });
-      }),
+        },
+        {
+          timeout: 30000, // 30 seconds
+        },
+      ),
     );
   }
 
