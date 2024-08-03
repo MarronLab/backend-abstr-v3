@@ -39,6 +39,8 @@ model User {
   emailNewsletter      Boolean        @default(false)
   emailTradeUpdates    Boolean        @default(false)
   activities           UserActivity[]
+  autoLogoutDuration   Int?
+  lastLoggedInAt       DateTime       @default(now()) @db.Timestamp(6)
   createdAt            DateTime       @default(now()) @db.Timestamp(6)
   updateAt             DateTime       @updatedAt @db.Timestamp(6)
 

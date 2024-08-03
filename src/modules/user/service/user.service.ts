@@ -96,6 +96,8 @@ export class UserService extends BaseService {
           emailTradeUpdates: true,
           emailAnnouncements: true,
           publicID: true,
+          lastLoggedInAt: true,
+          autoLogoutDuration: true,
         },
       });
     } catch (error) {
@@ -167,6 +169,11 @@ export class UserService extends BaseService {
     if (updateProfileRequestDto.emailAnnouncements !== undefined) {
       internalProfileData.emailAnnouncements =
         updateProfileRequestDto.emailAnnouncements;
+    }
+
+    if (updateProfileRequestDto.autoLogoutDuration !== undefined) {
+      internalProfileData.autoLogoutDuration =
+        updateProfileRequestDto.autoLogoutDuration;
     }
 
     try {

@@ -38,6 +38,8 @@ export type GetProfileResponseSchemaType = {
   emailTradeUpdates: boolean;
   emailAnnouncements: boolean;
   publicID: string;
+  autoLogoutDuration: number | null;
+  lastLoggedInAt: string;
 };
 
 export type GenerateSafeAddressResponseSchemaType = {

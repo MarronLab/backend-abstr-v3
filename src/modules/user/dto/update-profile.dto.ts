@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProfileRequestDto {
   @ApiPropertyOptional()
@@ -56,4 +56,9 @@ export class UpdateProfileRequestDto {
   @IsBoolean()
   @IsOptional()
   emailTradeUpdates?: boolean;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  autoLogoutDuration?: number;
 }

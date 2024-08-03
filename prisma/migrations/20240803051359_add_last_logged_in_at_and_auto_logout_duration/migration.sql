@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "user" ADD COLUMN     "autoLogoutDuration" INTEGER,
+ADD COLUMN     "lastLoggedInAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP;
