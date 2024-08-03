@@ -6,10 +6,14 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ModulusService } from 'src/services/modulus/modulus.service';
+import { UserService } from '../user/service/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly modulusService: ModulusService) {}
+  constructor(
+    private readonly modulusService: ModulusService,
+    private readonly userService: UserService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
@@ -32,6 +36,26 @@ export class AuthGuard implements CanActivate {
 
       if (user.data.status !== 'Success') {
         throw new UnauthorizedException();
+      }
+
+      const internalUser = await this.userService.getInternalUserProfile(
+        user.data.data.customerID,
+      );
+
+      if (internalUser && internalUser.autoLogoutDuration) {
+        const lastLoggedInAt = internalUser.lastLoggedInAt;
+        const currentTime = new Date();
+
+        const durationInMilliseconds =
+          currentTime.getTime() - lastLoggedInAt.getTime();
+        const durationInMinutes = Math.floor(
+          durationInMilliseconds / (1000 * 60),
+        );
+
+        if (durationInMinutes > internalUser.autoLogoutDuration) {
+          await this.modulusService.logout();
+          throw new UnauthorizedException();
+        }
       }
 
       request['user'] = user.data.data;

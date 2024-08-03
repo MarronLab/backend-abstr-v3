@@ -70,6 +70,17 @@ export type RegisterErrorResponse = {
 
 export type RegisterResponse = RegisterErrorResponse | RegisterSuccessResponse;
 
+//logout
+export type LogoutSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: null;
+};
+
+export type LogoutResponse =
+  | LogoutSuccessResponse
+  | ModulusBaseErrorResponseData;
+
 export type PlaceOrderPricedRequest = {
   amount: number;
 } & Pick<PlaceOrderRequest, 'side' | 'trade' | 'market'>;

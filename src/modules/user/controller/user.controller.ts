@@ -146,6 +146,8 @@ export class UserController {
       emailTradeUpdates: response?.emailTradeUpdates ?? false,
       emailAnnouncements: response?.emailAnnouncements ?? false,
       publicID: response?.publicID ?? '',
+      autoLogoutDuration: response.autoLogoutDuration,
+      lastLoggedInAt: response.lastLoggedInAt,
     });
   }
 

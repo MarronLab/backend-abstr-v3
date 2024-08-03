@@ -4,6 +4,8 @@ import {
   UnprocessableEntityException,
   HttpException,
   HttpStatus,
+  Scope,
+  Inject,
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import RegisterDto from '../dto/auth.register.dto';
@@ -21,10 +23,39 @@ import { ForgotPasswordRequestDto } from '../dto/auth.forgot-password.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { BaseService } from 'src/common/base.service';
+import { PrismaService } from 'src/services/prisma.service';
+import { Request } from 'express';
+import { REQUEST } from '@nestjs/core';
 
-@Injectable()
-export class AuthService {
-  constructor(private readonly modulusService: ModulusService) {}
+@Injectable({ scope: Scope.REQUEST })
+export class AuthService extends BaseService {
+  constructor(
+    prisma: PrismaService,
+    @Inject(REQUEST) private readonly req: Request,
+    private readonly modulusService: ModulusService,
+  ) {
+    super(prisma, req);
+  }
+
+  async updateLastLoggedIn(bearerToken: string) {
+    this.modulusService.setBearerToken(`Bearer ${bearerToken}`);
+
+    const profile = await this.modulusService.getProfile();
+
+    if (profile.data.status === 'Success') {
+      const internalUser = await this.getClient().user.findUnique({
+        where: { modulusCustomerID: profile.data.data.customerID },
+      });
+
+      if (internalUser) {
+        await this.getClient().user.update({
+          where: { modulusCustomerID: internalUser.modulusCustomerID },
+          data: { lastLoggedInAt: new Date() },
+        });
+      }
+    }
+  }
 
   async login(email: string, password: string) {
     try {
@@ -35,6 +66,8 @@ export class AuthService {
       } else if ('status' in data && data.status === 'Success') {
         return data.data;
       }
+
+      await this.updateLastLoggedIn(data.access_token);
 
       return data;
     } catch (error) {
@@ -231,6 +264,8 @@ export class AuthService {
       if ('error' in data) {
         throw new UnprocessableEntityException(data.error_description);
       }
+
+      await this.updateLastLoggedIn(data.access_token);
 
       return data;
     } catch (error) {

@@ -65,6 +65,7 @@ import {
   DeleteWhiteListedDevicesResponse,
   SaveFavoriteCoinsResponse,
   GetFavoriteCoinsResponse,
+  LogoutResponse,
 } from './modulus.type';
 import { AxiosRequestConfig } from 'axios';
 
@@ -106,6 +107,10 @@ export class ModulusService {
       email,
       password,
     });
+  }
+
+  async logout() {
+    return await this.post<LogoutResponse>('/logout');
   }
 
   async register(request: RegisterRequest) {
