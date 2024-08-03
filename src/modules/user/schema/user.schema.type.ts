@@ -39,7 +39,7 @@ export type GetProfileResponseSchemaType = {
   emailAnnouncements: boolean;
   publicID: string;
   autoLogoutDuration: number | null;
-  lastLoggedInAt: string;
+  lastLoggedInAt: object;
 };
 
 export type GenerateSafeAddressResponseSchemaType = {

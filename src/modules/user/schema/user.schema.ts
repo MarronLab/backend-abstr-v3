@@ -102,7 +102,7 @@ export const getProfileResponseSchema: JSONSchemaType<GetProfileResponseSchemaTy
       emailNewsletter: { type: 'boolean' },
       publicID: { type: 'string' },
       autoLogoutDuration: { type: 'number', nullable: true as false },
-      lastLoggedInAt: { type: 'string' },
+      lastLoggedInAt: { type: 'object' },
     },
   };
 
