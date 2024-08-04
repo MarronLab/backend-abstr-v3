@@ -17,14 +17,14 @@ export class AssetOpenOrderRequestDto {
   pair: string;
 
   @ApiProperty({
-    description: 'The order side accept SELL or BUY',
+    description: 'The order side accept SELL, BUY, or ALL',
   })
   @IsString()
   @IsNotEmpty()
-  @IsEnum(['BUY', 'SELL'], {
-    message: 'Side must be one of the following values: BUY or SELL',
+  @IsEnum(['BUY', 'SELL', 'ALL'], {
+    message: 'Side must be one of the following values: BUY, SELL, or ALL',
   })
-  side: 'SELL' | 'BUY';
+  side: 'SELL' | 'BUY' | 'ALL';
 
   @ApiPropertyOptional()
   @IsOptional()

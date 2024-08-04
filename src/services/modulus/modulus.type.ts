@@ -649,7 +649,7 @@ export type ChangeEmailVerifyOtpResponse =
 //Asset Open Order
 export type AssetOpenOrderRequest = {
   pair: string;
-  side: 'BUY' | 'SELL';
+  side: 'BUY' | 'SELL' | 'ALL';
   depth?: number;
 };
 
