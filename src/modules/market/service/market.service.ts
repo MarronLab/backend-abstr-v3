@@ -318,7 +318,6 @@ export class MarketService extends BaseService {
         const lastUpdatedDate = new Date(lastUpdated.updatedAt);
         const timeDiff = now.getTime() - lastUpdatedDate.getTime();
         const diffHours = timeDiff / (1000 * 3600);
-        console.log('db response', lastUpdated);
 
         if (diffHours < 1) {
           const parsedData = lastUpdated.data.map((item: string) =>
@@ -430,9 +429,7 @@ export class MarketService extends BaseService {
         const diffHours = timeDiff / (1000 * 3600);
 
         if (diffHours < 1) {
-          const parsedData = lastUpdated.data.map((item: string) =>
-            JSON.parse(item),
-          );
+          const parsedData = lastUpdated.data;
           return paginate(
             parsedData,
             queryParams.page ?? 1,
