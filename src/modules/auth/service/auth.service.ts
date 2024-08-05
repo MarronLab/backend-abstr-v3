@@ -262,6 +262,7 @@ export class AuthService extends BaseService {
       });
 
       if ('error' in data) {
+        console.log({ data });
         throw new UnprocessableEntityException(data.error_description);
       }
 

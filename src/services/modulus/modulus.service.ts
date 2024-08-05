@@ -67,11 +67,23 @@ import {
   GetFavoriteCoinsResponse,
   LogoutResponse,
 } from './modulus.type';
-import { AxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class ModulusService {
   constructor(private readonly httpService: HttpService) {}
+
+  private handleError(error: unknown): never {
+    if (error instanceof AxiosError) {
+      if (!error.response) {
+        throw new Error('An unknown error occurred');
+      }
+
+      throw new Error(error.response?.data.error_description);
+    }
+
+    throw new Error((error as Error).message);
+  }
 
   private async post<T>(
     endpoint: string,
@@ -84,9 +96,10 @@ export class ModulusService {
         request,
         config,
       );
+
       return response;
     } catch (error) {
-      throw new Error(error);
+      this.handleError(error);
     }
   }
 
@@ -98,7 +111,7 @@ export class ModulusService {
 
       return response;
     } catch (error) {
-      throw new Error(error);
+      this.handleError(error);
     }
   }
 
