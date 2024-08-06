@@ -105,6 +105,7 @@ export class UserController {
   })
   async getProfile(@Query('userAddress') userAddress: string) {
     const response = await this.userService.getProfile(userAddress);
+    console.log({ response });
 
     return new GetProfileResponseDto({
       id: response.customerID,

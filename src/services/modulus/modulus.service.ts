@@ -109,8 +109,10 @@ export class ModulusService {
         params,
       });
 
+      console.error('RESPONSE: ', response);
       return response;
     } catch (error) {
+      console.error('ERROR: ', error);
       this.handleError(error);
     }
   }

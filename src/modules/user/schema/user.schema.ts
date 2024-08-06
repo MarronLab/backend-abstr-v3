@@ -48,8 +48,6 @@ export const getProfileResponseSchema: JSONSchemaType<GetProfileResponseSchemaTy
       'emailTradeUpdates',
       'emailAnnouncements',
       'publicID',
-      'autoLogoutDuration',
-      'lastLoggedInAt',
     ],
     properties: {
       id: { type: 'number' },

@@ -254,6 +254,7 @@ export class AuthService extends BaseService {
   }
 
   async token(tokenDto: TokenDto) {
+    console.log('TOKENDTO: ', tokenDto);
     try {
       const { data } = await this.modulusService.token({
         grant_type: tokenDto.grantType,
