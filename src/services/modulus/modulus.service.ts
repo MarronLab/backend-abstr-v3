@@ -66,6 +66,8 @@ import {
   SaveFavoriteCoinsResponse,
   GetFavoriteCoinsResponse,
   LogoutResponse,
+  GetPendingOrdersRequest,
+  GetPendingOrdersResponse,
 } from './modulus.type';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 
@@ -373,6 +375,13 @@ export class ModulusService {
     return await this.get<GetFavoriteCoinsResponse>(
       '/api/Customer_Favourite_Coins',
       {},
+    );
+  }
+
+  async getPendingOrders(request: GetPendingOrdersRequest) {
+    return await this.get<GetPendingOrdersResponse>(
+      '/api/GetPendingOrders',
+      request,
     );
   }
 }

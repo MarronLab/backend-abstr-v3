@@ -879,3 +879,27 @@ export type GetFavoriteCoinsResponse = {
   message: string | null;
   data: any;
 };
+
+//GetPendingOrders
+export type GetPendingOrdersRequest = {
+  side: 'ALL' | 'SELL' | 'BUY';
+  pair: string;
+};
+
+export type GetPendingOrdersSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    orderId: number;
+    market: string;
+    trade: string;
+    volume: number;
+    rate: number;
+    side: OrderSideEnum;
+    date: string;
+  }[];
+};
+
+export type GetPendingOrdersResponse =
+  | GetPendingOrdersSuccessResponse
+  | ModulusBaseErrorResponseData;
