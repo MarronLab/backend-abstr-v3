@@ -39,6 +39,7 @@ import {
   tradeHistoryResponseSchema,
   assetOpenOrderResponseSchema,
   marketSummaryResponseSchema,
+  pendingOrdersResponseSchema,
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
@@ -58,6 +59,10 @@ import {
   AssetOpenOrderDataDto,
 } from './dto/openOrderResponse.dto';
 import { MarketSummaryDtoResponse } from './dto/marketSummary.dto';
+import {
+  PendingOrderResponseDto,
+  PendingOrdersDto,
+} from './dto/pendingOrders.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -323,5 +328,35 @@ export class OrderController {
     });
 
     return dtoResponse;
+  }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(
+    new ResponseValidationInterceptor(pendingOrdersResponseSchema),
+  )
+  @Get('pending')
+  @ApiOperation({
+    summary: 'This endpoint returns a list of pending orders',
+  })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The pending orders has successfully been fetched.',
+    type: PendingOrderResponseDto,
+  })
+  async getPendingOrders(@Query() pendingOrdersDto: PendingOrdersDto) {
+    const response = await this.orderService.getPendingOrders(pendingOrdersDto);
+
+    return response.map((pendingOrder) => {
+      return new PendingOrderResponseDto({
+        id: pendingOrder.orderId,
+        market: pendingOrder.market,
+        trade: pendingOrder.trade,
+        volume: pendingOrder.volume,
+        rate: pendingOrder.rate,
+        side: pendingOrder.side,
+        date: pendingOrder.date,
+      });
+    });
   }
 }

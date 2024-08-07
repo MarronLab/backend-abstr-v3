@@ -423,3 +423,30 @@ export const marketSummaryResponseSchema: JSONSchemaType<{
   required: [],
   additionalProperties: marketSummaryDataSchema,
 };
+
+export const pendingOrdersResponseSchema: JSONSchemaType<
+  {
+    id: number;
+    market: string;
+    trade: string;
+    volume: number;
+    rate: number;
+    date: string;
+    side: string;
+  }[]
+> = {
+  type: 'array',
+  items: {
+    type: 'object',
+    required: ['id', 'volume', 'rate', 'trade', 'market', 'date', 'side'],
+    properties: {
+      id: { type: 'number' },
+      volume: { type: 'number' },
+      rate: { type: 'number' },
+      trade: { type: 'string' },
+      market: { type: 'string' },
+      date: { type: 'string' },
+      side: { type: 'string' },
+    },
+  },
+};
