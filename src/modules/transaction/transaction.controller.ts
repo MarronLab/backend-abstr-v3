@@ -24,7 +24,6 @@ import {
 import { AuthGuard } from '../auth/auth.guard';
 import { ResponseValidationInterceptor } from 'src/common/response-validator.interceptor';
 import { getAllTransactionsResponseSchema } from './transaction.schema';
-import { GetAllNotificationsResponseDto } from '../notification/dto/notification.dto';
 
 @ApiBearerAuth()
 @ApiTags('transactions')
@@ -49,33 +48,37 @@ export class TransactionController {
   async getAllTransactions(
     @Query() getAllTransactionsDto: GetAllTransactionsDto,
   ) {
-    const { pageInfo, rows } = await this.transactionService.getAllTransactions(
-      getAllTransactionsDto,
-    );
+    const { cursor, result, page, page_size } =
+      await this.transactionService.getAllTransactions(getAllTransactionsDto);
 
-    const result = rows.map((transaction) => {
-      return new TransactionResponseDto({
-        currency: transaction.currency,
-        amount: transaction.amount,
-        status: transaction.status,
-        type: transaction.type,
-        fee: transaction.fee,
-        memo: transaction.memo,
-        address: transaction.address,
-        pgName: transaction.pg_name,
-        comments: transaction.comments,
-        confirmDate: transaction.confirmDate,
-        explorerURL: transaction.explorerURL,
-        requestDate: transaction.requestDate,
-        rejectReason: transaction.rejectReason,
-        transactionID: transaction.transactionID,
-        currentTxnCount: transaction.currentTxnCount,
-        equivalentUsdAmt: transaction.equivalentUsdAmt,
-        requiredTxnCount: transaction.requiredTxnCount,
-        isPassedTravelRule: transaction.isPassedTravelRule,
-      });
+    return new GetAllTransactionsResponseDto({
+      cursor,
+      page,
+      pageSize: page_size,
+      result: result.map((transaction) => {
+        return new TransactionResponseDto({
+          hash: transaction.hash,
+          gas: transaction.gas,
+          input: transaction.input,
+          nonce: transaction.nonce,
+          value: transaction.value,
+          gasPrice: transaction.gas_price,
+          blockHash: transaction.block_hash,
+          toAddress: transaction.to_address,
+          blockNumber: transaction.block_number,
+          fromAddress: transaction.from_address,
+          receiptRoot: transaction.receipt_root,
+          receiptStatus: transaction.receipt_status,
+          blockTimestamp: transaction.block_timestamp,
+          receiptGasUsed: transaction.receipt_gas_used,
+          toAddressLabel: transaction.to_address_label,
+          fromAddressLabel: transaction.from_address_label,
+          transactionIndex: transaction.transaction_index,
+          receiptContractAddress: transaction.receipt_contract_address,
+          receiptCumulativeGasUsed: transaction.receipt_cumulative_gas_used,
+          transactionFee: transaction.transaction_fee,
+        });
+      }),
     });
-
-    return new GetAllTransactionsResponseDto({ pageInfo, result });
   }
 }

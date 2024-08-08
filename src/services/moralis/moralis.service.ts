@@ -26,8 +26,8 @@ export class MoralisService {
   async transactions(options: {
     chain: string;
     address: string;
-    cursor: string | null;
-    limit: number;
+    cursor?: string;
+    limit?: number;
   }) {
     try {
       const response = await this.httpService.axiosRef.get<MoralisTransactions>(
@@ -42,7 +42,7 @@ export class MoralisService {
 
   async getAllMoralisWalletTransactions(walletAddress: string) {
     let allTransactions: MoralisTransactionData[] = [];
-    let cursor = null;
+    let cursor = undefined;
 
     do {
       const options = {

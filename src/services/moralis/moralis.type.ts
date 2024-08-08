@@ -1,5 +1,3 @@
-import { type } from 'os';
-
 export type NetworthResponse = {
   total_networth_usd: string;
   chains: {
@@ -26,13 +24,13 @@ export type MoralisTransactionData = {
   input: string;
   receipt_cumulative_gas_used: string;
   receipt_gas_used: string;
-  receipt_contract_address: string | null;
-  receipt_root: string | null;
+  receipt_contract_address: string;
+  receipt_root: string;
   receipt_status: string;
+  transaction_fee: string;
   block_timestamp: string;
   block_number: string;
   block_hash: string;
-  transfer_index: number[];
 };
 
 export type MoralisTransactions = {
