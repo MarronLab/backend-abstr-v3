@@ -34,6 +34,16 @@ export class TransactionResponseDto {
   transactionIndex: string;
 
   @ApiProperty({
+    nullable: true,
+  })
+  fromAddressEntity: null | string;
+
+  @ApiProperty({
+    nullable: true,
+  })
+  fromAddressEntityLogo: null | string;
+
+  @ApiProperty({
     description: 'The address sending the transaction',
     example: '0xd4a3BebD824189481FC45363602b83C9c7e9cbDf',
   })
@@ -42,8 +52,19 @@ export class TransactionResponseDto {
   @ApiProperty({
     description: 'Label for the address sending the transaction',
     example: 'Binance 1',
+    nullable: true,
   })
-  fromAddressLabel: string;
+  fromAddressLabel: null | string;
+
+  @ApiProperty({
+    nullable: true,
+  })
+  toAddressEntity: null | string;
+
+  @ApiProperty({
+    nullable: true,
+  })
+  toAddressEntityLogo: null | string;
 
   @ApiProperty({
     description: 'The address receiving the transaction',
@@ -54,8 +75,9 @@ export class TransactionResponseDto {
   @ApiProperty({
     description: 'Label for the address receiving the transaction',
     example: 'Binance 1',
+    nullable: true,
   })
-  toAddressLabel: string;
+  toAddressLabel: null | string;
 
   @ApiProperty({
     description: 'The value of the transaction in wei',
@@ -97,13 +119,15 @@ export class TransactionResponseDto {
     description:
       'The contract address created, if this was a contract creation transaction',
     example: '0x1d6a4cf64b52f6c73f201839aded7379ce58059c',
+    nullable: true,
   })
-  receiptContractAddress: string;
+  receiptContractAddress: null | string;
 
   @ApiProperty({
     description: 'The root of the receipt',
+    nullable: true,
   })
-  receiptRoot: string;
+  receiptRoot: null | string;
 
   @ApiProperty({
     description:
