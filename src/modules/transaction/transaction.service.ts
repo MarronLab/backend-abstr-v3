@@ -1,19 +1,29 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ModulusService } from 'src/services/modulus/modulus.service';
 import { GetAllTransactionsDto } from './dto/transaction.dto';
+import { MoralisService } from 'src/services/moralis/moralis.service';
+import HelperProvider from 'src/utils/helperProvider';
 
 @Injectable()
 export class TransactionService {
-  constructor(private readonly modulusService: ModulusService) {}
-  async getAllTransactions(getAllTransactionsDto: GetAllTransactionsDto) {
+  constructor(private readonly moralisService: MoralisService) {}
+  async getAllTransactions(
+    address: string,
+    getAllTransactionsDto: GetAllTransactionsDto,
+  ) {
+    console.log('START: ');
     try {
-      const { data } = await this.modulusService.getAllTransactions({
-        page: getAllTransactionsDto.page,
-        count: getAllTransactionsDto.count,
+      const response = await this.moralisService.transactions({
+        cursor: getAllTransactionsDto.cursor,
+        limit: getAllTransactionsDto.limit,
+        address,
+        chain: HelperProvider.getNetworkName(),
       });
 
-      return data.data;
+      console.log('RESPONSE: ', response);
+
+      return response;
     } catch (error) {
+      console.log('ERROR: ', error);
       throw new InternalServerErrorException(error);
     }
   }

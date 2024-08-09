@@ -23,15 +23,20 @@ export class MoralisService {
     }
   }
 
-  async transactions(options: {
+  async transactions({
+    chain,
+    address,
+    limit = 20,
+    cursor = '',
+  }: {
     chain: string;
     address: string;
-    cursor: string | null;
-    limit: number;
+    cursor?: string;
+    limit?: number;
   }) {
     try {
       const response = await this.httpService.axiosRef.get<MoralisTransactions>(
-        `/v2.2/${options.address}?chain=${options.chain}&order=DESC&cursor=${options.cursor}&limit=${options.limit}`,
+        `/v2.2/${address}?chain=${chain}&order=DESC&cursor=${cursor}&limit=${limit}`,
       );
 
       return response.data;
@@ -42,7 +47,7 @@ export class MoralisService {
 
   async getAllMoralisWalletTransactions(walletAddress: string) {
     let allTransactions: MoralisTransactionData[] = [];
-    let cursor = null;
+    let cursor = undefined;
 
     do {
       const options = {
