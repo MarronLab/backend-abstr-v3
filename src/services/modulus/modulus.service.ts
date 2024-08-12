@@ -98,13 +98,9 @@ export class ModulusService {
         request,
         config,
       );
-      // TODO: remove later - keep to trace token request error
-      console.log('response', response);
 
       return response;
     } catch (error) {
-      // TODO: remove later - keep to trace token request error
-      console.log('error', error);
       this.handleError(error);
     }
   }
