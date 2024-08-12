@@ -304,6 +304,7 @@ export class ModulusService {
 
     return await this.post<TokenResponse>('/token', data, {
       headers: {
+        Authorization: undefined,
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
       },
@@ -325,6 +326,13 @@ export class ModulusService {
   setBearerToken(token: string) {
     this.httpService.axiosRef.interceptors.request.use((config) => {
       config.headers['Authorization'] = token;
+      return config;
+    });
+  }
+
+  removeBearerToken() {
+    this.httpService.axiosRef.interceptors.request.use((config) => {
+      delete config.headers['Authorization'];
       return config;
     });
   }
