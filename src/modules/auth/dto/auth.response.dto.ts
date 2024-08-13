@@ -1,9 +1,9 @@
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsString, IsNumber, ValidateNested } from 'class-validator';
+import { ApiProperty, getSchemaPath, ApiExtraModels } from '@nestjs/swagger';
+import { IsString, IsNumber } from 'class-validator';
 
 export class AuthAccessTokenResponseDto {
   @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
     description: 'Access token',
     required: true,
   })
@@ -11,6 +11,7 @@ export class AuthAccessTokenResponseDto {
   access_token: string;
 
   @ApiProperty({
+    example: 'Bearer',
     description: 'Token type',
     required: true,
   })
@@ -18,6 +19,7 @@ export class AuthAccessTokenResponseDto {
   token_type: string;
 
   @ApiProperty({
+    example: 3600,
     description: 'Indicates if the login was successful',
     required: true,
   })
@@ -27,6 +29,7 @@ export class AuthAccessTokenResponseDto {
 
 export class AuthVerificationResponseDto {
   @ApiProperty({
+    example: 'c470cb47-fa28-48e5-97e9-fc5db11abcdf',
     description: 'Auth login token',
     required: true,
   })
@@ -34,6 +37,7 @@ export class AuthVerificationResponseDto {
   tempAuthToken: string;
 
   @ApiProperty({
+    example: '2024-08-13T20:40:42.8075247Z',
     description: 'Token expiry date',
     required: true,
   })
@@ -41,6 +45,7 @@ export class AuthVerificationResponseDto {
   tokenExpiry: string;
 
   @ApiProperty({
+    example: 'Email',
     description: '2FA method',
     required: true,
   })
@@ -48,6 +53,7 @@ export class AuthVerificationResponseDto {
   twoFAMehtod: number;
 }
 
+@ApiExtraModels(AuthAccessTokenResponseDto, AuthVerificationResponseDto)
 export default class AuthResponseDto {
   @ApiProperty({
     description: '2FA method',
@@ -56,22 +62,6 @@ export default class AuthResponseDto {
       { $ref: getSchemaPath(AuthAccessTokenResponseDto) },
       { $ref: getSchemaPath(AuthVerificationResponseDto) },
     ],
-  })
-  @ValidateNested()
-  @Type(() => AuthAccessTokenResponseDto, {
-    discriminator: {
-      property: '__type',
-      subTypes: [
-        {
-          value: AuthAccessTokenResponseDto,
-          name: 'AuthAccessTokenResponseDto',
-        },
-        {
-          value: AuthVerificationResponseDto,
-          name: 'AuthVerificationResponseDto',
-        },
-      ],
-    },
   })
   data: AuthAccessTokenResponseDto | AuthVerificationResponseDto;
 }
