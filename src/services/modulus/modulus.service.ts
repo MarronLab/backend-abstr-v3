@@ -320,13 +320,19 @@ export class ModulusService {
   }
 
   setBearerToken(token: string) {
+    this.httpService.axiosRef.interceptors.request.clear();
     this.httpService.axiosRef.interceptors.request.use((config) => {
+      if (config.headers['Authorization']) {
+        delete config.headers['Authorization'];
+      }
+
       config.headers['Authorization'] = token;
       return config;
     });
   }
 
   removeBearerToken() {
+    this.httpService.axiosRef.interceptors.request.clear();
     this.httpService.axiosRef.interceptors.request.use((config) => {
       delete config.headers['Authorization'];
       return config;
