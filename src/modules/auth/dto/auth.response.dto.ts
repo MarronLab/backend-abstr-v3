@@ -46,7 +46,7 @@ export class AuthVerificationResponseDto {
 
   @ApiProperty({
     example: 'Email',
-    description: '2FA method',
+    description: '2FA method (returns Email or GAuth)',
     required: true,
   })
   @IsNumber()
