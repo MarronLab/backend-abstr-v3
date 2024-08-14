@@ -252,14 +252,15 @@ export class AuthService extends BaseService {
 
   async token(tokenDto: TokenDto) {
     try {
-      const { data } = await this.modulusService.token({
+      const response = await this.modulusService.token({
         grant_type: tokenDto.grantType,
         username: tokenDto.username,
         password: tokenDto.password,
       });
 
+      const { data } = response;
+
       if ('error' in data) {
-        console.log({ data });
         throw new UnprocessableEntityException(data.error_description);
       }
 
