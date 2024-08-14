@@ -8,6 +8,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { ApiModule } from './modules/api/api.module';
 import { NewsModule } from './modules/news/news.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { NewsModule } from './modules/news/news.module';
     NotificationModule,
     ApiModule,
     NewsModule,
+    SettingsModule,
   ],
   controllers: [],
   providers: [],

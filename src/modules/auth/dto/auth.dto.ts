@@ -16,4 +16,18 @@ export default class LoginDto {
   })
   @IsString()
   password: string;
+
+  @ApiProperty({
+    description: 'The nonce',
+    required: true,
+  })
+  @IsString()
+  nonce: string;
+
+  @ApiProperty({
+    description: 'The signature',
+    required: true,
+  })
+  @IsString()
+  signature: string;
 }

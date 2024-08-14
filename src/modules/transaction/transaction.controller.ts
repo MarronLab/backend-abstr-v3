@@ -24,7 +24,6 @@ import {
 import { AuthGuard } from '../auth/auth.guard';
 import { ResponseValidationInterceptor } from 'src/common/response-validator.interceptor';
 import { getAllTransactionsResponseSchema } from './transaction.schema';
-import { GetAllNotificationsResponseDto } from '../notification/dto/notification.dto';
 
 @ApiBearerAuth()
 @ApiTags('transactions')

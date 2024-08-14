@@ -119,6 +119,9 @@ export class GetProfileResponseDto {
   @ApiProperty()
   publicID: string;
 
+  @ApiProperty()
+  modulusCustomerEmail: string;
+
   @ApiProperty({ type: Number, nullable: true })
   autoLogoutDuration: number | null;
 

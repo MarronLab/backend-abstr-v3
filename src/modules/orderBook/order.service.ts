@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/createOrder.dto';
 import { Order } from 'hft-limit-order-book/dist/types/order';
-import { HttpService } from '@nestjs/axios';
+// import { HttpService } from '@nestjs/axios';
 import { PrismaService } from 'src/services/prisma.service';
 import { PlaceOrderDto, PlaceOrderPricedDto } from './dto/placeOrder.dto';
 import { ModulusService } from 'src/services/modulus/modulus.service';
@@ -148,6 +148,7 @@ export class OrderService extends BaseService {
 
       return data.data;
     } catch (error) {
+      console.log(error);
       throw new UnprocessableEntityException(error);
     }
   }

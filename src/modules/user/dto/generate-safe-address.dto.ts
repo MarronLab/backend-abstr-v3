@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsDefined,
-  IsEmail,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-} from 'class-validator';
+import { IsDefined, IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export default class GenerateSafeAddressDto {
   @ApiProperty({
@@ -16,15 +10,6 @@ export default class GenerateSafeAddressDto {
   @IsNotEmpty()
   @IsString()
   userAddress: string;
-
-  @ApiProperty({
-    description: 'The modulus CustomerID',
-    required: true,
-  })
-  @IsDefined()
-  @IsNotEmpty()
-  @IsNumber()
-  modulusCustomerID: number;
 
   @ApiProperty({
     description: 'The modulus email',

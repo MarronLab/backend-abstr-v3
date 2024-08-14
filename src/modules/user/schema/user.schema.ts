@@ -50,6 +50,7 @@ export const getProfileResponseSchema: JSONSchemaType<GetProfileResponseSchemaTy
       'publicID',
       'autoLogoutDuration',
       'lastLoggedInAt',
+      'modulusCustomerEmail',
     ],
     properties: {
       id: { type: 'number' },
@@ -103,6 +104,7 @@ export const getProfileResponseSchema: JSONSchemaType<GetProfileResponseSchemaTy
       publicID: { type: 'string' },
       autoLogoutDuration: { type: 'number', nullable: true as false },
       lastLoggedInAt: { type: 'object' },
+      modulusCustomerEmail: { type: 'string' },
     },
   };
 

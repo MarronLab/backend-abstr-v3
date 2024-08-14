@@ -8,7 +8,6 @@ import {
   UseInterceptors,
   HttpCode,
   Put,
-  Query,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import {
@@ -16,7 +15,6 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -94,17 +92,12 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
-  @ApiQuery({
-    name: 'userAddress',
-    required: true,
-    description: 'The user address',
-  })
   @ApiOkResponse({
     description: 'The user profile has been successfully fetched.',
     type: GetProfileResponseDto,
   })
-  async getProfile(@Query('userAddress') userAddress: string) {
-    const response = await this.userService.getProfile(userAddress);
+  async getProfile() {
+    const response = await this.userService.getProfile();
 
     return new GetProfileResponseDto({
       id: response.customerID,
@@ -148,6 +141,7 @@ export class UserController {
       publicID: response?.publicID ?? '',
       autoLogoutDuration: response.autoLogoutDuration,
       lastLoggedInAt: response.lastLoggedInAt,
+      modulusCustomerEmail: response.modulusCustomerEmail,
     });
   }
 

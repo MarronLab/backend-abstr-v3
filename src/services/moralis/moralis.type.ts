@@ -1,5 +1,3 @@
-import { type } from 'os';
-
 export type NetworthResponse = {
   total_networth_usd: string;
   chains: {
