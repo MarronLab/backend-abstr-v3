@@ -35,11 +35,6 @@ export class WalletService {
       const { data: balanceData } = await this.modulusService.getBalance();
       const { data: coinStatsData } = await this.modulusService.getCoinStats();
 
-      console.log({
-        balanceData: balanceData.data,
-        coinStatsData: coinStatsData.data,
-      });
-
       if (balanceData.status === 'Error') {
         throw new UnprocessableEntityException(balanceData.data);
       }
@@ -54,6 +49,8 @@ export class WalletService {
 
         return {
           balance: currentBalance,
+          fiatValue: Number(stats?.price) || 0,
+          currencyName: stats?.coinName || null,
           currency: balance.currency,
           holdDeposits: balance.holdDeposits,
           balanceInTrade: balance.balanceInTrade,

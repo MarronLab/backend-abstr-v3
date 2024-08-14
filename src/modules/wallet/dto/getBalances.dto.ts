@@ -5,6 +5,12 @@ export class GetBalancesResponseDto {
   currency: string;
 
   @ApiProperty()
+  fiatValue: number;
+
+  @ApiProperty({ type: String, nullable: true })
+  currencyName: null | string;
+
+  @ApiProperty()
   balance: number;
 
   @ApiProperty()

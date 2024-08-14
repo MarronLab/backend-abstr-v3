@@ -69,6 +69,8 @@ export class WalletController {
     return response.map((row) => {
       return new GetBalancesResponseDto({
         balance: row.balance,
+        fiatValue: row.fiatValue,
+        currencyName: row.currencyName,
         currency: row.currency,
         holdDeposits: row.holdDeposits,
         balanceInTrade: row.balanceInTrade,
