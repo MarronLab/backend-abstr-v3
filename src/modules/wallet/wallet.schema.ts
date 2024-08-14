@@ -5,6 +5,7 @@ export const getBalancesResponseSchema: JSONSchemaType<
     currency: string;
     fiatValue: number;
     currencyName: null | string;
+    thumbnail: null | string;
     balance: number;
     balanceInTrade: number;
     holdDeposits: number;
@@ -22,6 +23,10 @@ export const getBalancesResponseSchema: JSONSchemaType<
         type: 'number',
       },
       currencyName: {
+        type: 'string',
+        nullable: true as false, // this is a workaround for ajv to accept null without typescript complaining
+      },
+      thumbnail: {
         type: 'string',
         nullable: true as false, // this is a workaround for ajv to accept null without typescript complaining
       },

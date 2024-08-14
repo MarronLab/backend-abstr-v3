@@ -52,6 +52,7 @@ export class WalletService {
           fiatValue: Number(stats?.price) || 0,
           currencyName: stats?.coinName || null,
           currency: balance.currency,
+          thumbnail: stats?.image || null,
           holdDeposits: balance.holdDeposits,
           balanceInTrade: balance.balanceInTrade,
           priceChangePercent24hr: stats?.priceChangePercent24hr || null,

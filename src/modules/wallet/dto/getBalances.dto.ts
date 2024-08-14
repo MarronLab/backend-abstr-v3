@@ -10,6 +10,9 @@ export class GetBalancesResponseDto {
   @ApiProperty({ type: String, nullable: true })
   currencyName: null | string;
 
+  @ApiProperty({ type: String, nullable: true })
+  thumbnail: null | string;
+
   @ApiProperty()
   balance: number;
 
