@@ -71,6 +71,7 @@ export class WalletController {
         balance: row.balance,
         fiatValue: row.fiatValue,
         currencyName: row.currencyName,
+        thumbnail: row.thumbnail,
         currency: row.currency,
         holdDeposits: row.holdDeposits,
         balanceInTrade: row.balanceInTrade,
