@@ -66,6 +66,8 @@ import {
   SaveFavoriteCoinsResponse,
   GetFavoriteCoinsResponse,
   LogoutResponse,
+  GetSettingsResponse,
+  GetCurrencySettingsResponse,
   GetPendingOrdersRequest,
   GetPendingOrdersResponse,
 } from './modulus.type';
@@ -129,7 +131,8 @@ export class ModulusService {
   }
 
   async register(request: RegisterRequest) {
-    return await this.post<RegisterResponse>('/api/SignUp', request);
+    const req = { ...request, firstName: request.email }; // TODO: Remove, find better way to store email
+    return await this.post<RegisterResponse>('/api/SignUp', req);
   }
 
   async placeOrder(request: PlaceOrderRequest) {
@@ -384,6 +387,17 @@ export class ModulusService {
   async getSaveFavoriteCoins() {
     return await this.get<GetFavoriteCoinsResponse>(
       '/api/Customer_Favourite_Coins',
+      {},
+    );
+  }
+
+  async getSettings() {
+    return await this.get<GetSettingsResponse>('/api/GetSettings', {});
+  }
+
+  async getCurrencySettings() {
+    return await this.get<GetCurrencySettingsResponse>(
+      '/api/CurrencySettings',
       {},
     );
   }

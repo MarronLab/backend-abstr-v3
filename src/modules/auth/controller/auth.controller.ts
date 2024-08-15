@@ -62,10 +62,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   async login(@Body() account: LoginDto) {
-    const response = await this.authService.login(
-      account.email,
-      account.password,
-    );
+    const response = await this.authService.login(account);
 
     return { data: response };
   }

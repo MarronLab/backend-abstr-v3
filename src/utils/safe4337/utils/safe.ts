@@ -61,7 +61,6 @@ const calculateProxyAddress = (
   inititalizer: string,
   nonce: number | string,
 ): string => {
-  console.log({ globalConfig, inititalizer });
   const deploymentCode = ethers.solidityPacked(
     ['bytes', 'uint256'],
     [globalConfig.proxyCreationCode, globalConfig.safeSingleton],

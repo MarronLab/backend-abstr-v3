@@ -45,6 +45,15 @@ class HelperProvider {
         throw Error('Network name not found');
     }
   }
+
+  static getSignMessage = (nonce: string) => {
+    return `
+        Welcome to Maroon!
+Click to sign in and accept the Maroon Terms of Service and Privacy Policy.
+This request will not trigger a blockchain transaction or cost any gas fees.
+Expiry at: ${nonce}
+        `;
+  };
 }
 
 export default HelperProvider;

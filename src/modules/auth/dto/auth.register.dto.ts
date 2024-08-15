@@ -16,4 +16,25 @@ export default class RegisterDto {
   })
   @IsString()
   password: string;
+
+  @ApiProperty({
+    description: 'The nonce',
+    required: true,
+  })
+  @IsString()
+  nonce: string;
+
+  @ApiProperty({
+    description: 'The signature',
+    required: true,
+  })
+  @IsString()
+  signature: string;
+
+  @ApiProperty({
+    description: 'The wallet address',
+    required: true,
+  })
+  @IsString()
+  walletAddress: string;
 }

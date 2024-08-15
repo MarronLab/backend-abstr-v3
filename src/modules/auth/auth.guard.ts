@@ -40,10 +40,14 @@ export class AuthGuard implements CanActivate {
       }
 
       const internalUser = await this.userService.getInternalUserProfile(
-        user.data.data.customerID,
+        user.data.data.firstName,
       );
 
-      if (internalUser && internalUser.autoLogoutDuration) {
+      if (!internalUser) {
+        throw new UnauthorizedException();
+      }
+
+      if (internalUser.autoLogoutDuration) {
         const lastLoggedInAt = internalUser.lastLoggedInAt;
         const currentTime = new Date();
 
@@ -59,7 +63,7 @@ export class AuthGuard implements CanActivate {
         }
       }
 
-      request['user'] = user.data.data;
+      request['user'] = { ...user.data.data, internalData: internalUser };
     } catch (error) {
       throw new UnauthorizedException();
     }

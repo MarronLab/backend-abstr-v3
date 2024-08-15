@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Scope,
   Inject,
+  NotFoundException,
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import RegisterDto from '../dto/auth.register.dto';
@@ -24,17 +25,45 @@ import { BaseService } from 'src/common/base.service';
 import { PrismaService } from 'src/services/prisma.service';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
+import HelperProvider from 'src/utils/helperProvider';
+import { EthereumService } from 'src/services/ethereum/ethereum.service';
+import LoginDto from '../dto/auth.dto';
+import { SafeService } from 'src/services/safe.service';
+import { UserService } from 'src/modules/user/service/user.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService extends BaseService {
   constructor(
     prisma: PrismaService,
     @Inject(REQUEST) private readonly req: Request,
+    private readonly safeService: SafeService,
     private readonly modulusService: ModulusService,
+    private readonly ethereumService: EthereumService,
+    private readonly userService: UserService,
   ) {
     super(prisma, req);
   }
 
+  async validateUser(
+    signerAddress: string,
+    signature: string,
+    message: string,
+    nonce: string,
+  ): Promise<boolean> {
+    const isVerified = await this.ethereumService.verifyMessage(
+      signerAddress,
+      message,
+      signature,
+    );
+
+    if (isVerified) {
+      const currentUnixTimestampInSeconds = Math.floor(Date.now() / 1000);
+
+      if (Number(nonce) > currentUnixTimestampInSeconds) {
+        return true;
+      } else return false;
+    } else return false;
+  }
   async updateLastLoggedIn(bearerToken: string) {
     this.modulusService.setBearerToken(`Bearer ${bearerToken}`);
 
@@ -42,31 +71,77 @@ export class AuthService extends BaseService {
 
     if (profile.data.status === 'Success') {
       const internalUser = await this.getClient().user.findUnique({
-        where: { modulusCustomerID: profile.data.data.customerID },
+        where: { modulusCustomerEmail: profile.data.data.email },
       });
 
       if (internalUser) {
         await this.getClient().user.update({
-          where: { modulusCustomerID: internalUser.modulusCustomerID },
+          where: { modulusCustomerEmail: internalUser.modulusCustomerEmail },
           data: { lastLoggedInAt: new Date() },
         });
       }
     }
   }
 
-  async login(email: string, password: string) {
+  async login(loginDto: LoginDto) {
     try {
-      const { data } = await this.modulusService.login(email, password);
+      const nonce = loginDto.nonce.trim();
+      const signature = loginDto.signature.trim();
+      const message = HelperProvider.getSignMessage(nonce);
+
+      const internalUser = await this.getClient().user.findUnique({
+        where: { modulusCustomerEmail: loginDto.email },
+      });
+
+      if (!internalUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      const isVerified = await this.validateUser(
+        internalUser.userAddress,
+        signature,
+        message,
+        nonce,
+      );
+
+      if (!isVerified) {
+        throw new UnprocessableEntityException('Invalid signature');
+      }
+
+      const { data } = await this.modulusService.login(
+        loginDto.email,
+        loginDto.password,
+      );
 
       if ('status' in data && data.status === 'Error') {
         throw new UnauthorizedException();
       } else if ('status' in data && data.status === 'Success') {
-        return data.data;
+        return { token: data.data, user: null };
+      } else {
+        await this.updateLastLoggedIn(data.access_token);
+
+        this.modulusService.setBearerToken(data.access_token);
+
+        const payload = await this.modulusService.validateBearerToken();
+
+        if ('Message' in payload.data) {
+          throw new UnauthorizedException();
+        }
+
+        const { data: profile } = await this.modulusService.getProfile();
+
+        if (profile.status === 'Error') {
+          throw new UnprocessableEntityException(profile.data);
+        }
+
+        if (!internalUser) {
+          throw new UnauthorizedException();
+        }
+
+        await this.updateLastLoggedIn(data.access_token);
+
+        return { token: data, user: { ...internalUser, ...profile.data } };
       }
-
-      await this.updateLastLoggedIn(data.access_token);
-
-      return data;
     } catch (error) {
       throw new UnauthorizedException();
     }
@@ -74,6 +149,21 @@ export class AuthService extends BaseService {
 
   async register(registerDto: RegisterDto) {
     try {
+      const nonce = registerDto.nonce.trim();
+      const signature = registerDto.signature.trim();
+      const message = HelperProvider.getSignMessage(nonce);
+
+      const isVerified = await this.validateUser(
+        registerDto.walletAddress,
+        signature,
+        message,
+        nonce,
+      );
+
+      if (!isVerified) {
+        throw new UnprocessableEntityException('Invalid signature');
+      }
+
       const { data } = await this.modulusService.register({
         email: registerDto.email,
         password: registerDto.password,
@@ -83,7 +173,12 @@ export class AuthService extends BaseService {
         throw new UnprocessableEntityException(data.data);
       }
 
-      return data;
+      const internalUser = await this.safeService.generateSafeAddress({
+        userAddress: registerDto.walletAddress,
+        modulusCustomerEmail: registerDto.email,
+      });
+
+      return { data, internalUser };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
@@ -264,9 +359,31 @@ export class AuthService extends BaseService {
         throw new UnprocessableEntityException(data.error_description);
       }
 
+      this.modulusService.setBearerToken(data.access_token);
+
+      const payload = await this.modulusService.validateBearerToken();
+
+      if ('Message' in payload.data) {
+        throw new UnauthorizedException();
+      }
+
+      const { data: profile } = await this.modulusService.getProfile();
+
+      if (profile.status === 'Error') {
+        throw new UnprocessableEntityException(profile.data);
+      }
+
+      const internalUser = await this.userService.getInternalUserProfile(
+        profile.data.firstName,
+      );
+
+      if (!internalUser) {
+        throw new UnauthorizedException();
+      }
+
       await this.updateLastLoggedIn(data.access_token);
 
-      return data;
+      return { token: data, user: { ...internalUser, ...profile.data } };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

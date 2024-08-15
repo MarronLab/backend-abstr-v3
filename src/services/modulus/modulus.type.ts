@@ -375,6 +375,22 @@ export type ProfileData = {
   };
   customFields: [];
   kycType: string;
+  internalData: {
+    currency: string | null;
+    id: string;
+    safeAddress: string;
+    modulusCustomerEmail: string;
+    userAddress: string;
+    username: string | null;
+    publicID: string;
+    timezone: string | null;
+    language: string | null;
+    emailAnnouncements: boolean;
+    emailNewsletter: boolean;
+    emailTradeUpdates: boolean;
+    autoLogoutDuration: number | null;
+    lastLoggedInAt: Date;
+  };
 };
 
 export type GetProfileErrorResponse = {
@@ -880,6 +896,137 @@ export type GetFavoriteCoinsResponse = {
   data: any;
 };
 
+export type GetSettingsResponse = {
+  status: 'Success' | 'Error';
+  message: string | null;
+  data: {
+    server_Time_UTC: string;
+    client_IP: string;
+    client_Country: string;
+    default_Pair: string;
+    disable_RM: string;
+    disable_TDM: string;
+    enable_TDM_Pay_IN_Exchange_Token: string;
+    disable_2FA: string;
+    disable_Login: string;
+    enable_AeraPass: string;
+    enable_InstaTrade: string;
+    enable_CopyTrade: string;
+    enable_SecurityTokens: string;
+    enable_PhoneVerification: string;
+    enable_P2P_Trading: string;
+    enable_SocialTrade: string;
+    enable_CryptoFeatures: boolean;
+    auto_Sell: string;
+    enable_CryptoForecasting: string;
+    enable_Simplex: string;
+    aeraPass_Url: string;
+    logo_Url: string;
+    favIcon_Url: string;
+    navBarLogo_Url: string;
+    fiat_List: string;
+    exchange_IEO_Coins: string;
+    withdrawals_Forced_2FA: string;
+    mfa_Type: {
+      name: string;
+      codeLength: number;
+      downloadLink: string;
+    };
+    _CoName: string;
+    exchangeName: string;
+    _xrp_address: string;
+    tdM_Token_Name: string;
+    enable_DustConversion: string;
+    exchange_SupportDesk_URL: string;
+    password_Strength: string;
+    kyc: {
+      enable_GoKYC: string;
+      enable_SumSub_iframe: string;
+      enable_WebSDK: string;
+      webSDK_Provider_Name: string;
+      webSDK_Provider_Url: string;
+    };
+    markets: string[];
+    customErrorMessages: {
+      [key: string]: string;
+    };
+    trade_setting: {
+      coinName: string;
+      marketName: string;
+      minTickSize: number;
+      minTradeAmount: number;
+      minOrderValue: number;
+      makerFee: number;
+      takerFee: number;
+      tradeEnabled: boolean;
+      maxSize: number;
+      maxOrderAmount: number;
+      maxMarketOrderSize: number;
+    }[];
+    seo: {
+      google_Analytics_ID: string;
+      google_Tag_Manager: string;
+      reCaptchaKey: string;
+    };
+    market_groups: {
+      label: string;
+      markets: string[];
+    }[];
+    websocket: string;
+    notification: string;
+    signup_mobile_verfication: string;
+    enable_DSSO: boolean;
+    enable_PriceAlerts: string;
+    mgokx: {
+      enabled: boolean;
+      wallet_page: boolean;
+      funds_transfer: boolean;
+      withdraw: boolean;
+      deposits: boolean;
+      move_funds: boolean;
+    };
+    notabene: {
+      enabled: boolean;
+    };
+    enable_MiddleName: string;
+    transactions: {
+      enableTravelRules: boolean;
+    };
+  };
+};
+
+export type GetCurrencySettingsResponse = {
+  status: 'Success' | 'Error';
+  message: string | null;
+  data: {
+    shortName: string;
+    fullName: string;
+    buyServiceCharge: number;
+    sellServiceCharge: number;
+    withdrawalServiceCharge: number;
+    withdrawalServiceChargeInBTC: number;
+    confirmationCount: number;
+    contractAddress: string;
+    minWithdrawalLimit: number;
+    maxWithdrawalLimit: number;
+    decimalPrecision: number;
+    tradeEnabled: boolean;
+    tradeEnabled_Buy: boolean;
+    tradeEnabled_Sell: boolean;
+    depositEnabled: boolean;
+    withdrawalEnabled: boolean;
+    secondaryWalletType: string;
+    addressSeparator: string;
+    walletType: string;
+    withdrawalServiceChargeType: string;
+    withdrawalServiceChargeFixed: number;
+    withdrawalServiceChargePercentage: number;
+    currencyEnabled: boolean;
+    addressRegex: string | null;
+    networkName: string;
+    fireblocksAssetName: string | null;
+  }[];
+};
 //GetPendingOrders
 export type GetPendingOrdersRequest = {
   side: 'ALL' | 'SELL' | 'BUY';

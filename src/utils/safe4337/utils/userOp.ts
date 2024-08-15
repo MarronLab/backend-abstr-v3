@@ -232,8 +232,6 @@ export const getRequiredPrefund = (userOp: UserOperation): string => {
   const requiredPrefund = (
     BigInt(requiredGas) * BigInt(userOp.maxFeePerGas)
   ).toString();
-  console.log({ requiredGas, requiredPrefund });
-
   return requiredPrefund;
 };
 
@@ -244,7 +242,6 @@ export const getSupportedEntryPoints = async (
     'eth_supportedEntryPoints',
     [],
   );
-  console.log({ supportedEntryPoints });
   return supportedEntryPoints.map(ethers.getAddress);
 };
 

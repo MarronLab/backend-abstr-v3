@@ -13,7 +13,6 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -53,16 +52,14 @@ export class WalletController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
   @ApiInternalServerErrorResponse({ description: 'InternalServerError' })
-  @ApiQuery({
-    name: 'safeAddress',
-    required: true,
-    description: 'The user safe address',
-  })
   @ApiOkResponse({
     description: 'The balances has been successfully fetched.',
     type: [GetBalancesResponseDto],
   })
-  async balances(@Query('safeAddress') safeAddress: string) {
+  async balances(@Req() req: Request) {
+    const safeAddress: string = (req.user as ProfileData)?.internalData
+      .safeAddress;
+
     const response =
       await this.walletService.getSafeAddressBalances(safeAddress);
 
@@ -98,14 +95,14 @@ export class WalletController {
     @Query() walletPerformanceDto: WalletPerformanceDto,
     @Req() req: Request,
   ) {
-    const modulusCustomerID: number = (req.user as ProfileData)?.customerID;
+    const modulusCustomerEmail: string = (req.user as ProfileData)?.firstName; // TODO: remove and change to email
 
-    if (!modulusCustomerID) {
+    if (!modulusCustomerEmail) {
       throw new UnauthorizedException('Unauthorized user');
     }
 
     const internalUser =
-      await this.userService.getInternalUserProfile(modulusCustomerID);
+      await this.userService.getInternalUserProfile(modulusCustomerEmail);
     if (!internalUser) {
       throw new UnauthorizedException('Unauthorized user');
     }
@@ -137,14 +134,14 @@ export class WalletController {
     type: WalletNetworthResponseDto,
   })
   async networth(@Req() req: Request) {
-    const modulusCustomerID: number = (req.user as ProfileData)?.customerID;
+    const modulusCustomerEmail: string = (req.user as ProfileData)?.firstName; // TODO: remove and change to email
 
-    if (!modulusCustomerID) {
+    if (!modulusCustomerEmail) {
       throw new UnauthorizedException('Unauthorized user');
     }
 
     const internalUser =
-      await this.userService.getInternalUserProfile(modulusCustomerID);
+      await this.userService.getInternalUserProfile(modulusCustomerEmail);
     if (!internalUser) {
       throw new UnauthorizedException('Unauthorized user');
     }

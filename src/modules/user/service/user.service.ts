@@ -48,7 +48,6 @@ export class UserService extends BaseService {
     try {
       return await this.safeService.generateSafeAddress({
         userAddress: generateSafeAddressDto.userAddress,
-        modulusCustomerID: generateSafeAddressDto.modulusCustomerID,
         modulusCustomerEmail: generateSafeAddressDto.modulusCustomerEmail,
       });
     } catch (error) {
@@ -56,23 +55,24 @@ export class UserService extends BaseService {
     }
   }
 
-  async getProfile(userAddress: string) {
+  async getProfile() {
+    console.log({ Paul: this.req.user });
     try {
+      const modulusCustomerEmail: string = (this.req.user as ProfileData)
+        ?.firstName; // TODO: remove and change to email
+
       const { data } = await this.modulusService.getProfile();
+
+      console.log({ data });
 
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);
       }
 
-      await this.generateSafeAddress({
-        userAddress: userAddress,
-        modulusCustomerID: data.data.customerID,
-        modulusCustomerEmail: data.data.email,
-      });
+      const internalUser =
+        await this.getInternalUserProfile(modulusCustomerEmail);
 
-      const internalUser = await this.getInternalUserProfile(
-        data.data.customerID,
-      );
+      console.log({ ...data.data, ...internalUser });
 
       return { ...data.data, ...internalUser };
     } catch (error) {
@@ -80,10 +80,10 @@ export class UserService extends BaseService {
     }
   }
 
-  async getInternalUserProfile(modulusCustomerID: number) {
+  async getInternalUserProfile(modulusCustomerEmail: string) {
     try {
       return await this.getClient().user.findUnique({
-        where: { modulusCustomerID },
+        where: { modulusCustomerEmail },
         select: {
           id: true,
           language: true,
@@ -98,6 +98,7 @@ export class UserService extends BaseService {
           publicID: true,
           lastLoggedInAt: true,
           autoLogoutDuration: true,
+          modulusCustomerEmail: true,
         },
       });
     } catch (error) {
@@ -106,15 +107,14 @@ export class UserService extends BaseService {
   }
 
   async updateProfile(updateProfileRequestDto: UpdateProfileRequestDto) {
-    const modulusCustomerID: number = (this.req.user as ProfileData)
-      ?.customerID;
+    const modulusCustomerEmail: string = (this.req.user as ProfileData)?.email;
 
-    if (!modulusCustomerID) {
+    if (!modulusCustomerEmail) {
       throw new UnauthorizedException('Unauthorized user');
     }
 
     const internalUser = await this.getClient().user.findUnique({
-      where: { modulusCustomerID: modulusCustomerID },
+      where: { modulusCustomerEmail },
     });
 
     if (!internalUser) {
@@ -190,7 +190,7 @@ export class UserService extends BaseService {
       }
 
       await this.getClient().user.update({
-        where: { modulusCustomerID: modulusCustomerID },
+        where: { modulusCustomerEmail },
         data: internalProfileData,
       });
 

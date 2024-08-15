@@ -28,7 +28,6 @@ model User {
   id                   String         @id @default(cuid())
   safeAddress          String         @unique
   userAddress          String         @unique
-  modulusCustomerID    Int            @unique
   modulusCustomerEmail String         @unique
   username             String?        @unique
   publicID             String         @unique

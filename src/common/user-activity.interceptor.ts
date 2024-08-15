@@ -49,7 +49,9 @@ export class UserActivityInterceptor extends TransactionInterceptor {
 
         if (user) {
           const internalUser = await prisma.user.findFirst({
-            where: { modulusCustomerID: user.customerID },
+            where: {
+              modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+            },
           });
           data.userId = internalUser ? internalUser.id : undefined;
         }
@@ -66,7 +68,9 @@ export class UserActivityInterceptor extends TransactionInterceptor {
 
         if (user) {
           const internalUser = await prisma.user.findFirst({
-            where: { modulusCustomerID: user.customerID },
+            where: {
+              modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+            },
           });
 
           data.userId = internalUser ? internalUser.id : undefined;
