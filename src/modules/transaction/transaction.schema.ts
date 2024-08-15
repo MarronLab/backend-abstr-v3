@@ -1,91 +1,107 @@
 import { JSONSchemaType } from 'ajv';
 
 export const getAllTransactionsResponseSchema: JSONSchemaType<{
-  pageInfo: {
-    totalRows: number;
-    currentPage: number;
-    pageSize: number;
-  };
+  cursor: string;
+  page: number;
+  pageSize: number;
   result: {
-    requestDate: string;
-    amount: number;
-    equivalentUsdAmt: number;
-    currency: string;
-    transactionID: string;
-    rejectReason: null | string;
-    comments: null | string;
-    status: null | string;
-    type: string;
-    currentTxnCount: number;
-    requiredTxnCount: number;
-    explorerURL: string;
-    address: string;
-    confirmDate: string;
-    fee: number;
-    pgName: null | string;
-    memo: null | string;
-    isPassedTravelRule: boolean;
+    hash: string;
+    nonce: string;
+    transactionIndex: string;
+    fromAddressEntity: null | string;
+    fromAddressEntityLogo: null | string;
+    fromAddress: string;
+    fromAddressLabel: null | string;
+    toAddressEntity: null | string;
+    toAddressEntityLogo: null | string;
+    toAddress: string;
+    toAddressLabel: null | string;
+    value: string;
+    gas: string;
+    gasPrice: string;
+    input: string;
+    receiptCumulativeGasUsed: string;
+    receiptGasUsed: string;
+    receiptContractAddress: null | string;
+    receiptRoot: null | string;
+    receiptStatus: string;
+    transactionFee: string;
+    blockTimestamp: string;
+    blockNumber: string;
+    blockHash: string;
   }[];
 }> = {
   type: 'object',
   additionalProperties: false,
-  required: ['pageInfo', 'result'],
+  required: ['cursor', 'page', 'pageSize', 'result'],
   properties: {
-    pageInfo: {
-      type: 'object',
-      properties: {
-        totalRows: { type: 'number' },
-        currentPage: { type: 'number' },
-        pageSize: { type: 'number' },
-      },
-      required: ['totalRows', 'currentPage', 'pageSize'],
+    cursor: {
+      type: 'string',
+    },
+    page: {
+      type: 'number',
+    },
+    pageSize: {
+      type: 'number',
     },
     result: {
       type: 'array',
       items: {
         type: 'object',
         required: [
-          'requestDate',
-          'amount',
-          'equivalentUsdAmt',
-          'currency',
-          'transactionID',
-          'rejectReason',
-          'comments',
-          'status',
-          'type',
-          'currentTxnCount',
-          'requiredTxnCount',
-          'explorerURL',
-          'confirmDate',
-          'address',
-          'fee',
-          'pgName',
-          'memo',
-          'isPassedTravelRule',
+          'hash',
+          'nonce',
+          'transactionIndex',
+          'fromAddressEntity',
+          'fromAddressEntityLogo',
+          'fromAddress',
+          'fromAddressLabel',
+          'toAddressEntity',
+          'toAddressEntityLogo',
+          'toAddress',
+          'toAddressLabel',
+          'value',
+          'gas',
+          'gasPrice',
+          'input',
+          'receiptCumulativeGasUsed',
+          'receiptGasUsed',
+          'receiptContractAddress',
+          'receiptRoot',
+          'receiptStatus',
+          'transactionFee',
+          'blockTimestamp',
+          'blockNumber',
+          'blockHash',
         ],
         properties: {
-          requestDate: { type: 'string' },
-          amount: { type: 'number' },
-          equivalentUsdAmt: { type: 'number' },
-          currency: { type: 'string' },
-          transactionID: { type: 'string' },
-          rejectReason: {
+          hash: { type: 'string' },
+          nonce: { type: 'string' },
+          transactionIndex: { type: 'string' },
+          fromAddressEntity: { type: 'string', nullable: true as false },
+          fromAddressEntityLogo: { type: 'string', nullable: true as false },
+          fromAddress: { type: 'string' },
+          fromAddressLabel: { type: 'string', nullable: true as false },
+          toAddressEntity: { type: 'string', nullable: true as false },
+          toAddressEntityLogo: { type: 'string', nullable: true as false },
+          toAddress: {
             type: 'string',
             nullable: true as false,
           },
-          comments: { type: 'string', nullable: true as false },
-          status: { type: 'string', nullable: true as false },
-          type: { type: 'string' },
-          currentTxnCount: { type: 'number' },
-          requiredTxnCount: { type: 'number' },
-          explorerURL: { type: 'string' },
-          confirmDate: { type: 'string' },
-          address: { type: 'string' },
-          fee: { type: 'number' },
-          pgName: { type: 'string', nullable: true as false },
-          memo: { type: 'string', nullable: true as false },
-          isPassedTravelRule: { type: 'boolean' },
+          toAddressLabel: { type: 'string', nullable: true as false },
+          value: { type: 'string' },
+          gas: { type: 'string' },
+          gasPrice: { type: 'string' },
+          input: { type: 'string' },
+          receiptCumulativeGasUsed: { type: 'string' },
+          receiptGasUsed: { type: 'string' },
+          receiptContractAddress: { type: 'string', nullable: true as false },
+          receiptRoot: { type: 'string', nullable: true as false },
+          receiptStatus: { type: 'string' },
+          transactionFee: { type: 'string' },
+          blockTimestamp: { type: 'string' },
+          blockNumber: { type: 'string' },
+          blockHash: { type: 'string' },
         },
       },
     },

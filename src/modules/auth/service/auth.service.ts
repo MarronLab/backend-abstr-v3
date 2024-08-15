@@ -21,9 +21,6 @@ import TokenDto from '../dto/auth.token.dto';
 import ResendEmailOtpDto from '../dto/auth.resend-email-otp.dto';
 import { ForgotPasswordOtpRequestDto } from '../dto/auth.forgot-password-otp.dto';
 import { ForgotPasswordRequestDto } from '../dto/auth.forgot-password.dto';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as crypto from 'crypto';
 import { BaseService } from 'src/common/base.service';
 import { PrismaService } from 'src/services/prisma.service';
 import { Request } from 'express';
@@ -350,11 +347,13 @@ export class AuthService extends BaseService {
 
   async token(tokenDto: TokenDto) {
     try {
-      const { data } = await this.modulusService.token({
+      const response = await this.modulusService.token({
         grant_type: tokenDto.grantType,
         username: tokenDto.username,
         password: tokenDto.password,
       });
+
+      const { data } = response;
 
       if ('error' in data) {
         throw new UnprocessableEntityException(data.error_description);
@@ -449,19 +448,11 @@ export class AuthService extends BaseService {
   }
 
   async forgotPassword(forgotPasswordRequestDto: ForgotPasswordRequestDto) {
-    const publicKey = fs.readFileSync(
-      path.resolve(__dirname, '../../../public.pem'),
-      'utf8',
-    );
-    const buffer = Buffer.from(forgotPasswordRequestDto.newPassword, 'utf16le');
-    const encrypted = crypto.publicEncrypt(publicKey, buffer);
-    const encryptedPassword = encrypted.toString('base64');
-
     try {
       const { data } = await this.modulusService.forgotPassword({
         email: forgotPasswordRequestDto.email,
         email_otp: forgotPasswordRequestDto.emailOtp,
-        new_password: encryptedPassword,
+        new_password: forgotPasswordRequestDto.newPassword,
         email_token: forgotPasswordRequestDto.emailToken,
         sms_token: '',
         sms_otp: '',

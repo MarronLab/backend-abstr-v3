@@ -3,6 +3,7 @@ import {
   UnprocessableEntityException,
   Inject,
   Scope,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/createOrder.dto';
 import { Order } from 'hft-limit-order-book/dist/types/order';
@@ -17,6 +18,7 @@ import { REQUEST } from '@nestjs/core';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
 import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
+import { PendingOrdersDto } from './dto/pendingOrders.dto';
 
 export interface IProcessOrder {
   done: Order[];
@@ -265,6 +267,23 @@ export class OrderService extends BaseService {
       return data.data;
     } catch (error) {
       throw new UnprocessableEntityException(error);
+    }
+  }
+
+  async getPendingOrders(pendingOrdersDto: PendingOrdersDto) {
+    try {
+      const { data } = await this.modulusService.getPendingOrders({
+        pair: pendingOrdersDto.pair,
+        side: pendingOrdersDto.side,
+      });
+
+      if (data.status === 'Error') {
+        throw new UnprocessableEntityException(data.message);
+      }
+
+      return data.data;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
   }
 }

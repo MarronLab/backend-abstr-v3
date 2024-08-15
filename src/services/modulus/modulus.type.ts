@@ -665,7 +665,7 @@ export type ChangeEmailVerifyOtpResponse =
 //Asset Open Order
 export type AssetOpenOrderRequest = {
   pair: string;
-  side: 'BUY' | 'SELL';
+  side: 'BUY' | 'SELL' | 'ALL';
   depth?: number;
 };
 
@@ -1027,3 +1027,26 @@ export type GetCurrencySettingsResponse = {
     fireblocksAssetName: string | null;
   }[];
 };
+//GetPendingOrders
+export type GetPendingOrdersRequest = {
+  side: 'ALL' | 'SELL' | 'BUY';
+  pair: string;
+};
+
+export type GetPendingOrdersSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    orderId: number;
+    market: string;
+    trade: string;
+    volume: number;
+    rate: number;
+    side: OrderSideEnum;
+    date: string;
+  }[];
+};
+
+export type GetPendingOrdersResponse =
+  | GetPendingOrdersSuccessResponse
+  | ModulusBaseErrorResponseData;

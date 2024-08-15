@@ -125,8 +125,8 @@ export class GetProfileResponseDto {
   @ApiProperty({ type: Number, nullable: true })
   autoLogoutDuration: number | null;
 
-  @ApiProperty()
-  lastLoggedInAt: Date;
+  @ApiProperty({ type: Date, format: 'date-time', nullable: true })
+  lastLoggedInAt: Date | null;
 
   constructor(partial: Partial<GetProfileResponseDto>) {
     Object.assign(this, partial);

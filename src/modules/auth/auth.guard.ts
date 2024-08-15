@@ -20,6 +20,7 @@ export class AuthGuard implements CanActivate {
     const token = request.headers.authorization;
 
     if (!token) {
+      this.modulusService.removeBearerToken();
       throw new UnauthorizedException();
     }
 

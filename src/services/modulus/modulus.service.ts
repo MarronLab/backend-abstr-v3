@@ -68,12 +68,26 @@ import {
   LogoutResponse,
   GetSettingsResponse,
   GetCurrencySettingsResponse,
+  GetPendingOrdersRequest,
+  GetPendingOrdersResponse,
 } from './modulus.type';
-import { AxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class ModulusService {
   constructor(private readonly httpService: HttpService) {}
+
+  private handleError(error: unknown): never {
+    if (error instanceof AxiosError) {
+      if (!error.response) {
+        throw new Error('An unknown error occurred');
+      }
+
+      throw new Error(error.response?.data.error_description);
+    }
+
+    throw new Error((error as Error).message);
+  }
 
   private async post<T>(
     endpoint: string,
@@ -86,9 +100,10 @@ export class ModulusService {
         request,
         config,
       );
+
       return response;
     } catch (error) {
-      throw new Error(error);
+      this.handleError(error);
     }
   }
 
@@ -100,7 +115,7 @@ export class ModulusService {
 
       return response;
     } catch (error) {
-      throw new Error(error);
+      this.handleError(error);
     }
   }
 
@@ -288,6 +303,7 @@ export class ModulusService {
 
     return await this.post<TokenResponse>('/token', data, {
       headers: {
+        Authorization: undefined,
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
       },
@@ -307,8 +323,21 @@ export class ModulusService {
   }
 
   setBearerToken(token: string) {
+    this.httpService.axiosRef.interceptors.request.clear();
     this.httpService.axiosRef.interceptors.request.use((config) => {
+      if (config.headers['Authorization']) {
+        delete config.headers['Authorization'];
+      }
+
       config.headers['Authorization'] = token;
+      return config;
+    });
+  }
+
+  removeBearerToken() {
+    this.httpService.axiosRef.interceptors.request.clear();
+    this.httpService.axiosRef.interceptors.request.use((config) => {
+      delete config.headers['Authorization'];
       return config;
     });
   }
@@ -370,6 +399,13 @@ export class ModulusService {
     return await this.get<GetCurrencySettingsResponse>(
       '/api/CurrencySettings',
       {},
+    );
+  }
+
+  async getPendingOrders(request: GetPendingOrdersRequest) {
+    return await this.get<GetPendingOrdersResponse>(
+      '/api/GetPendingOrders',
+      request,
     );
   }
 }
