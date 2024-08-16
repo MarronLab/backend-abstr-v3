@@ -22,6 +22,12 @@ export class GetBalancesResponseDto {
   @ApiProperty()
   holdDeposits: number;
 
+  @ApiProperty()
+  decimalPrecision: number;
+
+  @ApiProperty()
+  contractAddress: string;
+
   @ApiProperty({ type: String, nullable: true })
   priceChangePercent24hr: null | string;
 

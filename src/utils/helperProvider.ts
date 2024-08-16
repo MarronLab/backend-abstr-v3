@@ -41,6 +41,8 @@ class HelperProvider {
     switch (ConstantProvider.NETWORK_CHAIN_ID) {
       case 137:
         return 'polygon';
+      case 8453:
+        return 'base';
       default:
         throw Error('Network name not found');
     }

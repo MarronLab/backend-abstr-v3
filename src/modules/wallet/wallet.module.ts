@@ -6,9 +6,16 @@ import { WalletService } from './wallet.service';
 import { ModulusModule } from 'src/services/modulus/modulus.module';
 import { MoralisModule } from 'src/services/moralis/moralis.module';
 import { UserModule } from '../user/module/user.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
-  imports: [ModulusModule, AuthModule, MoralisModule, UserModule],
+  imports: [
+    ModulusModule,
+    AuthModule,
+    MoralisModule,
+    UserModule,
+    SettingsModule,
+  ],
   controllers: [WalletController],
   providers: [WalletService, PrismaService],
 })

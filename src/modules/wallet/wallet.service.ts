@@ -13,12 +13,14 @@ import ConstantProvider from 'src/utils/constantProvider';
 import { MoralisTokenInfo } from './wallet.interface';
 import { MoralisService } from 'src/services/moralis/moralis.service';
 import { MoralisTransactionData } from 'src/services/moralis/moralis.type';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class WalletService {
   constructor(
     private readonly modulusService: ModulusService,
     private readonly moralisService: MoralisService,
+    private readonly settingsService: SettingsService,
   ) {}
 
   async getSafeAddressBalances(safeAddress: string) {
@@ -32,33 +34,37 @@ export class WalletService {
         headers,
       });
 
-      const { data: balanceData } = await this.modulusService.getBalance();
+      const data = await this.settingsService.getApiSettings();
       const { data: coinStatsData } = await this.modulusService.getCoinStats();
 
-      if (balanceData.status === 'Error') {
-        throw new UnprocessableEntityException(balanceData.data);
+      if (!data.supportedAssets) {
+        throw new UnprocessableEntityException();
       }
 
-      return balanceData.data.map((balance) => {
-        const stats = coinStatsData.data[balance.currency.toLowerCase()];
+      return data.supportedAssets.map((_asset) => {
+        const asset = _asset!;
+        const stats = coinStatsData.data[asset.shortName.toLowerCase()];
         const tokenBalance = tokenBalanceResponse.data.find(
-          (x) => x.symbol === balance.currency,
+          (x) => x.symbol.toLowerCase() === asset.shortName.toLowerCase(),
         );
 
         const currentBalance = tokenBalance ? Number(tokenBalance.balance) : 0;
 
         return {
           balance: currentBalance,
+          contractAddress: asset.contractAddress,
           fiatValue: Number(stats?.price) || 0,
-          currencyName: stats?.coinName || null,
-          currency: balance.currency,
+          decimalPrecision: asset.decimalPrecision,
+          currencyName: asset.fullName || null,
+          currency: asset.shortName,
           thumbnail: stats?.image || null,
-          holdDeposits: balance.holdDeposits,
-          balanceInTrade: balance.balanceInTrade,
+          holdDeposits: 0,
+          balanceInTrade: 0,
           priceChangePercent24hr: stats?.priceChangePercent24hr || null,
         };
       });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(error);
     }
   }

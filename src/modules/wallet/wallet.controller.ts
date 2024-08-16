@@ -71,6 +71,8 @@ export class WalletController {
         thumbnail: row.thumbnail,
         currency: row.currency,
         holdDeposits: row.holdDeposits,
+        decimalPrecision: row.decimalPrecision,
+        contractAddress: row.contractAddress,
         balanceInTrade: row.balanceInTrade,
         priceChangePercent24hr: row.priceChangePercent24hr,
       });
