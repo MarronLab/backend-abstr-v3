@@ -56,10 +56,9 @@ export class UserService extends BaseService {
   }
 
   async getProfile() {
-    console.log({ Paul: this.req.user });
     try {
       const modulusCustomerEmail: string = (this.req.user as ProfileData)
-        ?.firstName; // TODO: remove and change to email
+        ?.internalData.modulusCustomerEmail;
 
       const { data } = await this.modulusService.getProfile();
 
@@ -107,7 +106,8 @@ export class UserService extends BaseService {
   }
 
   async updateProfile(updateProfileRequestDto: UpdateProfileRequestDto) {
-    const modulusCustomerEmail: string = (this.req.user as ProfileData)?.email;
+    const modulusCustomerEmail: string = (this.req.user as ProfileData)
+      ?.internalData.modulusCustomerEmail;
 
     if (!modulusCustomerEmail) {
       throw new UnauthorizedException('Unauthorized user');

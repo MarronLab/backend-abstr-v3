@@ -57,7 +57,8 @@ export class TransactionController {
     @Query() getAllTransactionsDto: GetAllTransactionsDto,
     @Req() req: Request,
   ) {
-    const modulusCustomerEmail: string = (req.user as ProfileData)?.firstName;
+    const modulusCustomerEmail: string = (req.user as ProfileData)?.internalData
+      .modulusCustomerEmail;
 
     if (!modulusCustomerEmail) {
       throw new UnauthorizedException('Unauthorized user');

@@ -97,7 +97,8 @@ export class WalletController {
     @Query() walletPerformanceDto: WalletPerformanceDto,
     @Req() req: Request,
   ) {
-    const modulusCustomerEmail: string = (req.user as ProfileData)?.firstName; // TODO: remove and change to email
+    const modulusCustomerEmail: string = (req.user as ProfileData)?.internalData
+      .modulusCustomerEmail;
 
     if (!modulusCustomerEmail) {
       throw new UnauthorizedException('Unauthorized user');
@@ -136,8 +137,8 @@ export class WalletController {
     type: WalletNetworthResponseDto,
   })
   async networth(@Req() req: Request) {
-    const modulusCustomerEmail: string = (req.user as ProfileData)?.firstName; // TODO: remove and change to email
-
+    const modulusCustomerEmail: string = (req.user as ProfileData)?.internalData
+      .modulusCustomerEmail;
     if (!modulusCustomerEmail) {
       throw new UnauthorizedException('Unauthorized user');
     }
