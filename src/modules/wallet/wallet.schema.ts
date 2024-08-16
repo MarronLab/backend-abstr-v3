@@ -9,6 +9,8 @@ export const getBalancesResponseSchema: JSONSchemaType<
     balance: number;
     balanceInTrade: number;
     holdDeposits: number;
+    decimalPrecision: number;
+    contractAddress: string;
     priceChangePercent24hr: null | string;
   }[]
 > = {
@@ -39,7 +41,14 @@ export const getBalancesResponseSchema: JSONSchemaType<
       holdDeposits: {
         type: 'number',
       },
+      decimalPrecision: {
+        type: 'number',
+      },
       priceChangePercent24hr: {
+        type: 'string',
+        nullable: true as false, // this is a workaround for ajv to accept null without typescript complaining
+      },
+      contractAddress: {
         type: 'string',
         nullable: true as false, // this is a workaround for ajv to accept null without typescript complaining
       },
@@ -50,6 +59,8 @@ export const getBalancesResponseSchema: JSONSchemaType<
       'balanceInTrade',
       'holdDeposits',
       'priceChangePercent24hr',
+      'decimalPrecision',
+      'contractAddress',
     ],
     additionalProperties: false,
   },

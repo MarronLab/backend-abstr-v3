@@ -7,5 +7,6 @@ import { ModulusModule } from 'src/services/modulus/modulus.module';
   imports: [ModulusModule],
   controllers: [SettingsController],
   providers: [SettingsService],
+  exports: [SettingsService],
 })
 export class SettingsModule {}
