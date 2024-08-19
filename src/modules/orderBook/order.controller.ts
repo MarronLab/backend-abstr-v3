@@ -17,6 +17,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -63,6 +64,10 @@ import {
   PendingOrderResponseDto,
   PendingOrdersDto,
 } from './dto/pendingOrders.dto';
+import {
+  ChartDataResponseDto,
+  GetChartDataQueryDto,
+} from './dto/ChartData.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -81,14 +86,18 @@ export class OrderController {
   async createOrder(@Body() createOrderDto: CreateOrderDto) {
     const response = await this.orderService.createOrder(createOrderDto);
 
-    return response.map((order: any) => {
-      return new CreateOrderResponseDto({
-        size: order.size,
-        price: order.price,
-        extraData: order.extraData,
-        timestamp: order.timestamp,
-      });
-    });
+    console.log({ response });
+
+    return response;
+
+    // return response.map((order: any) => {
+    //   return new CreateOrderResponseDto({
+    //     size: order.size,
+    //     price: order.price,
+    //     extraData: order.extraData,
+    //     timestamp: order.timestamp,
+    //   });
+    // });
   }
 
   @UseGuards(AuthGuard)
@@ -358,5 +367,17 @@ export class OrderController {
         date: pendingOrder.date,
       });
     });
+  }
+
+  @Get('get-chart-data')
+  @ApiOperation({
+    summary: 'This endpoint allows you to query all chart',
+  })
+  @ApiOkResponse({
+    description: 'The getChart data has been successfully fetched.',
+    type: [ChartDataResponseDto],
+  })
+  async getChartData(@Query() query: GetChartDataQueryDto) {
+    return await this.orderService.getChartData(query);
   }
 }

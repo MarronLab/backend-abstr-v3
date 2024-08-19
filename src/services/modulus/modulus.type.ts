@@ -1050,3 +1050,29 @@ export type GetPendingOrdersSuccessResponse = {
 export type GetPendingOrdersResponse =
   | GetPendingOrdersSuccessResponse
   | ModulusBaseErrorResponseData;
+
+//GetChartData
+export type GetChartDataRequest = {
+  baseCurrency: string;
+  quoteCurrency: string;
+  timestamp: number;
+  limit?: number;
+  interval?: number;
+};
+
+export type GetChartDataSuccessResponse = {
+  status: 'Success';
+  message: string;
+  data: {
+    time: number;
+    open: number;
+    close: number;
+    high: number;
+    low: number;
+    volume: number;
+  }[];
+};
+
+export type GetChartDataResponse =
+  | GetChartDataSuccessResponse
+  | ModulusBaseErrorResponseData;

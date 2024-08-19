@@ -19,6 +19,8 @@ import { OrderHistoryDto } from './dto/orderHistory.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
 import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
 import { PendingOrdersDto } from './dto/pendingOrders.dto';
+import axios from 'axios';
+import { GetChartDataQueryDto } from './dto/ChartData.dto';
 
 export interface IProcessOrder {
   done: Order[];
@@ -38,7 +40,6 @@ interface ReturnOrderI {
 @Injectable({ scope: Scope.REQUEST })
 export class OrderService extends BaseService {
   constructor(
-    // private readonly httpService: HttpService,
     private readonly prismaService: PrismaService,
     private readonly modulusService: ModulusService,
     @Inject(REQUEST) req: Request,
@@ -50,47 +51,49 @@ export class OrderService extends BaseService {
     try {
       const orderId = Math.floor(Date.now() / 1000);
 
-      console.log({
-        CurrencyPair: createOrderDto.CurrencyPair,
-        Size: createOrderDto.Size,
-        Remaining: createOrderDto.Size,
-        Side: createOrderDto.Side,
-        Type: 2,
-        TimeInForce: 0,
-        LimitPrice: createOrderDto.LimitPrice,
-        StopPrice: 0,
-        TrailingAmount: 0,
-        OrderID: orderId,
-        UserID: createOrderDto.UserID,
-        // ExtraData: JSON.parse(createOrderDto.ExtraData),
-      });
+      // console.log({
+      //   CurrencyPair: createOrderDto.CurrencyPair,
+      //   Size: createOrderDto.Size,
+      //   Remaining: createOrderDto.Size,
+      //   Side: createOrderDto.Side,
+      //   Type: 2,
+      //   TimeInForce: 0,
+      //   LimitPrice: createOrderDto.LimitPrice,
+      //   StopPrice: 0,
+      //   TrailingAmount: 0,
+      //   OrderID: orderId,
+      //   UserID: createOrderDto.UserID,
+      //   // ExtraData: JSON.parse(createOrderDto.ExtraData),
+      // });
 
       //@TODO: extract http call to it own service
 
-      // const modulusOrderResponse = await this.httpService.axiosRef.post(
-      //   '/SubmitOrder',
-      //   {
-      //     // CurrencyPair: 'FMAT_ETH',
-      //     CurrencyPair: createOrderDto.CurrencyPair,
-      //     Size: createOrderDto.Size,
-      //     Remaining: createOrderDto.Size,
-      //     Side: createOrderDto.Side,
-      //     Type: 2,
-      //     TimeInForce: 0,
-      //     LimitPrice: createOrderDto.LimitPrice,
-      //     StopPrice: 0,
-      //     TrailingAmount: 0,
-      //     OrderID: orderId,
-      //     UserID: createOrderDto.UserID,
-      //     ExtraData: JSON.parse(createOrderDto.ExtraData),
-      //   },
-      // );
-      //
-      // const data = modulusOrderResponse.data;
-      //
+      const modulusOrderResponse = await axios.post(
+        'http://localhost:8000/SubmitOrder',
+        {
+          CurrencyPair: 'FMAT_ETH',
+          Size: 1,
+          Remaining: 1,
+          Side: 2,
+          Type: 2,
+          TimeInForce: 0,
+          LimitPrice: 9690,
+          StopPrice: 0,
+          TrailingAmount: 0,
+          OrderID: 101,
+          UserID: 101,
+        },
+      );
+
+      console.log({modulusOrderResponse})
+
+      // console.log({ modulusOrderResponse })
+
+      const data = modulusOrderResponse.data;
+
       // console.log({ modulusOrderResponseData: data });
-      // console.log({ modulusOrderResponseData: data?.Event?.NewTrades });
-      //
+      console.log({ modulusOrderResponseData: data?.Event?.NewTrades });
+
       const orders: ReturnOrderI[] = [];
       // const { Event } = data || {};
       //
@@ -283,6 +286,21 @@ export class OrderService extends BaseService {
 
       return data.data;
     } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async getChartData(queryParams: GetChartDataQueryDto) {
+    try {
+      const response = await this.modulusService.getChartData(queryParams);
+
+      if (response.data.status === 'Error') {
+        throw new UnprocessableEntityException();
+      }
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(error);
     }
   }

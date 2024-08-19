@@ -70,6 +70,8 @@ import {
   GetCurrencySettingsResponse,
   GetPendingOrdersRequest,
   GetPendingOrdersResponse,
+  GetChartDataRequest,
+  GetChartDataResponse,
 } from './modulus.type';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 
@@ -77,7 +79,7 @@ import { AxiosError, AxiosRequestConfig } from 'axios';
 export class ModulusService {
   constructor(private readonly httpService: HttpService) {}
 
-  private handleError(error: unknown): never {
+  private handleError(error: any): never {
     if (error instanceof AxiosError) {
       if (!error.response) {
         throw new Error('An unknown error occurred');
@@ -406,6 +408,19 @@ export class ModulusService {
     return await this.get<GetPendingOrdersResponse>(
       '/api/GetPendingOrders',
       request,
+    );
+  }
+
+  async getChartData({
+    baseCurrency,
+    quoteCurrency,
+    timestamp,
+    limit,
+    interval,
+  }: GetChartDataRequest) {
+    return await this.get<GetChartDataResponse>(
+      `/market/get-chart-data?baseCurrency=${baseCurrency}&quoteCurrency=${quoteCurrency}&interval=${interval}&limit=${limit}&timestamp=${timestamp}`,
+      {},
     );
   }
 }
