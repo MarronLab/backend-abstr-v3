@@ -71,6 +71,12 @@ import {
 } from './dto/ChartData.dto';
 import { Request } from 'express';
 import { ProfileData } from 'src/services/modulus/modulus.type';
+import {
+  OpenOrder,
+  OpenOrdersDto,
+  OpenOrdersResponseDto,
+} from './dto/openOrders.dto';
+import { Trade, TradesDto, TradesResponseDto } from './dto/trades.dto';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -385,5 +391,77 @@ export class OrderController {
   })
   async getChartData(@Query() query: GetChartDataQueryDto) {
     return await this.orderService.getChartData(query);
+  }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('open')
+  @ApiOperation({
+    summary: 'This endpoint returns a list of open orders group by side',
+  })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The pending orders has successfully been fetched.',
+    type: OpenOrdersResponseDto,
+  })
+  async getOpenOrders(@Query() openOrdersDto: OpenOrdersDto) {
+    const response = await this.orderService.openOrders(openOrdersDto);
+
+    const sellOrders = response.SELL.map(
+      (order) =>
+        new OpenOrder({
+          limitPrice: order.limitPrice,
+          size: order.size,
+        }),
+    );
+
+    const buyOrders = response.BUY.map(
+      (order) =>
+        new OpenOrder({
+          limitPrice: order.limitPrice,
+          size: order.size,
+        }),
+    );
+
+    return new OpenOrdersResponseDto({
+      sell: sellOrders,
+      buy: buyOrders,
+    });
+  }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('trades')
+  @ApiOperation({
+    summary: 'This endpoint returns a list of trades group by side',
+  })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The trades has successfully been fetched.',
+    type: TradesResponseDto,
+  })
+  async getTrades(@Query() tradesDto: TradesDto) {
+    const response = await this.orderService.trades(tradesDto);
+
+    const sellOrders = response.SELL.map(
+      (order) =>
+        new Trade({
+          limitPrice: order.limitPrice,
+          size: order.size,
+        }),
+    );
+
+    const buyOrders = response.BUY.map(
+      (order) =>
+        new Trade({
+          limitPrice: order.limitPrice,
+          size: order.size,
+        }),
+    );
+
+    return new TradesResponseDto({
+      sell: sellOrders,
+      buy: buyOrders,
+    });
   }
 }
