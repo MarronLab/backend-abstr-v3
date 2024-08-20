@@ -14,6 +14,10 @@ import { BaseService } from 'src/common/base.service';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
+import {
+  OrderHistoryResponseDto,
+  OrderResponseDto,
+} from './dto/orderHistoryResponse.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
 import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
 import { PendingOrdersDto } from './dto/pendingOrders.dto';
@@ -34,6 +38,10 @@ import {
   SideType,
 } from './interfaces/submitOrder.interface';
 import { ProfileData } from 'src/services/modulus/modulus.type';
+import {
+  OrderSideEnum,
+  OrderTypeEnum,
+} from 'src/services/modulus/modulus.enum';
 
 interface ReturnOrderI {
   extraData: any;
@@ -133,6 +141,56 @@ export class OrderService extends BaseService {
         return TimeInForceTypePrisma.TIF_IOC;
       default:
         throw new Error(`Unknown order status: ${status}`);
+    }
+  }
+
+  private convertSideToEnum(side: string): OrderSideEnum | undefined {
+    switch (side) {
+      case 'BUY':
+        return OrderSideEnum.BUY;
+      case 'SELL':
+        return OrderSideEnum.SELL;
+      default:
+        return undefined;
+    }
+  }
+
+  private convertOrderTypeToEnum(type: string): OrderTypeEnum | undefined {
+    switch (type) {
+      case 'LIMIT':
+        return OrderTypeEnum.LIMIT;
+      case 'MARKET':
+        return OrderTypeEnum.MARKET;
+      default:
+        return undefined;
+    }
+  }
+
+  private convertOrderStatusToEnum(
+    statusType: string,
+  ): 'Filled' | 'Cancelled' | 'Pending' | undefined {
+    switch (statusType) {
+      case 'ORDER_STATUS_FILLED':
+        return 'Filled';
+      case 'ORDER_STATUS_CANCELLED':
+        return 'Cancelled';
+      case 'ORDER_STATUS_PENDING':
+        return 'Pending';
+      default:
+        return undefined;
+    }
+  }
+
+  private convertStringToSideType(
+    side: string | undefined,
+  ): SideTypePrisma | undefined {
+    switch (side) {
+      case 'BUY':
+        return SideTypePrisma.SIDE_BUY; // Ensure this matches Prisma enum
+      case 'SELL':
+        return SideTypePrisma.SIDE_SELL; // Ensure this matches Prisma enum
+      default:
+        return undefined;
     }
   }
 
@@ -242,19 +300,57 @@ export class OrderService extends BaseService {
     }
   }
 
-  async getOrderHistory(orderHistoryDto: OrderHistoryDto) {
-    try {
-      const { data } = await this.modulusService.orderHistory({
-        side: orderHistoryDto.side,
-        pair: orderHistoryDto.pair,
-        page: orderHistoryDto.page,
-        count: orderHistoryDto.count,
-      });
+  async getOrderHistory(
+    orderHistoryDto: OrderHistoryDto,
+  ): Promise<OrderHistoryResponseDto> {
+    const { pair, side, page = 1, count = 10 } = orderHistoryDto;
+    const skip = (page - 1) * count;
+    const sideEnum = this.convertStringToSideType(side);
 
-      return data.data;
-    } catch (error) {
-      throw new UnprocessableEntityException(error);
-    }
+    const orders = await this.getClient().orderBook.findMany({
+      where: {
+        currencyPair: pair !== 'ALL' ? pair : undefined,
+        side: sideEnum,
+      },
+      skip,
+      take: count,
+    });
+
+    const totalRows = await this.getClient().orderBook.count({
+      where: {
+        currencyPair: pair !== 'ALL' ? pair : undefined,
+        side: sideEnum,
+      },
+    });
+
+    const orderDtos = orders.map(
+      (order) =>
+        new OrderResponseDto({
+          id: order.orderID,
+          date: order.createdAt.toISOString(),
+          currencyPair: order.currencyPair,
+          side: this.convertSideToEnum(order.side),
+          tradeType: this.convertOrderTypeToEnum(order.type),
+          tradePrice: order.limitPrice.toString(),
+          averagePrice: '0',
+          size: order.size.toString(),
+          filled: order.remaining.toString(),
+          feePaid: '0',
+          totalExecutedValue: '0',
+          stopPrice: order.stopPrice.toString(),
+          orderStatus: this.convertOrderStatusToEnum(order.statusType),
+          mOrders: [],
+        }),
+    );
+
+    return new OrderHistoryResponseDto({
+      pageInfo: {
+        totalRows,
+        currentPage: page,
+        pageSize: count,
+      },
+      result: orderDtos,
+    });
   }
 
   async getTradeHistory(tradeHistoryDto: TradeHistoryDto) {

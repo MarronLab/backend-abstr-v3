@@ -45,9 +45,9 @@ import {
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
-  MatchedOrderResponseDto,
+  // MatchedOrderResponseDto,
   OrderHistoryResponseDto,
-  OrderResponseDto,
+  // OrderResponseDto,
 } from './dto/orderHistoryResponse.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
 import {
@@ -196,46 +196,10 @@ export class OrderController {
     description: 'The order history has been successfully fetched.',
     type: OrderHistoryResponseDto,
   })
-  async orderHistory(@Query() orderHistoryDto: OrderHistoryDto) {
-    const response = await this.orderService.getOrderHistory(orderHistoryDto);
-
-    const { pageInfo, rows } = response;
-
-    const result = rows.map((row) => {
-      const matcheOrders = row.mOrders.map(
-        (mOrder) =>
-          new MatchedOrderResponseDto({
-            side: mOrder.side,
-            id: mOrder.orderId,
-            date: mOrder.date,
-            rate: mOrder.rate,
-            trade: mOrder.trade,
-            amount: mOrder.amount,
-            market: mOrder.market,
-            volume: mOrder.volume,
-            serviceCharge: mOrder.serviceCharge,
-          }),
-      );
-
-      return new OrderResponseDto({
-        id: row.orderId,
-        date: row.date,
-        side: row.side,
-        mOrders: matcheOrders,
-        filled: row.filled,
-        size: row.size,
-        feePaid: row.feePaid,
-        stopPrice: row.stopPrice,
-        tradeType: row.tradeType,
-        tradePrice: row.tradePrice,
-        orderStatus: row.orderStatus,
-        averagePrice: row.averagePrice,
-        currencyPair: row.currencyPair,
-        totalExecutedValue: row.totalExecutedValue,
-      });
-    });
-
-    return new OrderHistoryResponseDto({ pageInfo, result });
+  async OrderHistory(
+    @Query() query: OrderHistoryDto,
+  ): Promise<OrderHistoryResponseDto> {
+    return await this.orderService.getOrderHistory(query);
   }
 
   @UseGuards(AuthGuard)
