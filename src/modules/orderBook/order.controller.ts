@@ -5,6 +5,7 @@ import {
   Get,
   Post,
   Query,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -68,6 +69,8 @@ import {
   ChartDataResponseDto,
   GetChartDataQueryDto,
 } from './dto/ChartData.dto';
+import { Request } from 'express';
+import { ProfileData } from 'src/services/modulus/modulus.type';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -75,6 +78,7 @@ import {
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  @UseGuards(AuthGuard)
   @Post('/create-order')
   @ApiOperation({ summary: 'Create order' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
@@ -83,21 +87,23 @@ export class OrderController {
     description: 'The order has been successfully created.',
     type: [CreateOrderResponseDto],
   })
-  async createOrder(@Body() createOrderDto: CreateOrderDto) {
-    const response = await this.orderService.createOrder(createOrderDto);
+  async createOrder(
+    @Body() createOrderDto: CreateOrderDto,
+    @Req() req: Request,
+  ) {
+    const response = await this.orderService.createOrder(
+      createOrderDto,
+      req.user as ProfileData,
+    );
 
-    console.log({ response });
-
-    return response;
-
-    // return response.map((order: any) => {
-    //   return new CreateOrderResponseDto({
-    //     size: order.size,
-    //     price: order.price,
-    //     extraData: order.extraData,
-    //     timestamp: order.timestamp,
-    //   });
-    // });
+    return response.map((order: any) => {
+      return new CreateOrderResponseDto({
+        size: order.size,
+        price: order.price,
+        extraData: order.extraData,
+        timestamp: order.timestamp,
+      });
+    });
   }
 
   @UseGuards(AuthGuard)

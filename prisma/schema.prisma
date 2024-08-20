@@ -11,15 +11,25 @@ datasource db {
 }
 
 model OrderBook {
-  id        String   @id @default(cuid())
-  orderId   String   @unique
-  metadata  Json
-  side      String?
-  price     Int?
-  size      Int?
-  userId    String?
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  updateAt  DateTime @updatedAt @db.Timestamp(6)
+  id                      String   @id @default(cuid())
+  orderID                 Int      @unique
+  currencyPair            String  
+  size                    Int
+  type                    OrderType
+  side                    SideType
+  timeInForce             TimeInForceType
+  statusType              OrderStatusType
+  remaining               Int
+  stopPrice               Int
+  limitPrice              Int
+  trailingAmount          Int
+  metadata                Json
+  modulusCustomerEmail    String        
+
+  createdAt               DateTime @default(now()) @db.Timestamp(6)
+  updateAt                DateTime @updatedAt @db.Timestamp(6)
+
+  user                    User @relation(fields: [modulusCustomerEmail], references: [modulusCustomerEmail])
 
   @@map("orderBook")
 }
@@ -42,6 +52,8 @@ model User {
   lastLoggedInAt       DateTime       @default(now()) @db.Timestamp(6)
   createdAt            DateTime       @default(now()) @db.Timestamp(6)
   updateAt             DateTime       @updatedAt @db.Timestamp(6)
+
+  orders               OrderBook[]
 
   @@map("user")
 }
@@ -86,4 +98,46 @@ enum CoinGeckoResponseType {
   TRENDING_DATA
   TOPGAINERLOSER_DATA
   NEWLISTED_DATA
+}
+
+enum TimeInForceType {
+	TIF_NONE
+	// handled same as default of NONE
+	TIF_GTC
+	// not currently implemented, needs external "close session" request since exchange is 24/7
+	TIF_DAY
+	TIF_IOC
+	TIF_FOK
+}
+
+enum SideType {
+	SIDE_NONE
+	SIDE_BUY
+	SIDE_SELL
+}
+
+enum OrderType {
+	ORDER_TYPE_NONE
+	ORDER_TYPE_MARKET
+	ORDER_TYPE_LIMIT
+	ORDER_TYPE_STOP_MARKET
+	ORDER_TYPE_STOP_LIMIT
+	// unsupported, and might need to be done externally due to latency concerns
+	ORDER_TYPE_TRAILING_STOP_LIMIT
+	// unsupported, and might needs to be done externally due to latency concerns
+	ORDER_TYPE_TRAILING_STOP_MARKET
+}
+
+enum OrderStatusType {
+	ORDER_STATUS_NONE                             //0
+	ORDER_STATUS_ACCEPTED                         //1
+	ORDER_STATUS_PARTIALLY_FILLED                 //2
+	ORDER_STATUS_FILLED                           //3
+	ORDER_STATUS_CANCELLED                        //4
+	ORDER_STATUS_REJECTED                         //5
+	ORDER_STATUS_EXPIRED                          // 6 not used
+	ORDER_STATUS_ORDER_STATUS_END                 //7
+	ORDER_STATUS_CANCEL_ACCEPTED                  //8
+	ORDER_STATUS_CANCEL_REJECTED                  //9
+	ORDER_STATUS_STOP_ACTIVATED                   //10
 }

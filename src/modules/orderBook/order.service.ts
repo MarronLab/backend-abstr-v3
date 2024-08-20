@@ -6,8 +6,6 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/createOrder.dto';
-import { Order } from 'hft-limit-order-book/dist/types/order';
-// import { HttpService } from '@nestjs/axios';
 import { PrismaService } from 'src/services/prisma.service';
 import { PlaceOrderDto, PlaceOrderPricedDto } from './dto/placeOrder.dto';
 import { ModulusService } from 'src/services/modulus/modulus.service';
@@ -21,14 +19,21 @@ import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
 import { PendingOrdersDto } from './dto/pendingOrders.dto';
 import axios from 'axios';
 import { GetChartDataQueryDto } from './dto/ChartData.dto';
-
-export interface IProcessOrder {
-  done: Order[];
-  partial: Order | null;
-  partialQuantityProcessed: number;
-  quantityLeft: number;
-  err: Error | null;
-}
+import {
+  OrderStatusType as OrderStatusTypePrisma,
+  OrderType as OrderTypePrisma,
+  SideType as SideTypePrisma,
+  TimeInForceType as TimeInForceTypePrisma,
+} from '@prisma/client';
+import {
+  SubmitOrderResponse,
+  OrderStatusType,
+  OrdersI,
+  OrderType,
+  TimeInForceType,
+  SideType,
+} from './interfaces/submitOrder.interface';
+import { ProfileData } from 'src/services/modulus/modulus.type';
 
 interface ReturnOrderI {
   extraData: any;
@@ -47,80 +52,190 @@ export class OrderService extends BaseService {
     super(prismaService, req);
   }
 
-  async createOrder(createOrderDto: CreateOrderDto) {
+  private convertOrderStatusToPrismaEnum(
+    status: OrderStatusType,
+  ): OrderStatusTypePrisma {
+    switch (status) {
+      case OrderStatusType.ORDER_STATUS_NONE:
+        return OrderStatusTypePrisma.ORDER_STATUS_NONE;
+      case OrderStatusType.ORDER_STATUS_ACCEPTED:
+        return OrderStatusTypePrisma.ORDER_STATUS_ACCEPTED;
+      case OrderStatusType.ORDER_STATUS_PARTIALLY_FILLED:
+        return OrderStatusTypePrisma.ORDER_STATUS_PARTIALLY_FILLED;
+      case OrderStatusType.ORDER_STATUS_FILLED:
+        return OrderStatusTypePrisma.ORDER_STATUS_FILLED;
+      case OrderStatusType.ORDER_STATUS_CANCELLED:
+        return OrderStatusTypePrisma.ORDER_STATUS_CANCELLED;
+      case OrderStatusType.ORDER_STATUS_REJECTED:
+        return OrderStatusTypePrisma.ORDER_STATUS_REJECTED;
+      case OrderStatusType.ORDER_STATUS_EXPIRED:
+        return OrderStatusTypePrisma.ORDER_STATUS_EXPIRED;
+      case OrderStatusType.ORDER_STATUS_ORDER_STATUS_END:
+        return OrderStatusTypePrisma.ORDER_STATUS_ORDER_STATUS_END;
+      case OrderStatusType.ORDER_STATUS_CANCEL_ACCEPTED:
+        return OrderStatusTypePrisma.ORDER_STATUS_CANCEL_ACCEPTED;
+      case OrderStatusType.ORDER_STATUS_CANCEL_REJECTED:
+        return OrderStatusTypePrisma.ORDER_STATUS_CANCEL_REJECTED;
+      case OrderStatusType.ORDER_STATUS_STOP_ACTIVATED:
+        return OrderStatusTypePrisma.ORDER_STATUS_STOP_ACTIVATED;
+      default:
+        throw new Error(`Unknown order status: ${status}`);
+    }
+  }
+
+  private convertOrderTypeToPrismaEnum(type: OrderType): OrderTypePrisma {
+    switch (type) {
+      case OrderType.ORDER_TYPE_NONE:
+        return OrderTypePrisma.ORDER_TYPE_NONE;
+      case OrderType.ORDER_TYPE_MARKET:
+        return OrderTypePrisma.ORDER_TYPE_MARKET;
+      case OrderType.ORDER_TYPE_LIMIT:
+        return OrderTypePrisma.ORDER_TYPE_LIMIT;
+      case OrderType.ORDER_TYPE_STOP_MARKET:
+        return OrderTypePrisma.ORDER_TYPE_STOP_MARKET;
+      case OrderType.ORDER_TYPE_STOP_LIMIT:
+        return OrderTypePrisma.ORDER_TYPE_STOP_LIMIT;
+      case OrderType.ORDER_TYPE_TRAILING_STOP_LIMIT:
+        return OrderTypePrisma.ORDER_TYPE_TRAILING_STOP_LIMIT;
+      case OrderType.ORDER_TYPE_TRAILING_STOP_LIMIT:
+        return OrderTypePrisma.ORDER_TYPE_TRAILING_STOP_MARKET;
+      default:
+        throw new Error(`Unknown order status: ${status}`);
+    }
+  }
+
+  private convertSideTypeToPrismaEnum(side: SideType): SideTypePrisma {
+    switch (side) {
+      case SideType.SIDE_NONE:
+        return SideTypePrisma.SIDE_NONE;
+      case SideType.SIDE_BUY:
+        return SideTypePrisma.SIDE_BUY;
+      case SideType.SIDE_SELL:
+        return SideTypePrisma.SIDE_SELL;
+      default:
+        throw new Error(`Unknown order status: ${status}`);
+    }
+  }
+
+  private convertTimeInForceToPrismaEnum(
+    timeInForce: TimeInForceType,
+  ): TimeInForceTypePrisma {
+    switch (timeInForce) {
+      case TimeInForceType.TIF_NONE:
+        return TimeInForceTypePrisma.TIF_NONE;
+      case TimeInForceType.TIF_FOK:
+        return TimeInForceTypePrisma.TIF_FOK;
+      case TimeInForceType.TIF_GTC:
+        return TimeInForceTypePrisma.TIF_GTC;
+      case TimeInForceType.TIF_DAY:
+        return TimeInForceTypePrisma.TIF_DAY;
+      case TimeInForceType.TIF_IOC:
+        return TimeInForceTypePrisma.TIF_IOC;
+      default:
+        throw new Error(`Unknown order status: ${status}`);
+    }
+  }
+
+  private filterDuplicates<T extends object>(array: T[], key: keyof T): T[] {
+    const seen = new Set<T[keyof T]>();
+    return array.reduce<T[]>((acc, item) => {
+      const keyValue = item[key];
+      if (keyValue !== undefined && !seen.has(keyValue)) {
+        seen.add(keyValue);
+        acc.push(item);
+      }
+      return acc;
+    }, []);
+  }
+
+  async createOrder(createOrderDto: CreateOrderDto, user: ProfileData) {
     try {
       const orderId = Math.floor(Date.now() / 1000);
+      const params = {
+        CurrencyPair: createOrderDto.CurrencyPair,
+        Size: createOrderDto.Size,
+        Remaining: 1,
+        Side: createOrderDto.Side,
+        Type: OrderType.ORDER_TYPE_LIMIT,
+        TimeInForce: TimeInForceType.TIF_NONE,
+        LimitPrice: createOrderDto.LimitPrice,
+        StopPrice: 0,
+        TrailingAmount: 0,
+        OrderID: orderId,
+        UserID: user.customerID,
+        ExtraData: JSON.parse(createOrderDto.ExtraData),
+      };
 
-      // console.log({
-      //   CurrencyPair: createOrderDto.CurrencyPair,
-      //   Size: createOrderDto.Size,
-      //   Remaining: createOrderDto.Size,
-      //   Side: createOrderDto.Side,
-      //   Type: 2,
-      //   TimeInForce: 0,
-      //   LimitPrice: createOrderDto.LimitPrice,
-      //   StopPrice: 0,
-      //   TrailingAmount: 0,
-      //   OrderID: orderId,
-      //   UserID: createOrderDto.UserID,
-      //   // ExtraData: JSON.parse(createOrderDto.ExtraData),
-      // });
+      console.log({ params });
 
       //@TODO: extract http call to it own service
-
-      const modulusOrderResponse = await axios.post(
-        'http://localhost:8000/SubmitOrder',
-        {
-          CurrencyPair: 'FMAT_ETH',
-          Size: 1,
-          Remaining: 1,
-          Side: 2,
-          Type: 2,
-          TimeInForce: 0,
-          LimitPrice: 9690,
-          StopPrice: 0,
-          TrailingAmount: 0,
-          OrderID: 101,
-          UserID: 101,
-        },
+      const modulusOrderResponse = await axios.post<SubmitOrderResponse>(
+        `${process.env.MODULUS_GME_URL}/SubmitOrder`,
+        params,
       );
-
-      console.log({modulusOrderResponse})
-
-      // console.log({ modulusOrderResponse })
 
       const data = modulusOrderResponse.data;
 
-      // console.log({ modulusOrderResponseData: data });
-      console.log({ modulusOrderResponseData: data?.Event?.NewTrades });
+      console.log({ data });
+      console.log({ UpdatedBuyOrders: data?.Event?.UpdatedBuyOrders });
+      console.log({ UpdatedSellOrders: data?.Event?.UpdatedSellOrders });
+      console.log({ NewTrades: data?.Event?.NewTrades });
+
+      if (data.ErrorReason !== 100) {
+        throw new UnprocessableEntityException(data.ErrorReason);
+      }
+
+      await this.getClient().orderBook.create({
+        data: {
+          orderID: params.OrderID,
+          metadata: params.ExtraData,
+          timeInForce: this.convertTimeInForceToPrismaEnum(params.TimeInForce),
+          modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+          trailingAmount: params.TrailingAmount,
+          size: params.Size,
+          limitPrice: params.LimitPrice,
+          stopPrice: params.StopPrice,
+          remaining: params.Remaining,
+          currencyPair: params.CurrencyPair,
+          side: this.convertSideTypeToPrismaEnum(params.Side),
+          statusType: this.convertOrderStatusToPrismaEnum(data.RequestStatus),
+          type: this.convertOrderTypeToPrismaEnum(params.Type),
+        },
+      });
 
       const orders: ReturnOrderI[] = [];
-      // const { Event } = data || {};
-      //
-      // if (Event && Event.NewTrades.length > 0) {
-      //   const { NewTrades, UpdatedBuyOrders, UpdatedSellOrders } = Event;
-      //
-      //   console.log({ NewTrades, UpdatedBuyOrders, UpdatedSellOrders });
-      //
-      //   for (const newTrade of NewTrades) {
-      //     const relevantOrders = [...UpdatedBuyOrders, ...UpdatedSellOrders];
-      //     const matchingOrder = relevantOrders.find(
-      //       (order) => order.OrderID === newTrade.MakerOrderID,
-      //     );
-      //
-      //     console.log({ extraData: matchingOrder.extraData });
-      //
-      //     if (matchingOrder) {
-      //       orders.push({
-      //         extraData: matchingOrder.extraData,
-      //         size: newTrade.Size,
-      //         price: newTrade.Price,
-      //         timestamp: newTrade.Timestamp,
-      //       });
-      //     }
-      //   }
-      // }
-      //
+      let matchingOrders: OrdersI[] = [];
+
+      const { Event } = data || {};
+
+      if (Event && Event.NewTrades.length > 0) {
+        const { NewTrades, UpdatedBuyOrders, UpdatedSellOrders } = Event;
+
+        for (const newTrade of NewTrades) {
+          const relevantOrders = [...UpdatedBuyOrders, ...UpdatedSellOrders];
+          matchingOrders = relevantOrders.filter(
+            (order) =>
+              order.OrderID === newTrade.MakerOrderID ||
+              order.OrderID === newTrade.TakerOrderID,
+          );
+        }
+      }
+
+      const uniqueMatchingOrders = this.filterDuplicates(
+        matchingOrders,
+        'OrderID',
+      );
+
+      for (const matchingOrder of uniqueMatchingOrders) {
+        if (matchingOrder) {
+          orders.push({
+            extraData: matchingOrder.extraData,
+            size: matchingOrder.Size,
+            price: matchingOrder.LimitPrice,
+            timestamp: matchingOrder.TimeModified,
+          });
+        }
+      }
       return orders as any;
     } catch (error) {
       console.log(error);
@@ -177,12 +292,12 @@ export class OrderService extends BaseService {
       }
 
       //Store metadata
-      await this.getClient().orderBook.create({
-        data: {
-          orderId: String(data.data.orderId),
-          metadata: placeOrderDto.metadata,
-        },
-      });
+      // await this.getClient().orderBook.create({
+      //   data: {
+      //     orderId: String(data.data.orderId),
+      //     metadata: placeOrderDto.metadata,
+      //   },
+      // });
 
       return { ...data.data, metadata: placeOrderDto.metadata };
     } catch (error) {
@@ -204,12 +319,12 @@ export class OrderService extends BaseService {
       }
 
       //Store metadata
-      await this.getClient().orderBook.create({
-        data: {
-          orderId: String(data.data.orderId),
-          metadata: placeOrderPricedDto.metadata,
-        },
-      });
+      // await this.getClient().orderBook.create({
+      //   data: {
+      //     orderId: String(data.data.orderId),
+      //     metadata: placeOrderPricedDto.metadata,
+      //   },
+      // });
 
       return { ...data.data, metadata: placeOrderPricedDto.metadata };
     } catch (error) {
@@ -229,9 +344,9 @@ export class OrderService extends BaseService {
       }
 
       //Remove metadata
-      await this.getClient().orderBook.delete({
-        where: { orderId: String(cancelOrderDto.id) },
-      });
+      // await this.getClient().orderBook.delete({
+      //   where: { orderId: String(cancelOrderDto.id) },
+      // });
 
       return data.data;
     } catch (error) {

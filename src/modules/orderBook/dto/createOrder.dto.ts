@@ -26,11 +26,6 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @IsNumber()
   LimitPrice: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
-  UserID: number;
 }
 
 export class CreateOrderResponseDto {
