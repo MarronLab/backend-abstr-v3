@@ -199,7 +199,20 @@ export class OrderController {
   async OrderHistory(
     @Query() query: OrderHistoryDto,
   ): Promise<OrderHistoryResponseDto> {
-    return await this.orderService.getOrderHistory(query);
+    const { orders, totalRows } =
+      await this.orderService.getOrderHistory(query);
+
+    const currentPage = query.page ?? 1;
+    const pageSize = query.count ?? 10;
+
+    return new OrderHistoryResponseDto({
+      pageInfo: {
+        totalRows,
+        currentPage,
+        pageSize,
+      },
+      result: orders,
+    });
   }
 
   @UseGuards(AuthGuard)

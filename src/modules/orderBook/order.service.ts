@@ -15,7 +15,7 @@ import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
 import {
-  OrderHistoryResponseDto,
+  // OrderHistoryResponseDto,
   OrderResponseDto,
 } from './dto/orderHistoryResponse.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
@@ -42,6 +42,7 @@ import {
   OrderSideEnum,
   OrderTypeEnum,
 } from 'src/services/modulus/modulus.enum';
+import { calculateSkip } from 'src/utils/pagination';
 
 interface ReturnOrderI {
   extraData: any;
@@ -184,14 +185,26 @@ export class OrderService extends BaseService {
   private convertStringToSideType(
     side: string | undefined,
   ): SideTypePrisma | undefined {
+    if (!side) return undefined;
+
     switch (side) {
       case 'BUY':
-        return SideTypePrisma.SIDE_BUY; // Ensure this matches Prisma enum
+        return SideTypePrisma.SIDE_BUY;
       case 'SELL':
-        return SideTypePrisma.SIDE_SELL; // Ensure this matches Prisma enum
+        return SideTypePrisma.SIDE_SELL;
       default:
-        return undefined;
+        throw new Error(`Invalid side type: ${side}`);
     }
+  }
+
+  private createOrderFilter(
+    pair: string,
+    sideEnum: SideTypePrisma | undefined,
+  ) {
+    return {
+      currencyPair: pair !== 'ALL' ? pair : undefined,
+      side: sideEnum,
+    };
   }
 
   private filterDuplicates<T extends object>(array: T[], key: keyof T): T[] {
@@ -300,28 +313,24 @@ export class OrderService extends BaseService {
     }
   }
 
-  async getOrderHistory(
-    orderHistoryDto: OrderHistoryDto,
-  ): Promise<OrderHistoryResponseDto> {
+  async getOrderHistory(orderHistoryDto: OrderHistoryDto) {
     const { pair, side, page = 1, count = 10 } = orderHistoryDto;
-    const skip = (page - 1) * count;
+    const skip = calculateSkip(page, count);
     const sideEnum = this.convertStringToSideType(side);
 
+    const filterCriteria = this.createOrderFilter(pair, sideEnum);
+
     const orders = await this.getClient().orderBook.findMany({
-      where: {
-        currencyPair: pair !== 'ALL' ? pair : undefined,
-        side: sideEnum,
-      },
+      where: filterCriteria,
       skip,
       take: count,
     });
 
     const totalRows = await this.getClient().orderBook.count({
-      where: {
-        currencyPair: pair !== 'ALL' ? pair : undefined,
-        side: sideEnum,
-      },
+      where: filterCriteria,
     });
+
+    const ZERO = '0';
 
     const orderDtos = orders.map(
       (order) =>
@@ -332,25 +341,18 @@ export class OrderService extends BaseService {
           side: this.convertSideToEnum(order.side),
           tradeType: this.convertOrderTypeToEnum(order.type),
           tradePrice: order.limitPrice.toString(),
-          averagePrice: '0',
+          averagePrice: ZERO,
           size: order.size.toString(),
           filled: order.remaining.toString(),
-          feePaid: '0',
-          totalExecutedValue: '0',
+          feePaid: ZERO,
+          totalExecutedValue: ZERO,
           stopPrice: order.stopPrice.toString(),
           orderStatus: this.convertOrderStatusToEnum(order.statusType),
           mOrders: [],
         }),
     );
 
-    return new OrderHistoryResponseDto({
-      pageInfo: {
-        totalRows,
-        currentPage: page,
-        pageSize: count,
-      },
-      result: orderDtos,
-    });
+    return { orders: orderDtos, totalRows };
   }
 
   async getTradeHistory(tradeHistoryDto: TradeHistoryDto) {
