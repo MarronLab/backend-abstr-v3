@@ -41,6 +41,7 @@ import { ProfileData } from 'src/services/modulus/modulus.type';
 import {
   OrderSideEnum,
   OrderTypeEnum,
+  // OrderSideExtendedEnum,
 } from 'src/services/modulus/modulus.enum';
 import { calculateSkip } from 'src/utils/pagination';
 
@@ -192,6 +193,8 @@ export class OrderService extends BaseService {
         return SideTypePrisma.SIDE_BUY;
       case 'SELL':
         return SideTypePrisma.SIDE_SELL;
+      case 'ALL':
+        return undefined;
       default:
         throw new Error(`Invalid side type: ${side}`);
     }
@@ -318,7 +321,10 @@ export class OrderService extends BaseService {
     const skip = calculateSkip(page, count);
     const sideEnum = this.convertStringToSideType(side);
 
-    const filterCriteria = this.createOrderFilter(pair, sideEnum);
+    const filterCriteria: Record<string, any> = this.createOrderFilter(
+      pair,
+      sideEnum,
+    );
 
     const orders = await this.getClient().orderBook.findMany({
       where: filterCriteria,
