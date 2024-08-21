@@ -26,6 +26,8 @@ export class SettingsService {
       const { data: marketSummary } =
         await this.modulusService.getMarketSummary();
 
+      const { data: coinStatsData } = await this.modulusService.getCoinStats();
+
       // Filter supported currencies
       const supportedCurrencies = currencySettings.data.filter(
         (currency) => currency.networkName === 'Base',
@@ -37,7 +39,9 @@ export class SettingsService {
           const currency = supportedCurrencies.find(
             (c) => c.shortName === tradeSetting.coinName,
           );
-          return currency ? { ...currency, ...tradeSetting } : null;
+          const stats = coinStatsData.data[tradeSetting.coinName.toLowerCase()];
+
+          return currency ? { ...currency, ...tradeSetting, stats } : null;
         })
         .filter((setting) => setting !== null);
 

@@ -167,6 +167,7 @@ export class OrderService extends BaseService {
       };
 
       console.log({ params });
+      console.log({ ExtraData: params.ExtraData });
 
       //@TODO: extract http call to it own service
       const modulusOrderResponse = await axios.post<SubmitOrderResponse>(
