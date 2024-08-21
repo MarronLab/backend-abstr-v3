@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDefined, IsEnum, IsNotEmpty } from 'class-validator';
-import { OrderSideExtendedEnum } from 'src/services/modulus/modulus.enum';
+import {
+  OrderSideEnum,
+  OrderSideExtendedEnum,
+} from 'src/services/modulus/modulus.enum';
 import { Type } from 'class-transformer';
 
 export class OpenOrdersDto {
@@ -27,16 +30,29 @@ export class OpenOrdersDto {
 
 export class OpenOrder {
   @ApiProperty({
+    description: 'Side of the order, indicating whether it is a BUY or SELL.',
+    enum: OrderSideEnum,
+    example: 'SELL',
+  })
+  side: OrderSideEnum;
+
+  @ApiProperty({
     description: 'Price at which the order was placed.',
     example: 45000.75,
   })
-  limitPrice: number;
+  price: number;
 
   @ApiProperty({
     description: 'Size of the order.',
     example: 1.0,
   })
   size: number;
+
+  @ApiProperty({
+    description: 'Total of the order. i.e limitPrice * size',
+    example: 1.0,
+  })
+  total: number;
 
   constructor(partial: Partial<OpenOrder>) {
     Object.assign(this, partial);

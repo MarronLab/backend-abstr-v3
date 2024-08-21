@@ -76,7 +76,8 @@ import {
   OpenOrdersDto,
   OpenOrdersResponseDto,
 } from './dto/openOrders.dto';
-import { Trade, TradesDto, TradesResponseDto } from './dto/trades.dto';
+import { TradesDto, TradesResponseDto } from './dto/trades.dto';
+import BigNumber from 'bignumber.js';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -393,7 +394,6 @@ export class OrderController {
     return await this.orderService.getChartData(query);
   }
 
-  @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('open')
   @ApiOperation({
@@ -410,16 +410,26 @@ export class OrderController {
     const sellOrders = response.SELL.map(
       (order) =>
         new OpenOrder({
-          limitPrice: order.limitPrice,
+          price: order.limitPrice,
           size: order.size,
+          total: Number(
+            new BigNumber(order.limitPrice).times(order.size).toNumber(),
+          ),
+          side:
+            order.side === 'SIDE_BUY' ? OrderSideEnum.BUY : OrderSideEnum.SELL,
         }),
     );
 
     const buyOrders = response.BUY.map(
       (order) =>
         new OpenOrder({
-          limitPrice: order.limitPrice,
+          price: order.limitPrice,
           size: order.size,
+          total: Number(
+            new BigNumber(order.limitPrice).times(order.size).toNumber(),
+          ),
+          side:
+            order.side === 'SIDE_BUY' ? OrderSideEnum.BUY : OrderSideEnum.SELL,
         }),
     );
 
@@ -429,7 +439,6 @@ export class OrderController {
     });
   }
 
-  @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('trades')
   @ApiOperation({
@@ -443,25 +452,16 @@ export class OrderController {
   async getTrades(@Query() tradesDto: TradesDto) {
     const response = await this.orderService.trades(tradesDto);
 
-    const sellOrders = response.SELL.map(
-      (order) =>
-        new Trade({
-          limitPrice: order.limitPrice,
-          size: order.size,
-        }),
-    );
-
-    const buyOrders = response.BUY.map(
-      (order) =>
-        new Trade({
-          limitPrice: order.limitPrice,
-          size: order.size,
-        }),
-    );
-
-    return new TradesResponseDto({
-      sell: sellOrders,
-      buy: buyOrders,
+    return response.map((order) => {
+      return new TradesResponseDto({
+        price: order.limitPrice,
+        size: order.size,
+        total: Number(
+          new BigNumber(order.limitPrice).times(order.size).toNumber(),
+        ),
+        side:
+          order.side === 'SIDE_BUY' ? OrderSideEnum.BUY : OrderSideEnum.SELL,
+      });
     });
   }
 }

@@ -432,7 +432,9 @@ export class OrderService extends BaseService {
     try {
       const orders = await this.getClient().orderBook.findMany({
         where: {
-          ...(openOrdersDto.pair !== 'ALL' && { pair: openOrdersDto.pair }),
+          ...(openOrdersDto.pair !== 'ALL' && {
+            currencyPair: openOrdersDto.pair,
+          }),
           ...(openOrdersDto.side !== 'ALL' && {
             side,
           }),
@@ -455,8 +457,12 @@ export class OrderService extends BaseService {
           return acc;
         },
         { BUY: [], SELL: [] } as {
-          BUY: { size: number; limitPrice: number }[];
-          SELL: { size: number; limitPrice: number }[];
+          BUY: {
+            size: number;
+            limitPrice: number;
+            side: SideTypePrisma;
+          }[];
+          SELL: { size: number; limitPrice: number; side: SideTypePrisma }[];
         },
       );
 
@@ -476,7 +482,7 @@ export class OrderService extends BaseService {
     try {
       const orders = await this.getClient().orderBook.findMany({
         where: {
-          ...(tradesDto.pair !== 'ALL' && { pair: tradesDto.pair }),
+          ...(tradesDto.pair !== 'ALL' && { currencyPair: tradesDto.pair }),
           ...(tradesDto.side !== 'ALL' && {
             side,
           }),
@@ -488,23 +494,7 @@ export class OrderService extends BaseService {
         select: { limitPrice: true, size: true, side: true, id: true },
       });
 
-      const groupedOrders = orders.reduce(
-        (acc, order) => {
-          if (order.side === SideTypePrisma.SIDE_BUY) {
-            acc.BUY.push(order);
-          } else if (order.side === SideTypePrisma.SIDE_SELL) {
-            acc.SELL.push(order);
-          }
-
-          return acc;
-        },
-        { BUY: [], SELL: [] } as {
-          BUY: { size: number; limitPrice: number }[];
-          SELL: { size: number; limitPrice: number }[];
-        },
-      );
-
-      return groupedOrders;
+      return orders;
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(error);
