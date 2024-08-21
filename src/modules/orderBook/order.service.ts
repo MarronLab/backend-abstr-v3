@@ -35,6 +35,9 @@ import {
   SideType,
 } from './interfaces/submitOrder.interface';
 import { ProfileData } from 'src/services/modulus/modulus.type';
+import { OpenOrdersDto } from './dto/openOrders.dto';
+import { OrderSideExtendedEnum } from 'src/services/modulus/modulus.enum';
+import { TradesDto } from './dto/trades.dto';
 import {
   OrderSideEnum,
   OrderTypeEnum,
@@ -524,6 +527,84 @@ export class OrderService extends BaseService {
       }
 
       return response.data;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async openOrders(openOrdersDto: OpenOrdersDto) {
+    const side =
+      openOrdersDto.side === OrderSideExtendedEnum.SELL
+        ? SideTypePrisma.SIDE_SELL
+        : SideTypePrisma.SIDE_BUY;
+
+    try {
+      const orders = await this.getClient().orderBook.findMany({
+        where: {
+          ...(openOrdersDto.pair !== 'ALL' && {
+            currencyPair: openOrdersDto.pair,
+          }),
+          ...(openOrdersDto.side !== 'ALL' && {
+            side,
+          }),
+          OR: [
+            { statusType: OrderStatusTypePrisma.ORDER_STATUS_NONE },
+            { statusType: OrderStatusTypePrisma.ORDER_STATUS_ACCEPTED },
+          ],
+        },
+        select: { limitPrice: true, size: true, side: true, id: true },
+      });
+
+      const groupedOrders = orders.reduce(
+        (acc, order) => {
+          if (order.side === SideTypePrisma.SIDE_BUY) {
+            acc.BUY.push(order);
+          } else if (order.side === SideTypePrisma.SIDE_SELL) {
+            acc.SELL.push(order);
+          }
+
+          return acc;
+        },
+        { BUY: [], SELL: [] } as {
+          BUY: {
+            size: number;
+            limitPrice: number;
+            side: SideTypePrisma;
+          }[];
+          SELL: { size: number; limitPrice: number; side: SideTypePrisma }[];
+        },
+      );
+
+      return groupedOrders;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async trades(tradesDto: TradesDto) {
+    const side =
+      tradesDto.side === OrderSideExtendedEnum.SELL
+        ? SideTypePrisma.SIDE_SELL
+        : SideTypePrisma.SIDE_BUY;
+
+    try {
+      const orders = await this.getClient().orderBook.findMany({
+        where: {
+          ...(tradesDto.pair !== 'ALL' && { currencyPair: tradesDto.pair }),
+          ...(tradesDto.side !== 'ALL' && {
+            side,
+          }),
+          OR: [
+            { statusType: OrderStatusTypePrisma.ORDER_STATUS_FILLED },
+            { statusType: OrderStatusTypePrisma.ORDER_STATUS_PARTIALLY_FILLED },
+          ],
+        },
+        select: { limitPrice: true, size: true, side: true, id: true },
+      });
+
+      return orders;
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(error);

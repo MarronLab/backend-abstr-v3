@@ -67,6 +67,13 @@ import {
 } from './dto/ChartData.dto';
 import { Request } from 'express';
 import { ProfileData } from 'src/services/modulus/modulus.type';
+import {
+  OpenOrder,
+  OpenOrdersDto,
+  OpenOrdersResponseDto,
+} from './dto/openOrders.dto';
+import { TradesDto, TradesResponseDto } from './dto/trades.dto';
+import BigNumber from 'bignumber.js';
 
 @ApiBearerAuth()
 @ApiTags('orders')
@@ -361,5 +368,76 @@ export class OrderController {
   })
   async getChartData(@Query() query: GetChartDataQueryDto) {
     return await this.orderService.getChartData(query);
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('open')
+  @ApiOperation({
+    summary: 'This endpoint returns a list of open orders group by side',
+  })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The pending orders has successfully been fetched.',
+    type: OpenOrdersResponseDto,
+  })
+  async getOpenOrders(@Query() openOrdersDto: OpenOrdersDto) {
+    const response = await this.orderService.openOrders(openOrdersDto);
+
+    const sellOrders = response.SELL.map(
+      (order) =>
+        new OpenOrder({
+          price: order.limitPrice,
+          size: order.size,
+          total: Number(
+            new BigNumber(order.limitPrice).times(order.size).toNumber(),
+          ),
+          side:
+            order.side === 'SIDE_BUY' ? OrderSideEnum.BUY : OrderSideEnum.SELL,
+        }),
+    );
+
+    const buyOrders = response.BUY.map(
+      (order) =>
+        new OpenOrder({
+          price: order.limitPrice,
+          size: order.size,
+          total: Number(
+            new BigNumber(order.limitPrice).times(order.size).toNumber(),
+          ),
+          side:
+            order.side === 'SIDE_BUY' ? OrderSideEnum.BUY : OrderSideEnum.SELL,
+        }),
+    );
+
+    return new OpenOrdersResponseDto({
+      sell: sellOrders,
+      buy: buyOrders,
+    });
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('trades')
+  @ApiOperation({
+    summary: 'This endpoint returns a list of trades group by side',
+  })
+  @ApiUnprocessableEntityResponse({ description: 'UnprocessableEntity' })
+  @ApiCreatedResponse({
+    description: 'The trades has successfully been fetched.',
+    type: TradesResponseDto,
+  })
+  async getTrades(@Query() tradesDto: TradesDto) {
+    const response = await this.orderService.trades(tradesDto);
+
+    return response.map((order) => {
+      return new TradesResponseDto({
+        price: order.limitPrice,
+        size: order.size,
+        total: Number(
+          new BigNumber(order.limitPrice).times(order.size).toNumber(),
+        ),
+        side:
+          order.side === 'SIDE_BUY' ? OrderSideEnum.BUY : OrderSideEnum.SELL,
+      });
+    });
   }
 }
