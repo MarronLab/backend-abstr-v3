@@ -91,6 +91,10 @@ export class SafeService extends BaseService {
       throw new UnprocessableEntityException('User already exist');
     }
 
+    if (!safeAddress) {
+      throw new UnprocessableEntityException('Safe not generated');
+    }
+
     const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const nanoid = customAlphabet(alphabet, 16);
 
