@@ -57,10 +57,10 @@ export class AuthGuard implements CanActivate {
           durationInMilliseconds / (1000 * 60),
         );
 
-        if (durationInMinutes > internalUser.autoLogoutDuration) {
-          await this.modulusService.logout();
-          throw new UnauthorizedException();
-        }
+        // if (durationInMinutes > internalUser.autoLogoutDuration) {
+        //   await this.modulusService.logout();
+        //   throw new UnauthorizedException();
+        // }
       }
 
       request['user'] = { ...user.data.data, internalData: internalUser };
