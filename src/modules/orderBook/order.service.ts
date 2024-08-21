@@ -14,10 +14,7 @@ import { BaseService } from 'src/common/base.service';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
-import {
-  // OrderHistoryResponseDto,
-  OrderResponseDto,
-} from './dto/orderHistoryResponse.dto';
+import { OrderResponseDto } from './dto/orderHistoryResponse.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
 import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
 import { PendingOrdersDto } from './dto/pendingOrders.dto';
@@ -41,7 +38,6 @@ import { ProfileData } from 'src/services/modulus/modulus.type';
 import {
   OrderSideEnum,
   OrderTypeEnum,
-  // OrderSideExtendedEnum,
 } from 'src/services/modulus/modulus.enum';
 import { calculateSkip } from 'src/utils/pagination';
 

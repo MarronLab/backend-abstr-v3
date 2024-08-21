@@ -44,11 +44,7 @@ import {
   pendingOrdersResponseSchema,
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
-import {
-  // MatchedOrderResponseDto,
-  OrderHistoryResponseDto,
-  // OrderResponseDto,
-} from './dto/orderHistoryResponse.dto';
+import { OrderHistoryResponseDto } from './dto/orderHistoryResponse.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
 import {
   TradeHistoryResponseDto,
