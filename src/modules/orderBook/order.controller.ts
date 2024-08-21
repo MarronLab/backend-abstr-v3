@@ -198,9 +198,12 @@ export class OrderController {
   })
   async OrderHistory(
     @Query() query: OrderHistoryDto,
+    @Req() req: Request,
   ): Promise<OrderHistoryResponseDto> {
-    const { orders, totalRows } =
-      await this.orderService.getOrderHistory(query);
+    const { orders, totalRows } = await this.orderService.getOrderHistory(
+      query,
+      req.user as ProfileData,
+    );
 
     const currentPage = query.page ?? 1;
     const pageSize = query.count ?? 10;

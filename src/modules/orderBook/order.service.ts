@@ -147,21 +147,27 @@ export class OrderService extends BaseService {
   }
 
   private convertSideToEnum(side: string): OrderSideEnum | undefined {
+    let result: OrderSideEnum | undefined;
+
     switch (side) {
-      case 'BUY':
-        return OrderSideEnum.BUY;
-      case 'SELL':
-        return OrderSideEnum.SELL;
+      case 'SIDE_BUY':
+        result = OrderSideEnum.BUY;
+        break;
+      case 'SIDE_SELL':
+        result = OrderSideEnum.SELL;
+        break;
       default:
-        return undefined;
+        result = undefined;
     }
+
+    return result;
   }
 
   private convertOrderTypeToEnum(type: string): OrderTypeEnum | undefined {
     switch (type) {
-      case 'LIMIT':
+      case 'ORDER_TYPE_LIMIT':
         return OrderTypeEnum.LIMIT;
-      case 'MARKET':
+      case 'ORDER_TYPE_MARKET':
         return OrderTypeEnum.MARKET;
       default:
         return undefined;
@@ -176,7 +182,7 @@ export class OrderService extends BaseService {
         return 'Filled';
       case 'ORDER_STATUS_CANCELLED':
         return 'Cancelled';
-      case 'ORDER_STATUS_PENDING':
+      case 'ORDER_STATUS_ACCEPTED':
         return 'Pending';
       default:
         return undefined;
@@ -316,49 +322,52 @@ export class OrderService extends BaseService {
     }
   }
 
-  async getOrderHistory(orderHistoryDto: OrderHistoryDto) {
+  async getOrderHistory(orderHistoryDto: OrderHistoryDto, user: ProfileData) {
     const { pair, side, page = 1, count = 10 } = orderHistoryDto;
     const skip = calculateSkip(page, count);
     const sideEnum = this.convertStringToSideType(side);
 
-    const filterCriteria: Record<string, any> = this.createOrderFilter(
-      pair,
-      sideEnum,
-    );
+    const filterCriteria: Record<string, any> = {
+      ...this.createOrderFilter(pair, sideEnum),
+      modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+    };
 
-    const orders = await this.getClient().orderBook.findMany({
-      where: filterCriteria,
-      skip,
-      take: count,
-    });
+    try {
+      const orders = await this.getClient().orderBook.findMany({
+        where: filterCriteria,
+        skip,
+        take: count,
+      });
 
-    const totalRows = await this.getClient().orderBook.count({
-      where: filterCriteria,
-    });
+      const totalRows = await this.getClient().orderBook.count({
+        where: filterCriteria,
+      });
 
-    const ZERO = '0';
+      const ZERO = '0';
 
-    const orderDtos = orders.map(
-      (order) =>
-        new OrderResponseDto({
-          id: order.orderID,
-          date: order.createdAt.toISOString(),
-          currencyPair: order.currencyPair,
-          side: this.convertSideToEnum(order.side),
-          tradeType: this.convertOrderTypeToEnum(order.type),
-          tradePrice: order.limitPrice.toString(),
-          averagePrice: ZERO,
-          size: order.size.toString(),
-          filled: order.remaining.toString(),
-          feePaid: ZERO,
-          totalExecutedValue: ZERO,
-          stopPrice: order.stopPrice.toString(),
-          orderStatus: this.convertOrderStatusToEnum(order.statusType),
-          mOrders: [],
-        }),
-    );
-
-    return { orders: orderDtos, totalRows };
+      const orderDtos = orders.map(
+        (order) =>
+          new OrderResponseDto({
+            id: order.orderID,
+            date: order.createdAt.toISOString(),
+            currencyPair: order.currencyPair,
+            side: this.convertSideToEnum(order.side),
+            tradeType: this.convertOrderTypeToEnum(order.type),
+            tradePrice: order.limitPrice.toString(),
+            averagePrice: ZERO,
+            size: order.size.toString(),
+            filled: order.remaining.toString(),
+            feePaid: ZERO,
+            totalExecutedValue: order.size.toString(),
+            stopPrice: order.stopPrice.toString(),
+            orderStatus: this.convertOrderStatusToEnum(order.statusType),
+            mOrders: [],
+          }),
+      );
+      return { orders: orderDtos, totalRows };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to fetch order history');
+    }
   }
 
   async getTradeHistory(tradeHistoryDto: TradeHistoryDto) {
