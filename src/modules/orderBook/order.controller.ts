@@ -44,11 +44,7 @@ import {
   pendingOrdersResponseSchema,
 } from './order.schema';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
-import {
-  MatchedOrderResponseDto,
-  OrderHistoryResponseDto,
-  OrderResponseDto,
-} from './dto/orderHistoryResponse.dto';
+import { OrderHistoryResponseDto } from './dto/orderHistoryResponse.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
 import {
   TradeHistoryResponseDto,
@@ -203,46 +199,26 @@ export class OrderController {
     description: 'The order history has been successfully fetched.',
     type: OrderHistoryResponseDto,
   })
-  async orderHistory(@Query() orderHistoryDto: OrderHistoryDto) {
-    const response = await this.orderService.getOrderHistory(orderHistoryDto);
+  async OrderHistory(
+    @Query() query: OrderHistoryDto,
+    @Req() req: Request,
+  ): Promise<OrderHistoryResponseDto> {
+    const { orders, totalRows } = await this.orderService.getOrderHistory(
+      query,
+      req.user as ProfileData,
+    );
 
-    const { pageInfo, rows } = response;
+    const currentPage = query.page ?? 1;
+    const pageSize = query.count ?? 10;
 
-    const result = rows.map((row) => {
-      const matcheOrders = row.mOrders.map(
-        (mOrder) =>
-          new MatchedOrderResponseDto({
-            side: mOrder.side,
-            id: mOrder.orderId,
-            date: mOrder.date,
-            rate: mOrder.rate,
-            trade: mOrder.trade,
-            amount: mOrder.amount,
-            market: mOrder.market,
-            volume: mOrder.volume,
-            serviceCharge: mOrder.serviceCharge,
-          }),
-      );
-
-      return new OrderResponseDto({
-        id: row.orderId,
-        date: row.date,
-        side: row.side,
-        mOrders: matcheOrders,
-        filled: row.filled,
-        size: row.size,
-        feePaid: row.feePaid,
-        stopPrice: row.stopPrice,
-        tradeType: row.tradeType,
-        tradePrice: row.tradePrice,
-        orderStatus: row.orderStatus,
-        averagePrice: row.averagePrice,
-        currencyPair: row.currencyPair,
-        totalExecutedValue: row.totalExecutedValue,
-      });
+    return new OrderHistoryResponseDto({
+      pageInfo: {
+        totalRows,
+        currentPage,
+        pageSize,
+      },
+      result: orders,
     });
-
-    return new OrderHistoryResponseDto({ pageInfo, result });
   }
 
   @UseGuards(AuthGuard)
