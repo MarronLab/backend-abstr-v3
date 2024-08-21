@@ -14,6 +14,7 @@ import { BaseService } from 'src/common/base.service';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { OrderHistoryDto } from './dto/orderHistory.dto';
+import { OrderResponseDto } from './dto/orderHistoryResponse.dto';
 import { TradeHistoryDto } from './dto/tradeHistory.dto';
 import { AssetOpenOrderRequestDto } from './dto/openOrder.dto';
 import { PendingOrdersDto } from './dto/pendingOrders.dto';
@@ -34,6 +35,11 @@ import {
   SideType,
 } from './interfaces/submitOrder.interface';
 import { ProfileData } from 'src/services/modulus/modulus.type';
+import {
+  OrderSideEnum,
+  OrderTypeEnum,
+} from 'src/services/modulus/modulus.enum';
+import { calculateSkip } from 'src/utils/pagination';
 
 interface ReturnOrderI {
   extraData: any;
@@ -134,6 +140,76 @@ export class OrderService extends BaseService {
       default:
         throw new Error(`Unknown order status: ${status}`);
     }
+  }
+
+  private convertSideToEnum(side: string): OrderSideEnum | undefined {
+    let result: OrderSideEnum | undefined;
+
+    switch (side) {
+      case 'SIDE_BUY':
+        result = OrderSideEnum.BUY;
+        break;
+      case 'SIDE_SELL':
+        result = OrderSideEnum.SELL;
+        break;
+      default:
+        result = undefined;
+    }
+
+    return result;
+  }
+
+  private convertOrderTypeToEnum(type: string): OrderTypeEnum | undefined {
+    switch (type) {
+      case 'ORDER_TYPE_LIMIT':
+        return OrderTypeEnum.LIMIT;
+      case 'ORDER_TYPE_MARKET':
+        return OrderTypeEnum.MARKET;
+      default:
+        return undefined;
+    }
+  }
+
+  private convertOrderStatusToEnum(
+    statusType: string,
+  ): 'Filled' | 'Cancelled' | 'Pending' | undefined {
+    switch (statusType) {
+      case 'ORDER_STATUS_FILLED':
+        return 'Filled';
+      case 'ORDER_STATUS_CANCELLED':
+        return 'Cancelled';
+      case 'ORDER_STATUS_ACCEPTED':
+        return 'Pending';
+      default:
+        return undefined;
+    }
+  }
+
+  private convertStringToSideType(
+    side: string | undefined,
+  ): SideTypePrisma | undefined {
+    if (!side) return undefined;
+
+    switch (side) {
+      case 'BUY':
+        return SideTypePrisma.SIDE_BUY;
+      case 'SELL':
+        return SideTypePrisma.SIDE_SELL;
+      case 'ALL':
+        return undefined;
+      default:
+        throw new Error(`Invalid side type: ${side}`);
+    }
+  }
+
+  private createOrderFilter(
+    pair: string,
+    sideEnum: SideTypePrisma | undefined,
+  ) {
+    return {
+      currencyPair: pair !== 'ALL' ? pair : undefined,
+      side: sideEnum,
+    };
   }
 
   private filterDuplicates<T extends object>(array: T[], key: keyof T): T[] {
@@ -243,18 +319,51 @@ export class OrderService extends BaseService {
     }
   }
 
-  async getOrderHistory(orderHistoryDto: OrderHistoryDto) {
+  async getOrderHistory(orderHistoryDto: OrderHistoryDto, user: ProfileData) {
+    const { pair, side, page = 1, count = 10 } = orderHistoryDto;
+    const skip = calculateSkip(page, count);
+    const sideEnum = this.convertStringToSideType(side);
+
+    const filterCriteria: Record<string, any> = {
+      ...this.createOrderFilter(pair, sideEnum),
+      modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+    };
+
     try {
-      const { data } = await this.modulusService.orderHistory({
-        side: orderHistoryDto.side,
-        pair: orderHistoryDto.pair,
-        page: orderHistoryDto.page,
-        count: orderHistoryDto.count,
+      const orders = await this.getClient().orderBook.findMany({
+        where: filterCriteria,
+        skip,
+        take: count,
       });
 
-      return data.data;
+      const totalRows = await this.getClient().orderBook.count({
+        where: filterCriteria,
+      });
+
+      const ZERO = '0';
+
+      const orderDtos = orders.map(
+        (order) =>
+          new OrderResponseDto({
+            id: order.orderID,
+            date: order.createdAt.toISOString(),
+            currencyPair: order.currencyPair,
+            side: this.convertSideToEnum(order.side),
+            tradeType: this.convertOrderTypeToEnum(order.type),
+            tradePrice: order.limitPrice.toString(),
+            averagePrice: ZERO,
+            size: order.size.toString(),
+            filled: order.remaining.toString(),
+            feePaid: ZERO,
+            totalExecutedValue: order.size.toString(),
+            stopPrice: order.stopPrice.toString(),
+            orderStatus: this.convertOrderStatusToEnum(order.statusType),
+            mOrders: [],
+          }),
+      );
+      return { orders: orderDtos, totalRows };
     } catch (error) {
-      throw new UnprocessableEntityException(error);
+      throw new InternalServerErrorException('Failed to fetch order history');
     }
   }
 
