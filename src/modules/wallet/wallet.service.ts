@@ -390,8 +390,6 @@ export class WalletService {
           walletAddress,
         );
 
-      console.log({ transactions });
-
       const { data, finalBalance, balanceChange, balanceChangePercentage } =
         await this.calculateMoralisPerformanceData(transactions, startDate);
 
