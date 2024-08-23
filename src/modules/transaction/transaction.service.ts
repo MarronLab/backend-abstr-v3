@@ -10,7 +10,6 @@ export class TransactionService {
     address: string,
     getAllTransactionsDto: GetAllTransactionsDto,
   ) {
-    console.log('START: ');
     try {
       const response = await this.moralisService.transactions({
         cursor: getAllTransactionsDto.cursor,
@@ -19,9 +18,11 @@ export class TransactionService {
         chain: HelperProvider.getNetworkName(),
       });
 
-      console.log('RESPONSE: ', response);
+      const result = this.moralisService.flattenMoralisTransaction(
+        response.result,
+      );
 
-      return response;
+      return { ...response, result };
     } catch (error) {
       console.log('ERROR: ', error);
       throw new InternalServerErrorException(error);

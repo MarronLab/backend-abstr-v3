@@ -12,7 +12,7 @@ import HelperProvider from 'src/utils/helperProvider';
 import ConstantProvider from 'src/utils/constantProvider';
 import { MoralisTokenInfo } from './wallet.interface';
 import { MoralisService } from 'src/services/moralis/moralis.service';
-import { MoralisTransactionData } from 'src/services/moralis/moralis.type';
+import { MoralisTransaction } from 'src/services/moralis/moralis.type';
 import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
@@ -296,31 +296,69 @@ export class WalletService {
     }
   }
 
-  private calculateMoralisPerformanceData(
-    transactions: MoralisTransactionData[],
+  async formatMoralisTransactions(transactions: MoralisTransaction[]) {
+    try {
+      const flattenTransactions =
+        this.moralisService.flattenMoralisTransaction(transactions);
+
+      const data = await this.settingsService.getApiSettings();
+      const { data: coinStatsData } = await this.modulusService.getCoinStats();
+
+      if (!data.supportedAssets) {
+        throw new UnprocessableEntityException();
+      }
+
+      return data.supportedAssets
+        .map((_asset) => {
+          const asset = _asset!;
+          const stats = coinStatsData.data[asset.shortName.toLowerCase()];
+          const transaction = flattenTransactions.find(
+            (x) =>
+              x.token_symbol.toLowerCase() === asset.shortName.toLowerCase(),
+          );
+
+          if (transaction) {
+            return {
+              ...transaction,
+              value_usd: stats.price
+                ? Number(transaction.value * Number(stats.price)).toFixed(2)
+                : Number(0).toFixed(2),
+            };
+          }
+        })
+        .filter(
+          (item): item is Exclude<typeof item, undefined> => item !== undefined,
+        );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private async calculateMoralisPerformanceData(
+    transactions: MoralisTransaction[],
     startDate: string,
-    walletAddress: string,
   ) {
     let initialBalance = 0,
       finalBalance = 0;
 
-    const filteredTransactions = transactions.filter(
+    const formattedTransactions =
+      await this.formatMoralisTransactions(transactions);
+    const filteredTransactions = formattedTransactions.filter(
       (transaction) =>
         new Date(transaction.block_timestamp) >= new Date(startDate),
     );
 
     const data = filteredTransactions.map((transaction) => {
       if (transaction.receipt_status === '1') {
-        const isDeposit =
-          transaction.to_address.toLowerCase() === walletAddress.toLowerCase();
+        const isDeposit = transaction.direction.toLowerCase() === 'receive';
         finalBalance += isDeposit
-          ? Number(transaction.value)
-          : -Number(transaction.value);
+          ? Number(transaction.value_usd)
+          : -Number(transaction.value_usd);
       }
 
       return {
-        timestamp: Date.parse(transaction.block_timestamp) / 1000,
-        balance: Number(transaction.value),
+        timestamp: Date.parse(transaction.block_timestamp),
+        balance: Number(transaction.value_usd),
       };
     });
 
@@ -352,12 +390,10 @@ export class WalletService {
           walletAddress,
         );
 
+      console.log({ transactions });
+
       const { data, finalBalance, balanceChange, balanceChangePercentage } =
-        this.calculateMoralisPerformanceData(
-          transactions,
-          startDate,
-          walletAddress,
-        );
+        await this.calculateMoralisPerformanceData(transactions, startDate);
 
       return {
         graph: data,
