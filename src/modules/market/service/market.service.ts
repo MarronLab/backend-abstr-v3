@@ -417,7 +417,7 @@ export class MarketService extends BaseService {
         const timeDiff = now.getTime() - lastUpdatedDate.getTime();
         const diffHours = timeDiff / (1000 * 3600);
 
-        if (diffHours > 1) {
+        if (diffHours < 1) {
           const parsedData = lastUpdated.data.map((item: string) =>
             JSON.parse(item),
           ) as CoinGeckoTopGainerLoserResponse[];
@@ -484,17 +484,22 @@ export class MarketService extends BaseService {
       }
       const uniqueMatchingCoinIds = Array.from(matchingCoinIds);
 
-      console.log(
-        'logged response topgainerloser unique',
-        uniqueMatchingCoinIds,
-      );
       const response = await this.coingeckoService.getTopGainerLoserData(
         this.topGainerLoserParams,
       );
 
-      console.log('logged response topgainerloser', response);
+      // Filter top_gainers and top_losers based on uniqueMatchingCoinIds
+      const filteredTopGainers = response.top_gainers.filter((coin) =>
+        uniqueMatchingCoinIds.includes(coin.id),
+      );
+      const filteredTopLosers = response.top_losers.filter((coin) =>
+        uniqueMatchingCoinIds.includes(coin.id),
+      );
 
-      const topGainerLoserData = this.transformTopGainerLoserData(response);
+      const topGainerLoserData = this.transformTopGainerLoserData({
+        top_gainers: filteredTopGainers,
+        top_losers: filteredTopLosers,
+      });
 
       await this.saveTopGainerLoserData(topGainerLoserData);
 
@@ -589,6 +594,52 @@ export class MarketService extends BaseService {
         }
       }
 
+      const getMarketDatalist = await this.coingeckoService.getMarketData(
+        this.params,
+      );
+      const detailedDataPromises = getMarketDatalist.map(async (coin) => {
+        const coinData = await this.getSingleCoinData(coin.id);
+        return coinData;
+      });
+
+      const detailedCoins = await Promise.all(detailedDataPromises);
+
+      const allmarketsummary = await this.modulusService.getMarketSummary();
+
+      const supportpairs = this.extractPairs(allmarketsummary.data);
+
+      const detailedCoinPairs = detailedCoins
+        .map((coin) => {
+          return coin?.tickers.map((ticker) =>
+            this.normalizePair(ticker.base, ticker.target),
+          );
+        })
+        .flat();
+
+      const uniqueDetailedCoinPairs = [...new Set(detailedCoinPairs)];
+      const matchingCoinIds = new Set<string>();
+
+      for (const pair of supportpairs) {
+        const [base, target] = pair.split('_');
+        const normalizedPair = this.normalizePair(base, target);
+
+        const isPairInUnique = uniqueDetailedCoinPairs.includes(normalizedPair);
+
+        if (isPairInUnique) {
+          const matchingCoin = detailedCoins.find((coin) =>
+            coin?.tickers.some(
+              (ticker) =>
+                this.normalizePair(ticker.base, ticker.target) ===
+                normalizedPair,
+            ),
+          );
+          if (matchingCoin) {
+            matchingCoinIds.add(matchingCoin.id);
+          }
+        }
+      }
+      const uniqueMatchingCoinIds = Array.from(matchingCoinIds);
+
       const recentCoins = await this.coingeckoService.getRecentAddedCoins();
 
       if (!Array.isArray(recentCoins) || recentCoins.length === 0) {
@@ -598,7 +649,11 @@ export class MarketService extends BaseService {
         );
       }
 
-      const results = await this.processAndSaveNewCoins(recentCoins);
+      const filteredRecentCoins = recentCoins.filter((coin) =>
+        uniqueMatchingCoinIds.includes(coin.id),
+      );
+
+      const results = await this.processAndSaveNewCoins(filteredRecentCoins);
 
       return paginate(
         results,
