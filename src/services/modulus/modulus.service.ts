@@ -102,10 +102,8 @@ export class ModulusService {
         request,
         config,
       );
-      console.log('saved post response', response);
       return response;
     } catch (error) {
-      console.log('logged error post', error);
       this.handleError(error);
     }
   }
@@ -115,10 +113,8 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
-      console.log('logged response', response);
       return response;
     } catch (error) {
-      console.log('logged error', error);
       this.handleError(error);
     }
   }
