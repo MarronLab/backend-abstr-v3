@@ -220,29 +220,68 @@ export class UserService extends BaseService {
     }
   }
 
-  async saveFavoriteCoins(coinId: string) {
+  async saveFavoriteCoins(coinId: string, watchlist: boolean) {
     try {
       const modulusCustomerEmail: string = (this.req.user as ProfileData)
         ?.internalData.modulusCustomerEmail;
 
-      await this.getClient().userFavorite.upsert({
-        where: {
-          modulusCustomerEmail_coinId: { modulusCustomerEmail, coinId },
-        },
-        update: {},
-        create: {
-          modulusCustomerEmail,
-          coinId,
-        },
-      });
+      const normalizedCoinId = coinId.toLowerCase();
 
-      return {
-        status: 'Success',
-        message: 'Success_General',
-        data: null,
-      };
+      if (watchlist) {
+        await this.getClient().userFavorite.upsert({
+          where: {
+            modulusCustomerEmail_coinId: {
+              modulusCustomerEmail,
+              coinId: normalizedCoinId,
+            },
+          },
+          update: {},
+          create: {
+            modulusCustomerEmail,
+            coinId: normalizedCoinId,
+          },
+        });
+
+        return {
+          status: 'Success',
+          message: 'Coin added to watchlist.',
+          data: null,
+        };
+      } else {
+        const favoriteCoin = await this.getClient().userFavorite.findUnique({
+          where: {
+            modulusCustomerEmail_coinId: {
+              modulusCustomerEmail,
+              coinId: normalizedCoinId,
+            },
+          },
+        });
+
+        if (!favoriteCoin) {
+          return {
+            status: 'Success',
+            message: 'Coin not found in watchlist.',
+            data: null,
+          };
+        }
+
+        await this.getClient().userFavorite.delete({
+          where: {
+            modulusCustomerEmail_coinId: {
+              modulusCustomerEmail,
+              coinId: normalizedCoinId,
+            },
+          },
+        });
+
+        return {
+          status: 'Success',
+          message: 'Coin removed from watchlist.',
+          data: null,
+        };
+      }
     } catch (error) {
-      throw new InternalServerErrorException('Failed to save favorite coin.');
+      throw new InternalServerErrorException('Failed to update favorite coin.');
     }
   }
 

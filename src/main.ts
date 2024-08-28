@@ -27,7 +27,7 @@ async function bootstrap() {
 
   const { httpAdapter } = app.get(HttpAdapterHost);
 
-  // make sure to disable before deploying
+  // // make sure to disable before deploying
   // app.enableCors({
   //   origin: '*',
   // });
