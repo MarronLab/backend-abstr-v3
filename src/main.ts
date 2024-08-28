@@ -24,7 +24,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: '*',
+    origin: 'https://fe9734629764123.maroon.io',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Specify the HTTP methods you want to allow
     // allowedHeaders: ['Content-Type', 'Authorization', 'Authorisation'], // Specify the headers you want to allow
     // credentials: true, // S
