@@ -27,9 +27,9 @@ async function bootstrap() {
 
   const { httpAdapter } = app.get(HttpAdapterHost);
 
-  // app.enableCors({
-  //   origin: '*',
-  // });
+  app.enableCors({
+    origin: '*',
+  });
 
   app.use(new JsonParseMiddleware().use);
 
