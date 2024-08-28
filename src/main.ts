@@ -27,9 +27,10 @@ async function bootstrap() {
 
   const { httpAdapter } = app.get(HttpAdapterHost);
 
-  // app.enableCors({
-  //   origin: '*',
-  // });
+  // make sure to disable before deploying
+  app.enableCors({
+    origin: '*',
+  });
 
   app.use(new JsonParseMiddleware().use);
 

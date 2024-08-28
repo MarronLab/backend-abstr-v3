@@ -4,12 +4,11 @@ import {
   InternalServerErrorException,
   Scope,
   UnauthorizedException,
-  // UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import axios from 'axios';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { SafeService } from 'src/services/safe.service';
+import { CoingeckoService } from 'src/services/coingecko/coingecko.service';
 import GenerateSafeAddressDto from '../dto/generate-safe-address.dto';
 import { BaseService } from 'src/common/base.service';
 import { REQUEST } from '@nestjs/core';
@@ -21,10 +20,6 @@ import {
   UpdateProfileRequest,
 } from 'src/services/modulus/modulus.type';
 import { Prisma } from '@prisma/client';
-import {
-  GetSaveFavoriteCoinMarketData,
-  GetSaveFavoriteCoinType,
-} from 'src/services/coingecko/coingecko.type';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService extends BaseService {
@@ -40,6 +35,7 @@ export class UserService extends BaseService {
     @Inject(REQUEST) private readonly req: Request,
     private readonly safeService: SafeService,
     private readonly modulusService: ModulusService,
+    private readonly coingeckoService: CoingeckoService,
   ) {
     super(prisma, req);
   }
@@ -224,28 +220,43 @@ export class UserService extends BaseService {
     }
   }
 
-  async saveFavoriteCoins(params: string[]) {
+  async saveFavoriteCoins(coinId: string) {
     try {
-      const response = await this.modulusService.saveFavoriteCoins({
-        data: params,
+      const modulusCustomerEmail: string = (this.req.user as ProfileData)
+        ?.internalData.modulusCustomerEmail;
+
+      await this.getClient().userFavorite.upsert({
+        where: {
+          modulusCustomerEmail_coinId: { modulusCustomerEmail, coinId },
+        },
+        update: {},
+        create: {
+          modulusCustomerEmail,
+          coinId,
+        },
       });
 
-      if (response.data.status === 'Error') {
-        throw new UnprocessableEntityException(response.data.message);
-      }
-
-      return response.data;
+      return {
+        status: 'Success',
+        message: 'Success_General',
+        data: null,
+      };
     } catch (error) {
-      throw new Error(error);
+      throw new InternalServerErrorException('Failed to save favorite coin.');
     }
   }
 
   async getSaveFavoriteCoins() {
     try {
-      const { data: modulusData } =
-        await this.modulusService.getSaveFavoriteCoins();
+      const modulusCustomerEmail: string = (this.req.user as ProfileData)
+        ?.internalData.modulusCustomerEmail;
 
-      if (!modulusData.data || modulusData.data.length === 0) {
+      const savedCoins = await this.getClient().userFavorite.findMany({
+        where: { modulusCustomerEmail },
+        select: { coinId: true },
+      });
+
+      if (!savedCoins.length) {
         return {
           status: 'Success',
           message: 'No favorite coins found.',
@@ -253,74 +264,36 @@ export class UserService extends BaseService {
         };
       }
 
-      const coinListUrl = `${process.env.COINGECKO_BASE_URL}coins/list`;
-      const headers = {
-        accept: 'application/json',
-        'X-CG-Pro-API-Key': process.env.COINGECKO_API_KEY,
-      };
+      const coinDataPromises = savedCoins.map(async (savedCoin) => {
+        const coinData = await this.coingeckoService.getSingleCoinData(
+          savedCoin.coinId,
+          {},
+        );
 
-      const coinListResponse = await axios.get<GetSaveFavoriteCoinType[]>(
-        coinListUrl,
-        {
-          headers,
-        },
-      );
-      const coinList = coinListResponse.data;
-
-      const idToCoinMap = coinList.reduce(
-        (
-          map: Record<string, GetSaveFavoriteCoinType>,
-          coin: GetSaveFavoriteCoinType,
-        ) => {
-          map[coin.id] = coin;
-          return map;
-        },
-        {},
-      );
-
-      const coinIds = modulusData.data
-        .map((id: string) => {
-          const coinId = idToCoinMap[id]?.id;
-          if (!coinId) {
-          }
-          return coinId;
-        })
-        .filter((coinId: string) => !!coinId)
-        .join(',');
-
-      if (!coinIds) {
         return {
-          status: 'Success',
-          message: 'No valid coin IDs found for the provided IDs.',
-          data: [],
+          id: coinData.id,
+          symbol: coinData.symbol,
+          name: coinData.name,
+          image: coinData.image.large,
+          current_price: coinData.market_data.current_price.usd,
+          price_change_percentage_24h:
+            coinData.market_data.price_change_percentage_24h,
+          price_change_24h: coinData.market_data.price_change_24h,
+          market_cap_rank: coinData.market_cap_rank,
+          high_24h: coinData.market_data.high_24h.usd,
+          low_24h: coinData.market_data.low_24h.usd,
         };
-      }
-
-      const marketDataUrl = `${process.env.COINGECKO_BASE_URL}coins/markets`;
-      const marketDataParams = {
-        vs_currency: 'usd',
-        ids: coinIds,
-      };
-
-      const marketDataResponse = await axios.get<
-        GetSaveFavoriteCoinMarketData[]
-      >(marketDataUrl, {
-        headers,
-        params: marketDataParams,
       });
 
-      const validatedData = marketDataResponse.data.filter((coin) => {
-        const originalCoin = idToCoinMap[coin.id];
-        return originalCoin && originalCoin.name === coin.name;
-      });
+      const coinDataResults = await Promise.all(coinDataPromises);
 
       return {
         status: 'Success',
         message: 'Favorite coins market data fetched successfully.',
-        data: validatedData,
+        data: coinDataResults,
       };
     } catch (error) {
-      throw new Error(error);
+      throw new InternalServerErrorException(error);
     }
   }
 }

@@ -34,6 +34,17 @@ model OrderBook {
   @@map("orderBook")
 }
 
+model UserFavorite {
+  id        String   @id @default(cuid())
+  modulusCustomerEmail     String
+  coinId    String
+
+  user      User    @relation(fields: [modulusCustomerEmail], references: [modulusCustomerEmail])
+
+  @@unique([modulusCustomerEmail, coinId])
+  @@map("userFavorite")
+}
+
 model User {
   id                   String         @id @default(cuid())
   safeAddress          String         @unique
@@ -54,6 +65,7 @@ model User {
   updateAt             DateTime       @updatedAt @db.Timestamp(6)
 
   orders               OrderBook[]
+  favorites            UserFavorite[]
 
   @@map("user")
 }
