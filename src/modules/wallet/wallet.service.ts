@@ -320,7 +320,7 @@ export class WalletService {
           if (transaction) {
             return {
               ...transaction,
-              value_usd: stats.price
+              value_usd: stats?.price
                 ? Number(transaction.value * Number(stats.price)).toFixed(2)
                 : Number(0).toFixed(2),
             };
@@ -343,6 +343,7 @@ export class WalletService {
 
     const formattedTransactions =
       await this.formatMoralisTransactions(transactions);
+
     const filteredTransactions = formattedTransactions.filter(
       (transaction) =>
         new Date(transaction.block_timestamp) >= new Date(startDate),

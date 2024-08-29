@@ -153,8 +153,6 @@ export class WalletController {
       internalUser.safeAddress,
     );
 
-    console.log(response);
-
     return new WalletNetworthResponseDto({
       totalNetworth: response.totalNetworth,
       fiatPercentage: response.fiatPercentage,
