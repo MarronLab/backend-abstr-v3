@@ -21,7 +21,7 @@ async function bootstrap() {
     dsn: process.env.SENTRY_DNS,
   });
 
-  const app = await NestFactory.create(AppModule, { cors: false });
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: '*',
