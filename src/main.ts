@@ -23,6 +23,10 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, { cors: false });
 
+  app.enableCors({
+    origin: '*',
+  });
+
   // app.enableCors({
   //   origin: false,
   //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Specify the HTTP methods you want to allow
