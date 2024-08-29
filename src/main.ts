@@ -21,14 +21,14 @@ async function bootstrap() {
     dsn: process.env.SENTRY_DNS,
   });
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
-  app.enableCors({
-    origin: false,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Specify the HTTP methods you want to allow
-    // allowedHeaders: ['Content-Type', 'Authorization', 'Authorisation'], // Specify the headers you want to allow
-    // credentials: true, // S
-  });
+  // app.enableCors({
+  //   origin: false,
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Specify the HTTP methods you want to allow
+  //   // allowedHeaders: ['Content-Type', 'Authorization', 'Authorisation'], // Specify the headers you want to allow
+  //   // credentials: true, // S
+  // });
 
   app.use(requestIp.mw());
 
