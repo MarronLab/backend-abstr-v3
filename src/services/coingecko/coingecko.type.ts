@@ -299,3 +299,9 @@ export type CoinGeckoRecentAddedCoin = {
 };
 
 export type GetRecentAddedCoinsResponse = CoinGeckoRecentAddedCoin[];
+
+export type GetAllCoinsResponse = {
+  id: string;
+  symbol: string;
+  name: string;
+}[];

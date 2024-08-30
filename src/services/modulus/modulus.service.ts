@@ -102,7 +102,6 @@ export class ModulusService {
         request,
         config,
       );
-
       return response;
     } catch (error) {
       this.handleError(error);
@@ -114,7 +113,6 @@ export class ModulusService {
       const response = await this.httpService.axiosRef.get<T>(endpoint, {
         params,
       });
-
       return response;
     } catch (error) {
       this.handleError(error);
