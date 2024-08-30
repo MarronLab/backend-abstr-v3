@@ -23,10 +23,22 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: '*',
+  });
+
+  // app.enableCors({
+  //   origin: false,
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Specify the HTTP methods you want to allow
+  //   // allowedHeaders: ['Content-Type', 'Authorization', 'Authorisation'], // Specify the headers you want to allow
+  //   // credentials: true, // S
+  // });
+
   app.use(requestIp.mw());
 
   const { httpAdapter } = app.get(HttpAdapterHost);
 
+  // make sure to disable before deploying
   // app.enableCors({
   //   origin: '*',
   // });

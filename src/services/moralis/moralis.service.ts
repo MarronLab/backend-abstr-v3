@@ -2,8 +2,8 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import HelperProvider from 'src/utils/helperProvider';
 import {
-  MoralisTransactionData,
-  MoralisTransactions,
+  MoralisTransaction,
+  MoralisTransactionsResponse,
   NetworthResponse,
 } from './moralis.type';
 
@@ -35,9 +35,10 @@ export class MoralisService {
     limit?: number;
   }) {
     try {
-      const response = await this.httpService.axiosRef.get<MoralisTransactions>(
-        `/v2.2/${address}?chain=${chain}&order=DESC&cursor=${cursor}&limit=${limit}`,
-      );
+      const response =
+        await this.httpService.axiosRef.get<MoralisTransactionsResponse>(
+          `/v2.2/wallets/${address}/history?chain=${chain}&order=DESC&cursor=${cursor}&limit=${limit}`,
+        );
 
       return response.data;
     } catch (error) {
@@ -45,8 +46,39 @@ export class MoralisService {
     }
   }
 
+  flattenMoralisTransaction(transactions: MoralisTransaction[]) {
+    return transactions.flatMap((transaction) => {
+      const { hash, block_timestamp, receipt_status } = transaction;
+
+      // Flatten ERC20 transfers
+      const erc20Transfers = transaction.erc20_transfers.map((erc20) => ({
+        hash,
+        block_timestamp,
+        receipt_status,
+        token_symbol: erc20.token_symbol,
+        value: parseFloat(erc20.value_formatted),
+        direction: erc20.direction,
+        type: 'erc20',
+      }));
+
+      // Flatten native transfers
+      const nativeTransfers = transaction.native_transfers.map((native) => ({
+        hash,
+        block_timestamp,
+        receipt_status,
+        token_symbol: native.token_symbol,
+        value: parseFloat(native.value_formatted),
+        direction: native.direction,
+        type: 'native',
+      }));
+
+      // Combine both transfers into one array
+      return [...erc20Transfers, ...nativeTransfers];
+    });
+  }
+
   async getAllMoralisWalletTransactions(walletAddress: string) {
-    let allTransactions: MoralisTransactionData[] = [];
+    let allTransactions: MoralisTransaction[] = [];
     let cursor = undefined;
 
     do {
