@@ -245,8 +245,6 @@ export class UserService extends BaseService {
       const { data: modulusData } =
         await this.modulusService.getSaveFavoriteCoins();
 
-      console.log('logged favorite data', modulusData);
-
       if (!modulusData.data || modulusData.data.length === 0) {
         return {
           status: 'Success',
@@ -282,9 +280,8 @@ export class UserService extends BaseService {
 
       const coinIds = modulusData.data
         .map((id: string) => {
-          console.log('logging the ID', id);
           const coinId = idToCoinMap[id]?.id;
-          console.log('logged coinId', coinId);
+
           if (!coinId) {
           }
           return coinId;
@@ -299,8 +296,6 @@ export class UserService extends BaseService {
           data: [],
         };
       }
-
-      console.log('coinlist id', coinIds);
 
       const marketDataUrl = `${process.env.COINGECKO_BASE_URL}coins/markets`;
       const marketDataParams = {
@@ -326,7 +321,6 @@ export class UserService extends BaseService {
         data: validatedData,
       };
     } catch (error) {
-      console.log('logged error service', error);
       throw new Error(error);
     }
   }
