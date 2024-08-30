@@ -5,9 +5,16 @@ import { UserModule } from '../user/module/user.module';
 import { MoralisModule } from 'src/services/moralis/moralis.module';
 import { AuthModule } from '../auth/module/auth.module';
 import { ModulusModule } from 'src/services/modulus/modulus.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
-  imports: [ModulusModule, MoralisModule, AuthModule, UserModule],
+  imports: [
+    ModulusModule,
+    MoralisModule,
+    AuthModule,
+    UserModule,
+    SettingsModule,
+  ],
   controllers: [TransactionController],
   providers: [TransactionService],
 })

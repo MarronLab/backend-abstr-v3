@@ -6,29 +6,12 @@ export const getAllTransactionsResponseSchema: JSONSchemaType<{
   pageSize: number;
   result: {
     hash: string;
-    nonce: string;
-    transactionIndex: string;
-    fromAddressEntity: null | string;
-    fromAddressEntityLogo: null | string;
-    fromAddress: string;
-    fromAddressLabel: null | string;
-    toAddressEntity: null | string;
-    toAddressEntityLogo: null | string;
-    toAddress: string;
-    toAddressLabel: null | string;
-    value: string;
-    gas: string;
-    gasPrice: string;
-    input: string;
-    receiptCumulativeGasUsed: string;
-    receiptGasUsed: string;
-    receiptContractAddress: null | string;
-    receiptRoot: null | string;
+    tokenSymbol: string;
+    value: number;
     receiptStatus: string;
-    transactionFee: string;
     blockTimestamp: string;
-    blockNumber: string;
-    blockHash: string;
+    type: string;
+    direction: string;
   }[];
 }> = {
   type: 'object',
@@ -37,6 +20,7 @@ export const getAllTransactionsResponseSchema: JSONSchemaType<{
   properties: {
     cursor: {
       type: 'string',
+      nullable: true as false,
     },
     page: {
       type: 'number',
@@ -50,58 +34,21 @@ export const getAllTransactionsResponseSchema: JSONSchemaType<{
         type: 'object',
         required: [
           'hash',
-          'nonce',
-          'transactionIndex',
-          'fromAddressEntity',
-          'fromAddressEntityLogo',
-          'fromAddress',
-          'fromAddressLabel',
-          'toAddressEntity',
-          'toAddressEntityLogo',
-          'toAddress',
-          'toAddressLabel',
+          'tokenSymbol',
+          'direction',
+          'type',
           'value',
-          'gas',
-          'gasPrice',
-          'input',
-          'receiptCumulativeGasUsed',
-          'receiptGasUsed',
-          'receiptContractAddress',
-          'receiptRoot',
           'receiptStatus',
-          'transactionFee',
           'blockTimestamp',
-          'blockNumber',
-          'blockHash',
         ],
         properties: {
           hash: { type: 'string' },
-          nonce: { type: 'string' },
-          transactionIndex: { type: 'string' },
-          fromAddressEntity: { type: 'string', nullable: true as false },
-          fromAddressEntityLogo: { type: 'string', nullable: true as false },
-          fromAddress: { type: 'string' },
-          fromAddressLabel: { type: 'string', nullable: true as false },
-          toAddressEntity: { type: 'string', nullable: true as false },
-          toAddressEntityLogo: { type: 'string', nullable: true as false },
-          toAddress: {
-            type: 'string',
-            nullable: true as false,
-          },
-          toAddressLabel: { type: 'string', nullable: true as false },
-          value: { type: 'string' },
-          gas: { type: 'string' },
-          gasPrice: { type: 'string' },
-          input: { type: 'string' },
-          receiptCumulativeGasUsed: { type: 'string' },
-          receiptGasUsed: { type: 'string' },
-          receiptContractAddress: { type: 'string', nullable: true as false },
-          receiptRoot: { type: 'string', nullable: true as false },
+          tokenSymbol: { type: 'string' },
+          direction: { type: 'string' },
+          type: { type: 'string' },
+          value: { type: 'number' },
           receiptStatus: { type: 'string' },
-          transactionFee: { type: 'string' },
           blockTimestamp: { type: 'string' },
-          blockNumber: { type: 'string' },
-          blockHash: { type: 'string' },
         },
       },
     },
