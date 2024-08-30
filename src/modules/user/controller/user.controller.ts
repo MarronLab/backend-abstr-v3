@@ -229,10 +229,12 @@ export class UserController {
     type: SaveFavoriteCoinsResponseDto,
   })
   async saveFavoriteCoins(@Body() saveFavoriteCoinsDto: SaveFavoriteCoinsDto) {
-    const response = await this.userService.saveFavoriteCoins(
-      saveFavoriteCoinsDto.data,
-    );
+    const { coinId, watchlist } = saveFavoriteCoinsDto;
 
+    const response = await this.userService.saveFavoriteCoins(
+      coinId,
+      watchlist,
+    );
     return new SaveFavoriteCoinsResponseDto({
       status: response.status,
       message: response.message,
