@@ -30,6 +30,7 @@ import { RecentAddedCoinDto } from '../dto/recentaddedcoinResponse.dto';
 
 import { paginate } from 'src/utils/pagination';
 import { CoinGeckoResponseType } from '@prisma/client';
+import mockAssets from '../mock/mockData';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
@@ -109,7 +110,7 @@ export class MarketService extends BaseService {
       }
 
       const response = await this.settingsService.getApiSettings();
-      const supportedAssetSlugs = response.supportedAssets
+      const supportedAssetSlugs = mockAssets
         .filter((asset): asset is NonNullable<typeof asset> => asset !== null)
         .map((asset) => asset.stats?.slug)
         .filter((slug): slug is string => slug !== undefined);
@@ -120,6 +121,8 @@ export class MarketService extends BaseService {
         trendingResponse.coins,
         supportedAssetSlugs,
       );
+
+      console.log(filteredResponse);
       const trendingData = await this.addSparklineData(filteredResponse);
 
       await this.saveData(MarketService.TRENDING_DATA_TYPE, trendingData);
