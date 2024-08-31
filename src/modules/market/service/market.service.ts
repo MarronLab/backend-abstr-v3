@@ -15,8 +15,7 @@ import { CoingeckoService } from '../../../services/coingecko/coingecko.service'
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { SettingsService } from 'src/modules/settings/settings.service';
 import {
-  CoinGeckoMarketDataResponse,
-  CoingeckoTrendingItem,
+  // CoingeckoTrendingItem,
   CoinGeckoTopGainerLoserResponse,
 } from '../../../services/coingecko/coingecko.type';
 import {
@@ -109,9 +108,11 @@ export class MarketService extends BaseService {
         return this.paginateData(parsedData, queryParams);
       }
 
-      const response = (await this.settingsService.getApiSettings())
-        .supportedAssets;
-      const supportedAssetSlugs = response.map((asset) => asset.stats.slug);
+      const response = await this.settingsService.getApiSettings();
+      const supportedAssetSlugs = response.supportedAssets
+        .filter((asset): asset is NonNullable<typeof asset> => asset !== null)
+        .map((asset) => asset.stats?.slug)
+        .filter((slug): slug is string => slug !== undefined);
 
       const trendingResponse =
         await this.coingeckoService.getTrendingMarketData();
@@ -303,6 +304,13 @@ export class MarketService extends BaseService {
         return this.paginateData(parsedData, queryParams);
       }
 
+      const response = await this.settingsService.getApiSettings();
+
+      const supportedAssetSlugs = response.supportedAssets
+        .filter((asset): asset is NonNullable<typeof asset> => asset !== null)
+        .map((asset) => asset.stats?.slug)
+        .filter((slug): slug is string => slug !== undefined);
+
       const recentCoins = await this.coingeckoService.getRecentAddedCoins();
       if (!Array.isArray(recentCoins) || recentCoins.length === 0) {
         return [];
@@ -310,7 +318,7 @@ export class MarketService extends BaseService {
 
       const filteredRecentCoins = await this.filterSupportedCoins(
         recentCoins,
-        [],
+        supportedAssetSlugs,
       );
       const results = await this.processAndSaveNewCoins(filteredRecentCoins);
 
@@ -364,17 +372,22 @@ export class MarketService extends BaseService {
   }
 
   private async filterSupportedCoins(coins: any[], supportedSlugs: string[]) {
-    const detailedDataPromises = coins.map(async (coin) => {
+    const filteredCoins = coins.filter((coin) => {
       const coinId = coin.item ? coin.item.id : coin.id;
-      const coinData = await this.getSingleCoinData(coinId);
-      return coinData;
+      return supportedSlugs.includes(coinId);
+    });
+
+    const detailedDataPromises = filteredCoins.map(async (coin) => {
+      const coinId = coin.item ? coin.item.id : coin.id;
+      return this.getSingleCoinData(coinId);
     });
 
     const detailedCoins = await Promise.all(detailedDataPromises);
-    const detailedCoinSlugs = detailedCoins.map((coin) => coin?.id); // Use slug as ID
-
-    return coins.filter((coin) => detailedCoinSlugs.includes(coin.id)); // Compare using slug
+    return detailedCoins.filter(
+      (coin): coin is NonNullable<typeof coin> => coin !== null,
+    );
   }
+
   private async getSupportedPairs() {
     const allMarketSummary = await this.modulusService.getMarketSummary();
     return this.extractPairs(allMarketSummary.data);
@@ -458,7 +471,7 @@ export class MarketService extends BaseService {
   }
 
   private async addSparklineData(
-    data: CoingeckoTrendingItem[],
+    data: any[],
   ): Promise<TrendingMarketDataResponseDto[]> {
     const trendingDataWithSparkline = [];
 
