@@ -13,6 +13,7 @@ import { BaseService } from '../../../common/base.service';
 import { PrismaService } from '../../../services/prisma.service';
 import { CoingeckoService } from '../../../services/coingecko/coingecko.service';
 import { ModulusService } from 'src/services/modulus/modulus.service';
+import { SettingsService } from 'src/modules/settings/settings.service';
 import {
   CoinGeckoMarketDataResponse,
   CoingeckoTrendingItem,
@@ -69,6 +70,7 @@ export class MarketService extends BaseService {
     private readonly coingeckoService: CoingeckoService,
     private readonly modulusService: ModulusService,
     private readonly prismaService: PrismaService,
+    private readonly settingsService: SettingsService,
     @Inject(REQUEST) req: Request,
   ) {
     super(prismaService, req);
@@ -85,11 +87,10 @@ export class MarketService extends BaseService {
         return this.paginateData(parsedData, queryParams);
       }
 
-      const response = await this.coingeckoService.getMarketData(
-        this.marketDataParams,
-      );
-      const filteredResponse = await this.filterSupportedCoins(response);
-      const marketData = this.transformResponse(filteredResponse);
+      const response = (await this.settingsService.getApiSettings())
+        .supportedAssets;
+
+      const marketData = this.transformResponse(response);
 
       await this.saveData(MarketService.MARKET_DATA_TYPE, marketData);
       return this.paginateData(marketData, queryParams);
@@ -108,8 +109,16 @@ export class MarketService extends BaseService {
         return this.paginateData(parsedData, queryParams);
       }
 
-      const response = await this.coingeckoService.getTrendingMarketData();
-      const filteredResponse = await this.filterSupportedCoins(response.coins);
+      const response = (await this.settingsService.getApiSettings())
+        .supportedAssets;
+      const supportedAssetSlugs = response.map((asset) => asset.stats.slug);
+
+      const trendingResponse =
+        await this.coingeckoService.getTrendingMarketData();
+      const filteredResponse = await this.filterSupportedCoins(
+        trendingResponse.coins,
+        supportedAssetSlugs,
+      );
       const trendingData = await this.addSparklineData(filteredResponse);
 
       await this.saveData(MarketService.TRENDING_DATA_TYPE, trendingData);
@@ -299,7 +308,10 @@ export class MarketService extends BaseService {
         return [];
       }
 
-      const filteredRecentCoins = await this.filterSupportedCoins(recentCoins);
+      const filteredRecentCoins = await this.filterSupportedCoins(
+        recentCoins,
+        [],
+      );
       const results = await this.processAndSaveNewCoins(filteredRecentCoins);
 
       return this.paginateData(results, queryParams);
@@ -351,8 +363,7 @@ export class MarketService extends BaseService {
     });
   }
 
-  private async filterSupportedCoins(coins: any[]) {
-    const supportedPairs = await this.getSupportedPairs();
+  private async filterSupportedCoins(coins: any[], supportedSlugs: string[]) {
     const detailedDataPromises = coins.map(async (coin) => {
       const coinId = coin.item ? coin.item.id : coin.id;
       const coinData = await this.getSingleCoinData(coinId);
@@ -360,37 +371,9 @@ export class MarketService extends BaseService {
     });
 
     const detailedCoins = await Promise.all(detailedDataPromises);
-    const detailedCoinPairs = detailedCoins
-      .map((coin) => {
-        return coin?.tickers.map((ticker) =>
-          this.normalizePair(ticker.base, ticker.target),
-        );
-      })
-      .flat();
+    const detailedCoinSlugs = detailedCoins.map((coin) => coin?.id); // Use slug as ID
 
-    const uniqueDetailedCoinPairs = [...new Set(detailedCoinPairs)];
-    const matchingCoinIds = new Set<string>();
-
-    for (const pair of supportedPairs) {
-      const [base, target] = pair.split('_');
-      const normalizedPair = this.normalizePair(base, target);
-
-      const isPairInUnique = uniqueDetailedCoinPairs.includes(normalizedPair);
-
-      if (isPairInUnique) {
-        const matchingCoin = detailedCoins.find((coin) =>
-          coin?.tickers.some(
-            (ticker) =>
-              this.normalizePair(ticker.base, ticker.target) === normalizedPair,
-          ),
-        );
-        if (matchingCoin) {
-          matchingCoinIds.add(matchingCoin.id);
-        }
-      }
-    }
-
-    return coins.filter((coin) => matchingCoinIds.has(coin.id));
+    return coins.filter((coin) => detailedCoinSlugs.includes(coin.id)); // Compare using slug
   }
   private async getSupportedPairs() {
     const allMarketSummary = await this.modulusService.getMarketSummary();
@@ -425,58 +408,44 @@ export class MarketService extends BaseService {
     );
   }
 
-  private transformResponse(
-    data: CoinGeckoMarketDataResponse[],
-  ): MarketDataResponseDto[] {
+  private transformResponse(data: any[]): MarketDataResponseDto[] {
     return data.map(
       (coin) =>
         new MarketDataResponseDto({
-          id: coin.id || '',
-          symbol: coin.symbol || '',
-          name: coin.name || '',
-          image: coin.image || '',
-          current_price:
-            coin.current_price !== null && coin.current_price !== undefined
-              ? coin.current_price
-              : 0,
-          market_cap: this.toNumberOrNull(coin.market_cap),
-          market_cap_rank:
-            coin.market_cap_rank !== null && coin.market_cap_rank !== undefined
-              ? coin.market_cap_rank
-              : 0,
-          fully_diluted_valuation: this.toNumberOrNull(
-            coin.fully_diluted_valuation,
-          ),
-          total_volume: this.toNumberOrNull(coin.total_volume),
-          high_24h: this.toNumberOrNull(coin.high_24h),
-          low_24h: this.toNumberOrNull(coin.low_24h),
-          price_change_24h: this.toNumberOrNull(coin.price_change_24h),
-          price_change_percentage_24h: this.toNumberOrNull(
-            coin.price_change_percentage_24h,
-          ),
-          market_cap_change_24h: this.toNumberOrNull(
-            coin.market_cap_change_24h,
-          ),
-          market_cap_change_percentage_24h: this.toNumberOrNull(
-            coin.market_cap_change_percentage_24h,
-          ),
-          circulating_supply: this.toNumberOrNull(coin.circulating_supply),
-          total_supply: this.toNumberOrNull(coin.total_supply),
-          max_supply: this.toNumberOrNull(coin.max_supply),
-          ath: this.toNumberOrNull(coin.ath),
-          ath_change_percentage: this.toNumberOrNull(
-            coin.ath_change_percentage,
-          ),
-          ath_date: coin.ath_date || '',
-          atl: this.toNumberOrNull(coin.atl),
-          atl_change_percentage: this.toNumberOrNull(
-            coin.atl_change_percentage,
-          ),
-          atl_date: coin.atl_date || '',
-          last_updated: coin.last_updated || '',
+          id: coin.stats?.slug || '',
+          symbol: coin.shortName || '',
+          name: coin.fullName || '',
+          image: coin.stats?.image || '',
+          current_price: this.toNumberOrNull(coin.stats?.price) || 0,
+          market_cap: this.toNumberOrNull(coin.stats?.marketCap) || 0,
+          market_cap_rank: this.toNumberOrNull(coin.stats?.rank) || 0,
+          fully_diluted_valuation:
+            (this.toNumberOrNull(coin.stats?.maxSupply) ?? 0) *
+              (this.toNumberOrNull(coin.stats?.price) ?? 0) || 0,
+
+          total_volume: this.toNumberOrNull(coin.stats?.volume24h) || 0,
+          high_24h: 0,
+          low_24h: 0,
+          price_change_24h:
+            this.toNumberOrNull(coin.stats?.priceChangePercent24hr) || 0,
+          price_change_percentage_24h:
+            this.toNumberOrNull(coin.stats?.priceChangePercent24hr) || 0,
+          market_cap_change_24h: 0,
+          market_cap_change_percentage_24h: 0,
+          circulating_supply:
+            this.toNumberOrNull(coin.stats?.circulatingSupply) || 0,
+          total_supply: this.toNumberOrNull(coin.stats?.maxSupply) || 0,
+          max_supply: this.toNumberOrNull(coin.stats?.maxSupply) || 0,
+          ath: 0,
+          ath_change_percentage: 0,
+          ath_date: '',
+          atl: 0,
+          atl_change_percentage: 0,
+          atl_date: '',
+          last_updated: coin.stats?.lastUpdated || '',
           sparkline_in_7d: {
-            price: Array.isArray(coin.sparkline_in_7d?.price)
-              ? coin.sparkline_in_7d.price
+            price: Array.isArray(coin.stats?.sparkline?.price)
+              ? coin.stats.sparkline.price
               : [],
           },
           watchlist: false,

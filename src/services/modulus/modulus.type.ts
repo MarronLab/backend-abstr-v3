@@ -896,6 +896,105 @@ export type GetFavoriteCoinsResponse = {
   data: any;
 };
 
+// export type GetSettingsResponse = {
+//   status: 'Success' | 'Error';
+//   message: string | null;
+//   data: {
+//     server_Time_UTC: string;
+//     client_IP: string;
+//     client_Country: string;
+//     default_Pair: string;
+//     disable_RM: string;
+//     disable_TDM: string;
+//     enable_TDM_Pay_IN_Exchange_Token: string;
+//     disable_2FA: string;
+//     disable_Login: string;
+//     enable_AeraPass: string;
+//     enable_InstaTrade: string;
+//     enable_CopyTrade: string;
+//     enable_SecurityTokens: string;
+//     enable_PhoneVerification: string;
+//     enable_P2P_Trading: string;
+//     enable_SocialTrade: string;
+//     enable_CryptoFeatures: boolean;
+//     auto_Sell: string;
+//     enable_CryptoForecasting: string;
+//     enable_Simplex: string;
+//     aeraPass_Url: string;
+//     logo_Url: string;
+//     favIcon_Url: string;
+//     navBarLogo_Url: string;
+//     fiat_List: string;
+//     exchange_IEO_Coins: string;
+//     withdrawals_Forced_2FA: string;
+//     mfa_Type: {
+//       name: string;
+//       codeLength: number;
+//       downloadLink: string;
+//     };
+//     _CoName: string;
+//     exchangeName: string;
+//     _xrp_address: string;
+//     tdM_Token_Name: string;
+//     enable_DustConversion: string;
+//     exchange_SupportDesk_URL: string;
+//     password_Strength: string;
+//     kyc: {
+//       enable_GoKYC: string;
+//       enable_SumSub_iframe: string;
+//       enable_WebSDK: string;
+//       webSDK_Provider_Name: string;
+//       webSDK_Provider_Url: string;
+//     };
+//     markets: string[];
+//     customErrorMessages: {
+//       [key: string]: string;
+//     };
+//     trade_setting: {
+//       coinName: string;
+//       marketName: string;
+//       minTickSize: number;
+//       minTradeAmount: number;
+//       minOrderValue: number;
+//       makerFee: number;
+//       takerFee: number;
+//       tradeEnabled: boolean;
+//       maxSize: number;
+//       maxOrderAmount: number;
+//       maxMarketOrderSize: number;
+//     }[];
+//     seo: {
+//       google_Analytics_ID: string;
+//       google_Tag_Manager: string;
+//       reCaptchaKey: string;
+//     };
+//     market_groups: {
+//       label: string;
+//       markets: string[];
+//     }[];
+//     websocket: string;
+//     notification: string;
+//     signup_mobile_verfication: string;
+//     enable_DSSO: boolean;
+//     enable_PriceAlerts: string;
+//     mgokx: {
+//       enabled: boolean;
+//       wallet_page: boolean;
+//       funds_transfer: boolean;
+//       withdraw: boolean;
+//       deposits: boolean;
+//       move_funds: boolean;
+//     };
+//     notabene: {
+//       enabled: boolean;
+//     };
+//     enable_MiddleName: string;
+//     transactions: {
+//       enableTravelRules: boolean;
+//     };
+//   };
+// };
+
 export type GetSettingsResponse = {
   status: 'Success' | 'Error';
   message: string | null;
@@ -991,6 +1090,49 @@ export type GetSettingsResponse = {
     enable_MiddleName: string;
     transactions: {
       enableTravelRules: boolean;
+    };
+    supportedAssets: {
+      [key: string]: {
+        shortName: string;
+        fullName: string;
+        stats: {
+          exchangeTicker: string;
+          dataSource: string;
+          coinName: string;
+          symbol: string;
+          slug: string;
+          image: string;
+          rank: number;
+          price: string;
+          volume24h: string;
+          marketCap: string;
+          priceChangePercent24hr: string;
+          circulatingSupply: string;
+          maxSupply: string;
+          priceChangePercent1h: string;
+          priceChangePercent7d: string;
+          priceChangePercent30: string;
+          issueDate: string;
+          lastUpdated: string;
+          tags: string;
+          tagsObject: string[];
+          description: string;
+          links_website: string;
+          links_reddit: string;
+          links_forum: string;
+          links_explorer: string;
+          links_sourceCode: string;
+          objectlinks_sourceCode: {
+            github: string[];
+            bitbucket: string[];
+          };
+          links_technicalDoc: string | null;
+          last_updatedon: string;
+          sparkline_in_7d: {
+            price: number[];
+          };
+        };
+      };
     };
   };
 };
