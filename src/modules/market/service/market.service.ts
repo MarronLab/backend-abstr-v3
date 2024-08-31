@@ -165,80 +165,42 @@ export class MarketService extends BaseService {
         }
       }
 
-      const getMarketDatalist = await this.coingeckoService.getMarketData(
-        this.marketDataParams,
+      const response = await this.settingsService.getApiSettings();
+      const supportedAssetSlugs = response.supportedAssets
+        .filter((asset): asset is NonNullable<typeof asset> => asset !== null)
+        .map((asset) => asset.stats?.slug)
+        .filter((slug): slug is string => slug !== undefined);
+
+      const topGainerLoserData =
+        await this.coingeckoService.getTopGainerLoserData(
+          this.topGainerLoserParams,
+        );
+
+      const filteredTopGainers = topGainerLoserData.top_gainers.filter((coin) =>
+        supportedAssetSlugs.includes(coin.id),
       );
-      const detailedDataPromises = getMarketDatalist.map(async (coin) => {
-        const coinData = await this.getSingleCoinData(coin.id);
-        return coinData;
-      });
-
-      const detailedCoins = await Promise.all(detailedDataPromises);
-
-      const allmarketsummary = await this.modulusService.getMarketSummary();
-
-      const supportpairs = this.extractPairs(allmarketsummary.data);
-
-      const detailedCoinPairs = detailedCoins
-        .map((coin) => {
-          return coin?.tickers.map((ticker) =>
-            this.normalizePair(ticker.base, ticker.target),
-          );
-        })
-        .flat();
-
-      const uniqueDetailedCoinPairs = [...new Set(detailedCoinPairs)];
-      const matchingCoinIds = new Set<string>();
-
-      for (const pair of supportpairs) {
-        const [base, target] = pair.split('_');
-        const normalizedPair = this.normalizePair(base, target);
-
-        const isPairInUnique = uniqueDetailedCoinPairs.includes(normalizedPair);
-
-        if (isPairInUnique) {
-          const matchingCoin = detailedCoins.find((coin) =>
-            coin?.tickers.some(
-              (ticker) =>
-                this.normalizePair(ticker.base, ticker.target) ===
-                normalizedPair,
-            ),
-          );
-          if (matchingCoin) {
-            matchingCoinIds.add(matchingCoin.id);
-          }
-        }
-      }
-      const uniqueMatchingCoinIds = Array.from(matchingCoinIds);
-
-      const response = await this.coingeckoService.getTopGainerLoserData(
-        this.topGainerLoserParams,
+      const filteredTopLosers = topGainerLoserData.top_losers.filter((coin) =>
+        supportedAssetSlugs.includes(coin.id),
       );
 
-      const filteredTopGainers = response.top_gainers.filter((coin) =>
-        uniqueMatchingCoinIds.includes(coin.id),
-      );
-      const filteredTopLosers = response.top_losers.filter((coin) =>
-        uniqueMatchingCoinIds.includes(coin.id),
-      );
-
-      const topGainerLoserData = this.transformTopGainerLoserData({
+      const topGainerLoserDataTransformed = this.transformTopGainerLoserData({
         top_gainers: filteredTopGainers,
         top_losers: filteredTopLosers,
       });
 
-      await this.saveTopGainerLoserData(topGainerLoserData);
+      await this.saveTopGainerLoserData(topGainerLoserDataTransformed);
 
       const topGainers = paginate(
-        topGainerLoserData.top_gainers,
+        topGainerLoserDataTransformed.top_gainers,
         queryParams.page ?? 1,
         queryParams.per_page ?? 10,
       );
       const topLosers = paginate(
-        topGainerLoserData.top_losers,
+        topGainerLoserDataTransformed.top_losers,
         queryParams.page ?? 1,
         queryParams.per_page ?? 10,
       );
+
       return new TopGainerLoserDataResponseDto({
         top_gainers: topGainers.items,
         top_losers: topLosers.items,
