@@ -248,7 +248,9 @@ export type GetCoinStatsResponse = {
       marketCap: null | string;
       priceChangePercent24hr: null | string;
       circulatingSupply: null | string;
-      sparkline: null | string;
+      sparkline_in_7d: {
+        price: number[];
+      };
       sparklineGraph: null | number[];
       maxSupply: null | string;
       priceChangePercent1h: null | string;

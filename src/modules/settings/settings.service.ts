@@ -4,11 +4,22 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
+import { CoingeckoService } from 'src/services/coingecko/coingecko.service';
 import { MarketSummaryPairData } from 'src/services/modulus/modulus.type';
+import { mockStats } from './mockStats';
 
 @Injectable()
 export class SettingsService {
-  constructor(private readonly modulusService: ModulusService) {}
+  constructor(
+    private readonly modulusService: ModulusService,
+    private readonly coingeckoService: CoingeckoService,
+  ) {}
+  private readonly singleCoinDataParams = {
+    localization: false,
+    community_data: false,
+    developer_data: false,
+    sparkline: true,
+  };
 
   async getApiSettings() {
     try {
@@ -33,17 +44,41 @@ export class SettingsService {
         (currency) => currency.networkName === 'Base',
       );
 
-      // Combine trade settings with supported currencies
-      const supportedAssets = primarySettings.data.trade_setting
-        .map((tradeSetting) => {
-          const currency = supportedCurrencies.find(
-            (c) => c.shortName === tradeSetting.coinName,
-          );
-          const stats = coinStatsData.data[tradeSetting.coinName.toLowerCase()];
+      const supportedAssets = (
+        await Promise.all(
+          primarySettings.data.trade_setting.map(async (tradeSetting) => {
+            try {
+              const currency = supportedCurrencies.find(
+                (c) => c.shortName === tradeSetting.coinName,
+              );
 
-          return currency ? { ...currency, ...tradeSetting, stats } : null;
-        })
-        .filter((setting) => setting !== null);
+              const stats =
+                coinStatsData.data[tradeSetting.coinName.toLowerCase()] ||
+                mockStats;
+
+              if (coinStatsData.data[tradeSetting.coinName.toLowerCase()]) {
+                // Fetch sparkline data if real stats exist
+                const coinGeckoData =
+                  await this.coingeckoService.getSingleCoinData(
+                    stats.slug,
+                    this.singleCoinDataParams,
+                  );
+                const sparklineData =
+                  coinGeckoData?.market_data?.sparkline_in_7d?.price ?? [];
+                stats.sparkline_in_7d = { price: sparklineData };
+              }
+              return currency ? { ...currency, ...tradeSetting, stats } : null;
+            } catch (err) {
+              console.error(
+                'Error processing trade setting',
+                tradeSetting,
+                err,
+              );
+              return null;
+            }
+          }),
+        )
+      ).filter((setting) => setting !== null);
 
       const supportedPairs = Object.keys(marketSummary.data).reduce(
         (acc, pair) => {
