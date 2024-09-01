@@ -441,7 +441,7 @@ export const SingleCoinGeckoDataResponseSchema: JSONSchemaType<SingleCoinGeckoDa
           total_supply: { type: 'number' },
           max_supply: { type: ['number', 'null'] as any },
           circulating_supply: { type: 'number' },
-          sparkline_in_7d: {
+          sparkline_7d: {
             type: 'object',
             properties: {
               price: {

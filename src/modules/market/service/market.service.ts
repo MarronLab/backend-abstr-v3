@@ -14,10 +14,7 @@ import { PrismaService } from '../../../services/prisma.service';
 import { CoingeckoService } from '../../../services/coingecko/coingecko.service';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { SettingsService } from 'src/modules/settings/settings.service';
-import {
-  // CoingeckoTrendingItem,
-  CoinGeckoTopGainerLoserResponse,
-} from '../../../services/coingecko/coingecko.type';
+import { CoinGeckoTopGainerLoserResponse } from '../../../services/coingecko/coingecko.type';
 import {
   MarketDataResponseDto,
   TrendingMarketDataResponseDto,
@@ -30,7 +27,6 @@ import { RecentAddedCoinDto } from '../dto/recentaddedcoinResponse.dto';
 
 import { paginate } from 'src/utils/pagination';
 import { CoinGeckoResponseType } from '@prisma/client';
-import mockAssets from '../mock/mockData';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
@@ -110,7 +106,7 @@ export class MarketService extends BaseService {
       }
 
       const response = await this.settingsService.getApiSettings();
-      const supportedAssetSlugs = mockAssets
+      const supportedAssetSlugs = response.supportedAssets
         .filter((asset): asset is NonNullable<typeof asset> => asset !== null)
         .map((asset) => asset.stats?.slug)
         .filter((slug): slug is string => slug !== undefined);
@@ -122,7 +118,6 @@ export class MarketService extends BaseService {
         supportedAssetSlugs,
       );
 
-      console.log(filteredResponse);
       const trendingData = await this.addSparklineData(filteredResponse);
 
       await this.saveData(MarketService.TRENDING_DATA_TYPE, trendingData);
@@ -341,7 +336,6 @@ export class MarketService extends BaseService {
       const coinId = coin.item ? coin.item.id : coin.id;
       return supportedSlugs.includes(coinId);
     });
-
     const detailedDataPromises = filteredCoins.map(async (coin) => {
       const coinId = coin.item ? coin.item.id : coin.id;
       return this.getSingleCoinData(coinId);
@@ -351,28 +345,6 @@ export class MarketService extends BaseService {
     return detailedCoins.filter(
       (coin): coin is NonNullable<typeof coin> => coin !== null,
     );
-  }
-
-  private async getSupportedPairs() {
-    const allMarketSummary = await this.modulusService.getMarketSummary();
-    return this.extractPairs(allMarketSummary.data);
-  }
-
-  private extractPairs(marketSummary: any): string[] {
-    if (!marketSummary || !marketSummary.data) {
-      console.error('Invalid market summary response.');
-      return [];
-    }
-
-    return Object.keys(marketSummary.data).map((pair: string) => {
-      const [base, target] = pair.split('_');
-      return this.normalizePair(base, target);
-    });
-  }
-
-  private normalizePair(base: string, target: string): string {
-    const sortedComponents = [base, target].sort();
-    return `${sortedComponents[0]}_${sortedComponents[1]}`.toUpperCase();
   }
 
   private paginateData(data: any[], queryParams: PaginationQueryDto) {
@@ -448,33 +420,32 @@ export class MarketService extends BaseService {
       );
 
       const sparklineData =
-        singleCoinData?.market_data?.sparkline_in_7d?.price ?? [];
+        singleCoinData?.market_data?.sparkline_7d?.price ?? [];
+      const marketData = singleCoinData?.market_data ?? {};
 
       trendingDataWithSparkline.push(
         new TrendingMarketDataResponseDto({
-          id: item.id,
-          coin_id: item.coin_id,
+          id: item.id ?? 0,
+          coin_id: item.coin_id ?? 0,
           name: item.name,
           symbol: item.symbol,
           market_cap_rank: item.market_cap_rank,
-          thumb: item.thumb,
-          small: item.small,
-          large: item.large,
-          price_btc: item.price_btc,
-          score: item.score,
+          thumb: item.image?.thumb ?? '',
+          small: item.image?.small ?? '',
+          large: item.image?.large ?? '',
+          price_btc: marketData.current_price?.btc ?? 0,
+          score: item.score ?? 0,
           data: {
-            price: singleCoinData.market_data.current_price.usd,
-            price_btc: singleCoinData.market_data.current_price.btc,
+            price: marketData.current_price?.usd ?? 0,
+            price_btc: marketData.current_price?.btc ?? 0,
             price_change_percentage_24h: {
-              btc: singleCoinData.market_data
-                .price_change_percentage_24h_in_currency.btc,
-              usd: singleCoinData.market_data
-                .price_change_percentage_24h_in_currency.usd,
+              btc: marketData.price_change_percentage_24h_in_currency?.btc ?? 0,
+              usd: marketData.price_change_percentage_24h_in_currency?.usd ?? 0,
             },
-            market_cap: singleCoinData.market_data.market_cap.usd,
-            market_cap_btc: singleCoinData.market_data.market_cap.btc,
-            total_volume: singleCoinData.market_data.total_volume.usd,
-            total_volume_btc: singleCoinData.market_data.total_volume.btc,
+            market_cap: marketData.market_cap?.usd ?? 0,
+            market_cap_btc: marketData.market_cap?.btc ?? 0,
+            total_volume: marketData.total_volume?.usd ?? 0,
+            total_volume_btc: marketData.total_volume?.btc ?? 0,
             sparkline_in_7d: {
               price: sparklineData,
             },
