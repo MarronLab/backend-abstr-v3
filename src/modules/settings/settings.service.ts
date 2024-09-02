@@ -12,6 +12,7 @@ import {
   GetCoinStatsResponse,
   MarketSummaryPairData,
 } from 'src/services/modulus/modulus.type';
+import { TradeSettingDto } from './dto/trade_setting.dto';
 import { mockStats } from './mockStats';
 
 @Injectable()
@@ -116,7 +117,7 @@ export class SettingsService {
   }
 
   private async processTradeSetting(
-    tradeSetting: any,
+    tradeSetting: TradeSettingDto,
     supportedCurrencies: GetCurrencySettingsResponse['data'],
     coinStatsData: GetCoinStatsResponse,
   ): Promise<any | null> {
