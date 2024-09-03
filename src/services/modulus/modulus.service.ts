@@ -80,6 +80,7 @@ export class ModulusService {
   constructor(private readonly httpService: HttpService) {}
 
   private handleError(error: any): never {
+    console.log(error);
     if (error instanceof AxiosError) {
       if (!error.response) {
         throw new Error('An unknown error occurred');

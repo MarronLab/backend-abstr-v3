@@ -143,6 +143,7 @@ export class AuthService extends BaseService {
         return { token: data, user: { ...internalUser, ...profile.data } };
       }
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException();
     }
   }

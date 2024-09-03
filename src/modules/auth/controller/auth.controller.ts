@@ -63,8 +63,7 @@ export class AuthController {
   })
   async login(@Body() account: LoginDto) {
     const response = await this.authService.login(account);
-
-    return { data: response };
+    return response;
   }
 
   @Post('register')
