@@ -22,112 +22,16 @@ export class TransactionResponseDto {
   hash: string;
 
   @ApiProperty({
-    description: 'The nonce of the transaction',
-    example: '326595425',
-  })
-  nonce: string;
-
-  @ApiProperty({
-    description: 'The index of the transaction within the block',
-    example: '25',
-  })
-  transactionIndex: string;
-
-  @ApiProperty({
-    nullable: true,
-  })
-  fromAddressEntity: null | string;
-
-  @ApiProperty({
-    nullable: true,
-  })
-  fromAddressEntityLogo: null | string;
-
-  @ApiProperty({
-    description: 'The address sending the transaction',
-    example: '0xd4a3BebD824189481FC45363602b83C9c7e9cbDf',
-  })
-  fromAddress: string;
-
-  @ApiProperty({
-    description: 'Label for the address sending the transaction',
-    example: 'Binance 1',
-    nullable: true,
-  })
-  fromAddressLabel: null | string;
-
-  @ApiProperty({
-    nullable: true,
-  })
-  toAddressEntity: null | string;
-
-  @ApiProperty({
-    nullable: true,
-  })
-  toAddressEntityLogo: null | string;
-
-  @ApiProperty({
-    description: 'The address receiving the transaction',
-    example: '0xa71db868318f0a0bae9411347cd4a6fa23d8d4ef',
-  })
-  toAddress: string;
-
-  @ApiProperty({
-    description: 'Label for the address receiving the transaction',
-    example: 'Binance 1',
-    nullable: true,
-  })
-  toAddressLabel: null | string;
-
-  @ApiProperty({
     description: 'The value of the transaction in wei',
-    example: '650000000000000000',
+    example: 6500,
   })
-  value: string;
+  value: number;
 
   @ApiProperty({
-    description: 'The gas limit provided by the sender',
-    example: '6721975',
+    description: 'The token symbol',
+    example: 'ETH',
   })
-  gas: string;
-
-  @ApiProperty({
-    description: 'The gas price provided by the sender in wei',
-    example: '20000000000',
-  })
-  gasPrice: string;
-
-  @ApiProperty({
-    description: 'The input data sent along with the transaction',
-  })
-  input: string;
-
-  @ApiProperty({
-    description:
-      'The total amount of gas used when this transaction was executed in the block',
-    example: '1340925',
-  })
-  receiptCumulativeGasUsed: string;
-
-  @ApiProperty({
-    description: 'The amount of gas used by this specific transaction',
-    example: '1340925',
-  })
-  receiptGasUsed: string;
-
-  @ApiProperty({
-    description:
-      'The contract address created, if this was a contract creation transaction',
-    example: '0x1d6a4cf64b52f6c73f201839aded7379ce58059c',
-    nullable: true,
-  })
-  receiptContractAddress: null | string;
-
-  @ApiProperty({
-    description: 'The root of the receipt',
-    nullable: true,
-  })
-  receiptRoot: null | string;
+  tokenSymbol: string;
 
   @ApiProperty({
     description:
@@ -137,29 +41,22 @@ export class TransactionResponseDto {
   receiptStatus: string;
 
   @ApiProperty({
-    description: 'The transaction fee in ETH',
-    example: '0.00034',
+    description: 'The token type',
+    example: 'erc20',
   })
-  transactionFee: string;
+  type: string;
+
+  @ApiProperty({
+    description: 'The direction of the transaction',
+    example: 'receive',
+  })
+  direction: string;
 
   @ApiProperty({
     description: 'The timestamp of the block',
     example: '2021-04-02T10:07:54.000Z',
   })
   blockTimestamp: string;
-
-  @ApiProperty({
-    description: 'The block number of the transaction',
-    example: '12526958',
-  })
-  blockNumber: string;
-
-  @ApiProperty({
-    description: 'The hash of the block',
-    example:
-      '0x0372c302e3c52e8f2e15d155e2c545e6d802e479236564af052759253b20fd86',
-  })
-  blockHash: string;
 
   constructor(partial: Partial<TransactionResponseDto>) {
     Object.assign(this, partial);
@@ -169,8 +66,9 @@ export class TransactionResponseDto {
 export class GetAllTransactionsResponseDto {
   @ApiProperty({
     description: 'The cursor for the next page of results',
+    nullable: true,
   })
-  cursor: string;
+  cursor: string | null;
 
   @ApiProperty({
     description: 'The current page number',

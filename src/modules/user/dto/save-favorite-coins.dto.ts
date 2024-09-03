@@ -1,16 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsString, ArrayNotEmpty } from 'class-validator';
-
+import { IsNotEmpty, IsString, IsBoolean } from 'class-validator';
 export class SaveFavoriteCoinsDto {
   @ApiProperty({
-    description: 'List of favorite coins',
-    example: ['pepe', 'dai'],
+    description: 'ID of the coin to add or remove',
+    example: 'bitcoin',
   })
-  @IsArray()
-  @IsString({ each: true })
+  @IsString()
   @IsNotEmpty()
-  @ArrayNotEmpty()
-  data: string[];
+  coinId: string;
+
+  @ApiProperty({
+    description:
+      'Whether to add (true) or remove (false) the coin from favorites',
+    example: true,
+  })
+  @IsBoolean()
+  watchlist: boolean;
 }
 
 export class SaveFavoriteCoinsResponseDto {

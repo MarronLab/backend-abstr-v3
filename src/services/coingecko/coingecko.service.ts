@@ -7,6 +7,7 @@ import {
   CoinGeckoTopGainerLoserResponse,
   SingleCoinGeckoDataResponse,
   GetRecentAddedCoinsResponse,
+  GetAllCoinsResponse,
 } from './coingecko.type';
 
 @Injectable()
@@ -61,5 +62,9 @@ export class CoingeckoService {
 
   async getRecentAddedCoins() {
     return await this.get<GetRecentAddedCoinsResponse>('/coins/list/new', {});
+  }
+
+  async getAllCoins() {
+    return await this.get<GetAllCoinsResponse>('coins/list', {});
   }
 }

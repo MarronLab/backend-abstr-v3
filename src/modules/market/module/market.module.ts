@@ -1,22 +1,15 @@
 import { Module } from '@nestjs/common';
 import { MarketService } from '../service/market.service';
 import { MarketController } from '../controller/market.controller';
-import { HttpModule } from '@nestjs/axios';
 import { PrismaService } from 'src/services/prisma.service';
-import { CoingeckoService } from 'src/services/coingecko/coingecko.service';
-import { ModulusService } from 'src/services/modulus/modulus.service';
+import { CoingeckoModule } from 'src/services/coingecko/coingecko.module';
+import { ModulusModule } from 'src/services/modulus/modulus.module';
+import { SettingsModule } from 'src/modules/settings/settings.module';
 
 @Module({
-  imports: [
-    HttpModule.register({
-      baseURL: 'https://pro-api.coingecko.com/api/v3/',
-      headers: {
-        'X-CG-Pro-API-Key': process.env.COINGECKO_API_KEY,
-      },
-    }),
-  ],
+  imports: [CoingeckoModule, ModulusModule, SettingsModule],
   controllers: [MarketController],
-  providers: [MarketService, PrismaService, CoingeckoService, ModulusService],
+  providers: [MarketService, PrismaService],
   exports: [MarketService],
 })
 export class MarketModule {}
