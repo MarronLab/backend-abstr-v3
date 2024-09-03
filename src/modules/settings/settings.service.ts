@@ -158,7 +158,7 @@ export class SettingsService {
         stats.slug,
         this.singleCoinDataParams,
       );
-      return coinGeckoData?.market_data?.sparkline_in_7d?.price ?? [];
+      return coinGeckoData?.market_data?.sparkline_7d?.price ?? [];
     } catch (error) {
       console.error(
         `Error fetching sparkline data for slug ${stats.slug}: ${error.message}`,
