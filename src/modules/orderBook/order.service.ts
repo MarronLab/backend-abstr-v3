@@ -261,9 +261,9 @@ export class OrderService extends BaseService {
       console.log({ UpdatedSellOrders: data?.Event?.UpdatedSellOrders });
       console.log({ NewTrades: data?.Event?.NewTrades });
 
-      if (data.ErrorReason !== 100) {
-        throw new UnprocessableEntityException(data.ErrorReason);
-      }
+      // if (data.ErrorReason !== 100) {
+      //   throw new UnprocessableEntityException(data.ErrorReason);
+      // }
 
       await this.getClient().orderBook.create({
         data: {
