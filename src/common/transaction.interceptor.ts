@@ -5,7 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Observable, from } from 'rxjs';
+import { Observable, from, lastValueFrom } from 'rxjs';
 import { PrismaService } from 'src/services/prisma.service';
 
 export const PRISMA_TRANSACTION_KEY = 'PRISMA_TRANSACTION';
@@ -14,10 +14,10 @@ export const PRISMA_TRANSACTION_KEY = 'PRISMA_TRANSACTION';
 export class TransactionInterceptor implements NestInterceptor {
   constructor(protected prisma: PrismaService) {}
 
-  async intercept(
+  intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
-  ): Promise<Observable<any>> {
+  ): Observable<any> {
     const req = context.switchToHttp().getRequest<Request>();
 
     return from(
@@ -27,17 +27,7 @@ export class TransactionInterceptor implements NestInterceptor {
           req[PRISMA_TRANSACTION_KEY] = transactionPrisma;
 
           const observable = this.handleNext(context, next);
-
-          return new Promise((resolve, reject) => {
-            observable.subscribe({
-              next: async (data) => {
-                resolve(data);
-              },
-              error: async (e) => {
-                reject(e);
-              },
-            });
-          });
+          return await lastValueFrom(observable);
         },
         {
           timeout: 90000,

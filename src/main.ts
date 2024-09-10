@@ -36,7 +36,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(
     new UserActivityInterceptor(app.get(PrismaService)),
   );
-  // app.useGlobalInterceptors(new TransactionInterceptor(app.get(PrismaService)));
+  app.useGlobalInterceptors(new TransactionInterceptor(app.get(PrismaService)));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
