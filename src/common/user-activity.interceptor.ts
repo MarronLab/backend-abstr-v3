@@ -46,43 +46,31 @@ export class UserActivityInterceptor extends TransactionInterceptor {
             data.response = JSON.stringify(value);
             data.success = true;
 
-            if (user) {
-              const internalUser = await prisma.user.findFirst({
-                where: {
-                  modulusCustomerEmail: user.internalData.modulusCustomerEmail,
-                },
-              });
-              data.userId = internalUser ? internalUser.id : undefined;
-            }
-
-            await prisma.userActivity.create({
-              data,
-            });
-
-            return value;
+            await this.createUserActivity(prisma, data, user);
           }),
           catchError(async (e) => {
             data.response = JSON.stringify(e);
             data.success = false;
 
-            if (user) {
-              const internalUser = await prisma.user.findFirst({
-                where: {
-                  modulusCustomerEmail: user.internalData.modulusCustomerEmail,
-                },
-              });
-
-              data.userId = internalUser ? internalUser.id : undefined;
-            }
-
-            await prisma.userActivity.create({
-              data,
-            });
+            await this.createUserActivity(prisma, data, user);
 
             throw e;
           }),
         ),
       ),
     );
+  }
+
+  private async createUserActivity(prisma: any, data: any, user: any) {
+    if (user) {
+      const internalUser = await prisma.user.findFirst({
+        where: {
+          modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+        },
+      });
+      data.userId = internalUser ? internalUser.id : undefined;
+    }
+
+    await prisma.userActivity.create({ data });
   }
 }
