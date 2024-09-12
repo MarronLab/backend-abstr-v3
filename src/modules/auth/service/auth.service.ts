@@ -114,7 +114,8 @@ export class AuthService extends BaseService {
       );
 
       if ('status' in data && data.status === 'Error') {
-        throw new UnauthorizedException();
+        console.log('logged', data);
+        throw new UnauthorizedException(data.data);
       } else if ('status' in data && data.status === 'Success') {
         return { token: data.data, user: null };
       } else {
@@ -144,7 +145,14 @@ export class AuthService extends BaseService {
       }
     } catch (error) {
       console.log(error);
-      throw new UnauthorizedException();
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof UnprocessableEntityException
+      ) {
+        throw error;
+      }
+      throw new UnauthorizedException('An unexpected error occurred');
     }
   }
 
