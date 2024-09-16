@@ -114,7 +114,6 @@ export class AuthService extends BaseService {
       );
 
       if ('status' in data && data.status === 'Error') {
-        console.log('logged', data);
         throw new UnauthorizedException(data.data);
       } else if ('status' in data && data.status === 'Success') {
         return { token: data.data, user: null };
@@ -144,7 +143,6 @@ export class AuthService extends BaseService {
         return { token: data, user: { ...internalUser, ...profile.data } };
       }
     } catch (error) {
-      console.log(error);
       if (
         error instanceof UnauthorizedException ||
         error instanceof NotFoundException ||
