@@ -45,6 +45,7 @@ export class NewsService extends BaseService {
         results = results.slice(0, limitNumber);
       }
 
+      console.log(results);
       const staticImage =
         'https://assets.coingecko.com/articles/images/1819006/large/cryptocurrenciesusd_Large.jpg?1722573111';
       const mappedResults = results.map(

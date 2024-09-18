@@ -55,6 +55,7 @@ const sourceSchema: JSONSchemaType<SourceDto> = {
     region: { type: 'string' },
     domain: { type: 'string' },
     path: { type: 'string', nullable: true },
+    type: { type: 'string' },
   },
   required: ['title', 'region', 'domain'],
   additionalProperties: false,
