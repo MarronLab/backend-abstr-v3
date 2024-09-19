@@ -43,6 +43,10 @@ class SourceDto {
   @IsOptional()
   @IsString()
   path: string;
+
+  @ApiProperty()
+  @IsString()
+  type: string;
 }
 
 export class ResultDto {
