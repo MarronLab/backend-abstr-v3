@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 
 import { SafeOperationService } from './safeoperation.service';
 import { AuthGuard } from '../auth/auth.guard';
@@ -13,7 +13,13 @@ export class SafeOperationController {
   constructor(private readonly safeoperationService: SafeOperationService) {}
 
   @UseGuards(AuthGuard)
-  @Get('safe-address')
+  @Get('safe-address/:userAddress')
+  @ApiParam({
+    name: 'userAddress',
+    required: true,
+    description: 'The user wallet address',
+    type: 'string',
+  })
   @ApiOperation({
     summary: 'This endpoint allows is used to get safe details',
   })
@@ -27,7 +33,8 @@ export class SafeOperationController {
     summary: 'This endpoint generate safe nonce',
   })
   async getNonce() {
-    return await this.safeoperationService.getNonce();
+    const nonce = await this.safeoperationService.getNonce();
+    return {nonce};
   }
 
   @UseGuards(AuthGuard)
@@ -39,9 +46,11 @@ export class SafeOperationController {
   async handleBuildSafeOperation(
     @Body() buildSafeOperationDto: BuildSafeOperationDto,
   ) {
-    return await this.safeoperationService.handleBuildSafeOperation(
+    const response = await this.safeoperationService.handleBuildSafeOperation(
       buildSafeOperationDto,
     );
+
+    return response;
   }
 
   @UseGuards(AuthGuard)

@@ -51,7 +51,7 @@ import 'winston-daily-rotate-file';
     NewsModule,
     SettingsModule,
     SafeOperationModule,
-    ExecuteUserOperationModule,
+    // ExecuteUserOperationModule,
   ],
   controllers: [],
   providers: [],

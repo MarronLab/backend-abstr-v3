@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { SafeSignatureDto } from './safe-signature.dto';
+import { Type } from 'class-transformer';
 
 export class BuildSafeOperationDto {
   @ApiProperty({
@@ -46,10 +47,12 @@ export class BuildSafeOperationDto {
   @IsString()
   safeAddress: string;
 
-  @ApiProperty({
+  @ApiProperty({ 
+    type: () => SafeSignatureDto,
     description: 'User signature of the user operation',
-    type: SafeSignatureDto,
   })
+  @ValidateNested({ each: true })
+  @Type(() => SafeSignatureDto)
   userSignature: SafeSignatureDto;
 
   @ApiProperty({

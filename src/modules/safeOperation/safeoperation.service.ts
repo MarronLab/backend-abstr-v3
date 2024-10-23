@@ -42,9 +42,7 @@ export class SafeOperationService extends BaseService {
   }
 
   async storeSafeOperations(batchUserOperationDto: BatchUserOperationDto) {
-    return await this.getClient().userOperation.createMany({
-      data: batchUserOperationDto.operations,
-    });
+    return await this.safeService.executeUserOperationOnChain(batchUserOperationDto.operations);
   }
 
   async signFillOrder(signFillOrderDto: SignFillOrderDto) {

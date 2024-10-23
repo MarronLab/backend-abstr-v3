@@ -17,7 +17,7 @@ import { mockStats } from './mockStats';
 
 @Injectable()
 export class SettingsService {
-  private readonly NETWORK = 'Base Sepolia';
+  private readonly NETWORK = 'Base';
 
   constructor(
     private readonly modulusService: ModulusService,

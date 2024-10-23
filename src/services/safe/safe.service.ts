@@ -24,9 +24,11 @@ import {
   buildSafeUserOpTransaction,
   buildUserOperationFromSafeUserOperation,
   signSafeOp,
+  UserOperation,
 } from 'src/utils/safe4337/utils/userOp';
 import { LimitOrder, ZERO } from '@0x/protocol-utils';
 import { BigNumber, NULL_ADDRESS } from '@0x/utils';
+import HelperProvider from 'src/utils/helperProvider';
 
 interface CreateOrderI {
   maker: string;
@@ -60,6 +62,54 @@ export class SafeService extends BaseService {
     proxyCreationCode: safeProxyFactoryCreationCode,
     chainId: ConstantProvider.NETWORK_CHAIN_ID,
   };
+
+  private getGasGoal() {
+    return {
+      maxFeePerGas: 100000000,
+      maxPriorityFeePerGas: 100000000,
+      gasPrice: 100000000, // 0.1 gwei
+    };
+  }
+
+  async executeUserOperationOnChain(userOps: UserOperation[]) {
+    try {
+      if (userOps.length > 0) {
+        const entryPointContract = new Contract(
+          ConstantProvider.ENTRY_POINT_ADDRESS,
+          entryPointABI,
+          platformSigner,
+        );
+
+        const { gasPrice } = this.getGasGoal();
+
+        for (const userOp of userOps) {
+          const balanceOf = await entryPointContract.balanceOf(userOp.sender);
+          const minAmount = ethers.parseEther('0.0266');
+          if (BigInt(balanceOf) < minAmount) {
+            const executeTxResponse = await entryPointContract.depositTo(
+              userOp.sender,
+              { signer: platformSigner, value: ethers.parseEther('0.0266') },
+            );
+
+            await executeTxResponse.wait();
+            await HelperProvider.sleep(5000);
+          }
+        }
+
+        const executeTxResponse = await entryPointContract.handleOps(
+          userOps,
+          platformSigner.address,
+          { gasPrice },
+        );
+
+        const executeTxReceipt = await executeTxResponse.wait();
+
+        return executeTxReceipt.hash;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   async createOrder({
     maker,
@@ -182,17 +232,27 @@ export class SafeService extends BaseService {
         },
       );
 
+      const op = JSON.parse(config.safeOp);
+
       const owner2Signature = await signSafeOp(
         platformSigner,
         this.safeGlobalConfig.erc4337module,
-        safeOp,
+        op,
         this.safeGlobalConfig.chainId,
       );
+      console.log(platformSigner,
+        op,
+        this.safeGlobalConfig.erc4337module,
+        safeOp,
+        this.safeGlobalConfig.chainId,)
+      console.log({ owner2Signature })
       if (config.userSignature && owner2Signature) {
         const signature = buildSignatureBytes([
           config.userSignature,
           owner2Signature,
         ]);
+
+        console.log({ signature })
 
         const userOps = buildUserOperationFromSafeUserOperation({
           safeOp,
@@ -200,6 +260,8 @@ export class SafeService extends BaseService {
         });
 
         return userOps;
+      } else {
+        throw new UnprocessableEntityException('Unable to compute the user operations');
       }
     } catch (error) {
       console.error(error);

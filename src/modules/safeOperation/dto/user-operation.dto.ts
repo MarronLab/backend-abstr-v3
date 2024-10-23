@@ -15,6 +15,7 @@ export class UserOperationDto {
     example: '1',
   })
   @IsString()
+  @IsNotEmpty()
   nonce: string;
 
   @ApiProperty({
@@ -22,6 +23,7 @@ export class UserOperationDto {
     example: '0x...',
   })
   @IsString()
+  @IsNotEmpty()
   initCode: string;
 
   @ApiProperty({
@@ -29,6 +31,7 @@ export class UserOperationDto {
     example: '0x...',
   })
   @IsString()
+  @IsNotEmpty()
   callData: string;
 
   @ApiProperty({
@@ -36,6 +39,7 @@ export class UserOperationDto {
     example: '21000',
   })
   @IsString()
+  @IsNotEmpty()
   callGasLimit: string;
 
   @ApiProperty({
@@ -43,6 +47,7 @@ export class UserOperationDto {
     example: '21000',
   })
   @IsString()
+  @IsNotEmpty()
   verificationGasLimit: string;
 
   @ApiProperty({
@@ -50,6 +55,7 @@ export class UserOperationDto {
     example: '21000',
   })
   @IsString()
+  @IsNotEmpty()
   preVerificationGas: string;
 
   @ApiProperty({
@@ -57,6 +63,7 @@ export class UserOperationDto {
     example: '1000000000', // 1 gwei in wei
   })
   @IsString()
+  @IsNotEmpty()
   maxFeePerGas: string;
 
   @ApiProperty({
@@ -64,6 +71,7 @@ export class UserOperationDto {
     example: '1000000000', // 1 gwei in wei
   })
   @IsString()
+  @IsNotEmpty()
   maxPriorityFeePerGas: string;
 
   @ApiProperty({
@@ -71,6 +79,7 @@ export class UserOperationDto {
     example: '0x...',
   })
   @IsString()
+  @IsNotEmpty()
   paymasterAndData: string;
 
   @ApiProperty({
@@ -78,5 +87,6 @@ export class UserOperationDto {
     example: '0x...',
   })
   @IsString()
+  @IsNotEmpty()
   signature: string;
 }

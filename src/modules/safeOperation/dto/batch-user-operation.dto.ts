@@ -5,11 +5,10 @@ import { UserOperationDto } from './user-operation.dto';
 
 export class BatchUserOperationDto {
   @ApiProperty({
-    type: [UserOperationDto],
+    type: () => [UserOperationDto],
     description: 'Array of user operations',
   })
-  @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => UserOperationDto) // Necessary to properly validate nested objects
+  @Type(() => UserOperationDto)
   operations: UserOperationDto[];
 }
