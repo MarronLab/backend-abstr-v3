@@ -120,7 +120,7 @@ export class GetProfileResponseDto {
   publicID: string;
 
   @ApiProperty()
-  modulusCustomerEmail: string;
+  modulusCustomerEmail: string | undefined | null;
 
   @ApiProperty({ type: Number, nullable: true })
   autoLogoutDuration: number | null;

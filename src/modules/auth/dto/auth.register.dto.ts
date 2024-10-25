@@ -4,7 +4,7 @@ import { IsString, IsEmail } from 'class-validator';
 export default class RegisterDto {
   @ApiProperty({
     description: 'The email address of the user',
-    required: true,
+    required: false,
   })
   @IsString()
   @IsEmail()
@@ -12,7 +12,7 @@ export default class RegisterDto {
 
   @ApiProperty({
     description: 'The password for the user account',
-    required: true,
+    required: false,
   })
   @IsString()
   password: string;

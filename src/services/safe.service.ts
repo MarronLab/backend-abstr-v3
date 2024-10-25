@@ -60,7 +60,7 @@ export class SafeService extends BaseService {
     modulusCustomerEmail,
   }: {
     userAddress: string;
-    modulusCustomerEmail: string;
+    modulusCustomerEmail?: string;
   }) {
     const safe = await Safe4337.withSigner(userAddress, this.safeGlobalConfig);
 
@@ -72,18 +72,10 @@ export class SafeService extends BaseService {
 
     const user = await this.getClient().user.findFirst({
       where: {
-        OR: [
-          {
-            modulusCustomerEmail: {
-              mode: 'insensitive',
-              equals: modulusCustomerEmail,
-            },
-            userAddress: {
-              mode: 'insensitive',
-              equals: userAddress,
-            },
-          },
-        ],
+        userAddress: {
+          mode: 'insensitive',
+          equals: userAddress,
+        },
       },
     });
 
@@ -104,11 +96,11 @@ export class SafeService extends BaseService {
       data: {
         userAddress,
         safeAddress,
-        modulusCustomerEmail,
         publicID: nanoid(),
         timezone: userSettings.timezone,
         currency: userSettings.currency,
         language: userSettings.language,
+        modulusCustomerEmail: modulusCustomerEmail ?? '',
       },
     });
 

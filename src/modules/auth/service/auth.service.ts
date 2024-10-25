@@ -30,6 +30,7 @@ import { EthereumService } from 'src/services/ethereum/ethereum.service';
 import LoginDto from '../dto/auth.dto';
 import { SafeService } from 'src/services/safe.service';
 import { UserService } from 'src/modules/user/service/user.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService extends BaseService {
@@ -71,12 +72,12 @@ export class AuthService extends BaseService {
 
     if (profile.data.status === 'Success') {
       const internalUser = await this.getClient().user.findUnique({
-        where: { modulusCustomerEmail: profile.data.data.email },
+        where: { userAddress: profile.data.data.firstName },
       });
 
       if (internalUser) {
         await this.getClient().user.update({
-          where: { modulusCustomerEmail: internalUser.modulusCustomerEmail },
+          where: { userAddress: internalUser.userAddress },
           data: { lastLoggedInAt: new Date() },
         });
       }
@@ -90,7 +91,7 @@ export class AuthService extends BaseService {
       const message = HelperProvider.getSignMessage(nonce);
 
       const internalUser = await this.getClient().user.findUnique({
-        where: { modulusCustomerEmail: loginDto.email },
+        where: { userAddress: loginDto.address },
       });
 
       if (!internalUser) {
@@ -111,6 +112,7 @@ export class AuthService extends BaseService {
       const { data } = await this.modulusService.login(
         loginDto.email,
         loginDto.password,
+        loginDto.address,
       );
 
       if ('status' in data && data.status === 'Error') {
@@ -154,6 +156,8 @@ export class AuthService extends BaseService {
       const signature = registerDto.signature.trim();
       const message = HelperProvider.getSignMessage(nonce);
 
+      console.log(nonce, signature, message);
+
       const isVerified = await this.validateUser(
         registerDto.walletAddress,
         signature,
@@ -165,10 +169,15 @@ export class AuthService extends BaseService {
         throw new UnprocessableEntityException('Invalid signature');
       }
 
+      console.log('register verification success');
+
       const { data } = await this.modulusService.register({
         email: registerDto.email,
         password: registerDto.password,
+        address: registerDto.walletAddress,
       });
+
+      console.log('register verification success 2');
 
       if (data.status === 'Error') {
         throw new UnprocessableEntityException(data.data);

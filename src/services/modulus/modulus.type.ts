@@ -52,8 +52,9 @@ export type PlaceOrderRequest = {
 };
 
 export type RegisterRequest = {
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
+  address: string;
 };
 
 export type RegisterSuccessResponse = {
