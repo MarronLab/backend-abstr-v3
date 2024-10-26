@@ -49,7 +49,7 @@ model User {
   id                   String         @id @default(cuid())
   safeAddress          String         @unique
   userAddress          String         @unique
-  modulusCustomerEmail String?         @unique
+  modulusCustomerEmail String         @unique
   username             String?        @unique
   publicID             String         @unique
   timezone             String?

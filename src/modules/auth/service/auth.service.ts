@@ -41,6 +41,7 @@ export class AuthService extends BaseService {
     private readonly modulusService: ModulusService,
     private readonly ethereumService: EthereumService,
     private readonly userService: UserService,
+    private readonly jwtService: JwtService,
   ) {
     super(prisma, req);
   }
@@ -84,7 +85,7 @@ export class AuthService extends BaseService {
     }
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<{ access_token: string }> {
     try {
       const nonce = loginDto.nonce.trim();
       const signature = loginDto.signature.trim();
@@ -109,54 +110,60 @@ export class AuthService extends BaseService {
         throw new UnprocessableEntityException('Invalid signature');
       }
 
-      const { data } = await this.modulusService.login(
-        loginDto.email,
-        loginDto.password,
-        loginDto.address,
-      );
+      const payload = {
+        sub: internalUser.userAddress,
+        username: internalUser.safeAddress,
+      };
 
-      if ('status' in data && data.status === 'Error') {
-        throw new UnauthorizedException();
-      } else if ('status' in data && data.status === 'Success') {
-        return { token: data.data, user: null };
-      } else {
-        await this.updateLastLoggedIn(data.access_token);
+      // const { data } = await this.modulusService.login(
+      //   loginDto.email,
+      //   loginDto.password,
+      //   loginDto.address,
+      // );
 
-        this.modulusService.setBearerToken(data.access_token);
+      // if ('status' in data && data.status === 'Error') {
+      //   throw new UnauthorizedException();
+      // } else if ('status' in data && data.status === 'Success') {
+      //   return { token: data.data, user: null };
+      // } else {
+      //   await this.updateLastLoggedIn(data.access_token);
 
-        const payload = await this.modulusService.validateBearerToken();
+      //   this.modulusService.setBearerToken(data.access_token);
 
-        if ('Message' in payload.data) {
-          throw new UnauthorizedException();
-        }
+      //   const payload = await this.modulusService.validateBearerToken();
 
-        const { data: profile } = await this.modulusService.getProfile();
+      //   if ('Message' in payload.data) {
+      //     throw new UnauthorizedException();
+      //   }
 
-        if (profile.status === 'Error') {
-          throw new UnprocessableEntityException(profile.data);
-        }
+      //   const { data: profile } = await this.modulusService.getProfile();
 
-        if (!internalUser) {
-          throw new UnauthorizedException();
-        }
+      //   if (profile.status === 'Error') {
+      //     throw new UnprocessableEntityException(profile.data);
+      //   }
 
-        await this.updateLastLoggedIn(data.access_token);
+      //   if (!internalUser) {
+      //     throw new UnauthorizedException();
+      //   }
 
-        return { token: data, user: { ...internalUser, ...profile.data } };
-      }
+      //   await this.updateLastLoggedIn(data.access_token);
+
+      // }
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+      };
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException();
     }
   }
 
+  // Added registration logic (internalUser) with only address
   async register(registerDto: RegisterDto) {
     try {
       const nonce = registerDto.nonce.trim();
       const signature = registerDto.signature.trim();
       const message = HelperProvider.getSignMessage(nonce);
-
-      console.log(nonce, signature, message);
 
       const isVerified = await this.validateUser(
         registerDto.walletAddress,
@@ -169,26 +176,21 @@ export class AuthService extends BaseService {
         throw new UnprocessableEntityException('Invalid signature');
       }
 
-      console.log('register verification success');
+      // const { data } = await this.modulusService.register({
+      //   email: registerDto.email,
+      //   password: registerDto.password,
+      //   address: registerDto.walletAddress,
+      // });
 
-      const { data } = await this.modulusService.register({
-        email: registerDto.email,
-        password: registerDto.password,
-        address: registerDto.walletAddress,
-      });
-
-      console.log('register verification success 2');
-
-      if (data.status === 'Error') {
-        throw new UnprocessableEntityException(data.data);
-      }
+      // if (data.status === 'Error') {
+      //   throw new UnprocessableEntityException(data.data);
+      // }
 
       const internalUser = await this.safeService.generateSafeAddress({
         userAddress: registerDto.walletAddress,
-        modulusCustomerEmail: registerDto.email,
       });
 
-      return { data, internalUser };
+      return { internalUser };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

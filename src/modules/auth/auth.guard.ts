@@ -7,17 +7,20 @@ import {
 import { Request } from 'express';
 import { ModulusService } from 'src/services/modulus/modulus.service';
 import { UserService } from '../user/service/user.service';
+import { JwtService } from '@nestjs/jwt';
+import { jwtConstants } from './constants';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly modulusService: ModulusService,
     private readonly userService: UserService,
+    private jwtService: JwtService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization;
+    const token = this.extractTokenFromHeader(request);
 
     if (!token) {
       this.modulusService.removeBearerToken();
@@ -25,49 +28,59 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      this.modulusService.setBearerToken(token);
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: jwtConstants.secret,
+      });
+      request['user'] = payload;
 
-      const payload = await this.modulusService.validateBearerToken();
+      // try {
+      //   this.modulusService.setBearerToken(token);
 
-      if ('Message' in payload.data) {
-        throw new UnauthorizedException();
-      }
+      //   const payload = await this.modulusService.validateBearerToken();
 
-      const user = await this.modulusService.getProfile();
+      //   if ('Message' in payload.data) {
+      //     throw new UnauthorizedException();
+      //   }
 
-      if (user.data.status !== 'Success') {
-        throw new UnauthorizedException();
-      }
+      //   const user = await this.modulusService.getProfile();
 
-      const internalUser = await this.userService.getInternalUserProfile(
-        user.data.data.firstName,
-      );
+      //   if (user.data.status !== 'Success') {
+      //     throw new UnauthorizedException();
+      //   }
 
-      if (!internalUser) {
-        throw new UnauthorizedException();
-      }
+      //   const internalUser = await this.userService.getInternalUserProfile(
+      //     user.data.data.firstName,
+      //   );
 
-      if (internalUser.autoLogoutDuration) {
-        const lastLoggedInAt = internalUser.lastLoggedInAt;
-        const currentTime = new Date();
+      //   if (!internalUser) {
+      //     throw new UnauthorizedException();
+      //   }
 
-        const durationInMilliseconds =
-          currentTime.getTime() - lastLoggedInAt.getTime();
-        const durationInMinutes = Math.floor(
-          durationInMilliseconds / (1000 * 60),
-        );
+      //   if (internalUser.autoLogoutDuration) {
+      //     const lastLoggedInAt = internalUser.lastLoggedInAt;
+      //     const currentTime = new Date();
 
-        // if (durationInMinutes > internalUser.autoLogoutDuration) {
-        //   await this.modulusService.logout();
-        //   throw new UnauthorizedException();
-        // }
-      }
+      //     const durationInMilliseconds =
+      //       currentTime.getTime() - lastLoggedInAt.getTime();
+      //     const durationInMinutes = Math.floor(
+      //       durationInMilliseconds / (1000 * 60),
+      //     );
 
-      request['user'] = { ...user.data.data, internalData: internalUser };
+      //     // if (durationInMinutes > internalUser.autoLogoutDuration) {
+      //     //   await this.modulusService.logout();
+      //     //   throw new UnauthorizedException();
+      //     // }
+      //   }
+
+      // request['user'] = { ...user.data.data, internalData: internalUser };
     } catch (error) {
       throw new UnauthorizedException();
     }
 
     return true;
+  }
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

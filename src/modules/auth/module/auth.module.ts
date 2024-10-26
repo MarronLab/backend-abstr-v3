@@ -8,9 +8,19 @@ import { UserModule } from 'src/modules/user/module/user.module';
 import { EthereumService } from 'src/services/ethereum/ethereum.service';
 import { SafeService } from 'src/services/safe.service';
 import { UserSettingsService } from 'src/modules/user/service/user-settings.service';
+import { jwtConstants } from '../constants';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [ModulusModule, UserModule],
+  imports: [
+    ModulusModule,
+    UserModule,
+    JwtModule.register({
+      global: true,
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '600s' },
+    }),
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,
