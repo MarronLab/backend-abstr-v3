@@ -141,7 +141,7 @@ export class UserController {
       publicID: response?.publicID ?? '',
       autoLogoutDuration: response.autoLogoutDuration,
       lastLoggedInAt: response.lastLoggedInAt,
-      modulusCustomerEmail: response.modulusCustomerEmail,
+      // modulusCustomerEmail: response.modulusCustomerEmail, // TODO: Add after modulus registration API fix
     });
   }
 

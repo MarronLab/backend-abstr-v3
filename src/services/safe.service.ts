@@ -100,7 +100,7 @@ export class SafeService extends BaseService {
         timezone: userSettings.timezone,
         currency: userSettings.currency,
         language: userSettings.language,
-        modulusCustomerEmail: modulusCustomerEmail ?? '',
+        modulusCustomerEmail: modulusCustomerEmail ? modulusCustomerEmail : '', // TODO: Remove this after modulus registration API fix
       },
     });
 

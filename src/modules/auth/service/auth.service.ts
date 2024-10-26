@@ -78,7 +78,7 @@ export class AuthService extends BaseService {
 
       if (internalUser) {
         await this.getClient().user.update({
-          where: { modulusCustomerEmail: internalUser.modulusCustomerEmail },
+          where: { userAddress: internalUser.userAddress }, // modulusCustomerEmail: internalUser.modulusCustomerEmail
           data: { lastLoggedInAt: new Date() },
         });
       }
