@@ -120,11 +120,10 @@ export class ModulusService {
     }
   }
 
-  async login(address: string, email?: string | null | undefined, password?: string | null | undefined) {
+  async login(email: string, password: string) {
     return await this.post<AuthenticateUserResponse>('/api/AuthenticateUser', {
       email,
       password,
-      address,
     });
   }
 
@@ -133,7 +132,7 @@ export class ModulusService {
   }
 
   async register(request: RegisterRequest) {
-    const req = { ...request, firstName: request.address }; // TODO: Remove, find better way to store (email) but now address
+    const req = { ...request, firstName: request.email }; // TODO: Remove, find better way to store email
     return await this.post<RegisterResponse>('/api/SignUp', req);
   }
 

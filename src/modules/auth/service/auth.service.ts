@@ -73,12 +73,12 @@ export class AuthService extends BaseService {
 
     if (profile.data.status === 'Success') {
       const internalUser = await this.getClient().user.findUnique({
-        where: { userAddress: profile.data.data.firstName },
+        where: { modulusCustomerEmail: profile.data.data.email },
       });
 
       if (internalUser) {
         await this.getClient().user.update({
-          where: { userAddress: internalUser.userAddress },
+          where: { modulusCustomerEmail: internalUser.modulusCustomerEmail },
           data: { lastLoggedInAt: new Date() },
         });
       }
@@ -118,7 +118,6 @@ export class AuthService extends BaseService {
       // const { data } = await this.modulusService.login(
       //   loginDto.email,
       //   loginDto.password,
-      //   loginDto.address,
       // );
 
       // if ('status' in data && data.status === 'Error') {
@@ -179,7 +178,6 @@ export class AuthService extends BaseService {
       // const { data } = await this.modulusService.register({
       //   email: registerDto.email,
       //   password: registerDto.password,
-      //   address: registerDto.walletAddress,
       // });
 
       // if (data.status === 'Error') {
