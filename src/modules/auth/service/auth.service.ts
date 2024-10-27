@@ -28,7 +28,7 @@ import { REQUEST } from '@nestjs/core';
 import HelperProvider from 'src/utils/helperProvider';
 import { EthereumService } from 'src/services/ethereum/ethereum.service';
 import LoginDto from '../dto/auth.dto';
-import { SafeService } from 'src/services/safe/safe.service';
+import { SafeService } from 'src/services/safe.service';
 import { UserService } from 'src/modules/user/service/user.service';
 import { JwtService } from '@nestjs/jwt';
 

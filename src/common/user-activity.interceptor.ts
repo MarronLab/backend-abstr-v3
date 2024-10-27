@@ -44,7 +44,7 @@ export class UserActivityInterceptor extends TransactionInterceptor {
 
     return next.handle().pipe(
       concatMap(async (value) => {
-        data.response = JSON.stringify(value) || {};
+        data.response = JSON.stringify(value);
         data.success = true;
 
         if (user) {
