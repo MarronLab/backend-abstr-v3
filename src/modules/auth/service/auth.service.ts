@@ -30,6 +30,7 @@ import { EthereumService } from 'src/services/ethereum/ethereum.service';
 import LoginDto from '../dto/auth.dto';
 import { SafeService } from 'src/services/safe.service';
 import { UserService } from 'src/modules/user/service/user.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService extends BaseService {
@@ -40,6 +41,7 @@ export class AuthService extends BaseService {
     private readonly modulusService: ModulusService,
     private readonly ethereumService: EthereumService,
     private readonly userService: UserService,
+    private readonly jwtService: JwtService,
   ) {
     super(prisma, req);
   }
@@ -90,7 +92,7 @@ export class AuthService extends BaseService {
       const message = HelperProvider.getSignMessage(nonce);
 
       const internalUser = await this.getClient().user.findUnique({
-        where: { modulusCustomerEmail: loginDto.email },
+        where: { userAddress: loginDto.address },
       });
 
       if (!internalUser) {
@@ -108,40 +110,50 @@ export class AuthService extends BaseService {
         throw new UnprocessableEntityException('Invalid signature');
       }
 
-      const { data } = await this.modulusService.login(
-        loginDto.email,
-        loginDto.password,
-      );
+      const payload = {
+        sub: internalUser.userAddress,
+        username: internalUser.safeAddress,
+      };
 
-      if ('status' in data && data.status === 'Error') {
-        throw new UnauthorizedException();
-      } else if ('status' in data && data.status === 'Success') {
-        return { token: data.data, user: null };
-      } else {
-        await this.updateLastLoggedIn(data.access_token);
+      // const { data } = await this.modulusService.login(
+      //   loginDto.email,
+      //   loginDto.password,
+      // );
 
-        this.modulusService.setBearerToken(data.access_token);
+      // if ('status' in data && data.status === 'Error') {
+      //   throw new UnauthorizedException();
+      // } else if ('status' in data && data.status === 'Success') {
+      //   return { token: data.data, user: null };
+      // } else {
+      //   await this.updateLastLoggedIn(data.access_token);
 
-        const payload = await this.modulusService.validateBearerToken();
+      //   this.modulusService.setBearerToken(data.access_token);
 
-        if ('Message' in payload.data) {
-          throw new UnauthorizedException();
-        }
+      //   const payload = await this.modulusService.validateBearerToken();
 
-        const { data: profile } = await this.modulusService.getProfile();
+      //   if ('Message' in payload.data) {
+      //     throw new UnauthorizedException();
+      //   }
 
-        if (profile.status === 'Error') {
-          throw new UnprocessableEntityException(profile.data);
-        }
+      //   const { data: profile } = await this.modulusService.getProfile();
 
-        if (!internalUser) {
-          throw new UnauthorizedException();
-        }
+      //   if (profile.status === 'Error') {
+      //     throw new UnprocessableEntityException(profile.data);
+      //   }
 
-        await this.updateLastLoggedIn(data.access_token);
+      //   if (!internalUser) {
+      //     throw new UnauthorizedException();
+      //   }
 
-        return { token: data, user: { ...internalUser, ...profile.data } };
-      }
+      //   await this.updateLastLoggedIn(data.access_token);
+
+      //   return { token: data, user: { ...internalUser, ...profile.data } };
+      // }
+
+      const access_token = await this.jwtService.signAsync(payload);
+      return {
+        access_token: access_token,
+      };
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException();
@@ -165,21 +177,20 @@ export class AuthService extends BaseService {
         throw new UnprocessableEntityException('Invalid signature');
       }
 
-      const { data } = await this.modulusService.register({
-        email: registerDto.email,
-        password: registerDto.password,
-      });
+      // const { data } = await this.modulusService.register({
+      //   email: registerDto.email,
+      //   password: registerDto.password,
+      // });
 
-      if (data.status === 'Error') {
-        throw new UnprocessableEntityException(data.data);
-      }
+      // if (data.status === 'Error') {
+      //   throw new UnprocessableEntityException(data.data);
+      // }
 
       const internalUser = await this.safeService.generateSafeAddress({
         userAddress: registerDto.walletAddress,
-        modulusCustomerEmail: registerDto.email,
       });
 
-      return { data, internalUser };
+      return { internalUser };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
