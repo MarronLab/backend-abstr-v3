@@ -6,7 +6,7 @@ import { ModulusModule } from 'src/services/modulus/modulus.module';
 import { PrismaService } from 'src/services/prisma.service';
 import { UserModule } from 'src/modules/user/module/user.module';
 import { EthereumService } from 'src/services/ethereum/ethereum.service';
-import { SafeService } from 'src/services/safe.service';
+import { SafeService } from 'src/services/safe/safe.service';
 import { UserSettingsService } from 'src/modules/user/service/user-settings.service';
 import { jwtConstants } from '../constants';
 import { JwtModule } from '@nestjs/jwt';

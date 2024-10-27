@@ -17,6 +17,8 @@ import { mockStats } from './mockStats';
 
 @Injectable()
 export class SettingsService {
+  private readonly NETWORK = 'Base';
+
   constructor(
     private readonly modulusService: ModulusService,
     private readonly coingeckoService: CoingeckoService,
@@ -94,7 +96,7 @@ export class SettingsService {
     currencySettings: GetCurrencySettingsResponse['data'],
   ): GetCurrencySettingsResponse['data'] {
     return currencySettings.filter(
-      (currency) => currency.networkName === 'Base',
+      (currency) => currency.networkName === this.NETWORK,
     );
   }
 
