@@ -270,7 +270,7 @@ export class OrderService extends BaseService {
           orderID: params.OrderID,
           metadata: params.ExtraData,
           timeInForce: this.convertTimeInForceToPrismaEnum(params.TimeInForce),
-          modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+          userId: user.internalData.id,
           trailingAmount: params.TrailingAmount,
           size: params.Size,
           limitPrice: params.LimitPrice,

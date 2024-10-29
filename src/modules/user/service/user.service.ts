@@ -53,8 +53,7 @@ export class UserService extends BaseService {
 
   async getProfile() {
     try {
-      const modulusCustomerEmail: string = (this.req.user as ProfileData)
-        ?.internalData.modulusCustomerEmail;
+      const userId: string = (this.req.user as ProfileData)?.internalData.id;
 
       const { data } = await this.modulusService.getProfile();
 
@@ -64,8 +63,7 @@ export class UserService extends BaseService {
         throw new UnprocessableEntityException(data.data);
       }
 
-      const internalUser =
-        await this.getInternalUserProfile(modulusCustomerEmail);
+      const internalUser = await this.getInternalUserProfile(userId);
 
       console.log({ ...data.data, ...internalUser });
 
@@ -75,10 +73,10 @@ export class UserService extends BaseService {
     }
   }
 
-  async getInternalUserProfile(modulusCustomerEmail: string) {
+  async getInternalUserProfile(userId: string) {
     try {
       return await this.getClient().user.findUnique({
-        where: { modulusCustomerEmail },
+        where: { id: userId },
         select: {
           id: true,
           language: true,
@@ -102,15 +100,14 @@ export class UserService extends BaseService {
   }
 
   async updateProfile(updateProfileRequestDto: UpdateProfileRequestDto) {
-    const modulusCustomerEmail: string = (this.req.user as ProfileData)
-      ?.internalData.modulusCustomerEmail;
+    const userId: string = (this.req.user as ProfileData)?.internalData.id;
 
-    if (!modulusCustomerEmail) {
+    if (!userId) {
       throw new UnauthorizedException('Unauthorized user');
     }
 
     const internalUser = await this.getClient().user.findUnique({
-      where: { modulusCustomerEmail },
+      where: { id: userId },
     });
 
     if (!internalUser) {
@@ -186,7 +183,7 @@ export class UserService extends BaseService {
       }
 
       await this.getClient().user.update({
-        where: { modulusCustomerEmail },
+        where: { id: userId },
         data: internalProfileData,
       });
 
@@ -222,22 +219,21 @@ export class UserService extends BaseService {
 
   async saveFavoriteCoins(coinId: string, watchlist: boolean) {
     try {
-      const modulusCustomerEmail: string = (this.req.user as ProfileData)
-        ?.internalData.modulusCustomerEmail;
+      const userId: string = (this.req.user as ProfileData)?.internalData.id;
 
       const normalizedCoinId = coinId.toLowerCase();
 
       if (watchlist) {
         await this.getClient().userFavorite.upsert({
           where: {
-            modulusCustomerEmail_coinId: {
-              modulusCustomerEmail,
+            userId_coinId: {
+              userId,
               coinId: normalizedCoinId,
             },
           },
           update: {},
           create: {
-            modulusCustomerEmail,
+            userId,
             coinId: normalizedCoinId,
           },
         });
@@ -250,8 +246,8 @@ export class UserService extends BaseService {
       } else {
         const favoriteCoin = await this.getClient().userFavorite.findUnique({
           where: {
-            modulusCustomerEmail_coinId: {
-              modulusCustomerEmail,
+            userId_coinId: {
+              userId,
               coinId: normalizedCoinId,
             },
           },
@@ -267,8 +263,8 @@ export class UserService extends BaseService {
 
         await this.getClient().userFavorite.delete({
           where: {
-            modulusCustomerEmail_coinId: {
-              modulusCustomerEmail,
+            userId_coinId: {
+              userId,
               coinId: normalizedCoinId,
             },
           },
@@ -287,11 +283,10 @@ export class UserService extends BaseService {
 
   async getSaveFavoriteCoins() {
     try {
-      const modulusCustomerEmail: string = (this.req.user as ProfileData)
-        ?.internalData.modulusCustomerEmail;
+      const userId: string = (this.req.user as ProfileData)?.internalData.id;
 
       const savedCoins = await this.getClient().userFavorite.findMany({
-        where: { modulusCustomerEmail },
+        where: { userId },
         select: { coinId: true },
       });
 

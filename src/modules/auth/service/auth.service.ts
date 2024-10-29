@@ -66,24 +66,24 @@ export class AuthService extends BaseService {
       } else return false;
     } else return false;
   }
-  async updateLastLoggedIn(bearerToken: string) {
-    this.modulusService.setBearerToken(`Bearer ${bearerToken}`);
+  // async updateLastLoggedIn(bearerToken: string) {
+  //   this.modulusService.setBearerToken(`Bearer ${bearerToken}`);
 
-    const profile = await this.modulusService.getProfile();
+  //   const profile = await this.modulusService.getProfile();
 
-    if (profile.data.status === 'Success') {
-      const internalUser = await this.getClient().user.findUnique({
-        where: { modulusCustomerEmail: profile.data.data.email },
-      });
+  //   if (profile.data.status === 'Success') {
+  //     const internalUser = await this.getClient().user.findUnique({
+  //       where: { modulusCustomerEmail: profile.data.data.email },
+  //     });
 
-      if (internalUser) {
-        await this.getClient().user.update({
-          where: { modulusCustomerEmail: internalUser.modulusCustomerEmail },
-          data: { lastLoggedInAt: new Date() },
-        });
-      }
-    }
-  }
+  //     if (internalUser) {
+  //       await this.getClient().user.update({
+  //         where: { modulusCustomerEmail: internalUser.modulusCustomerEmail },
+  //         data: { lastLoggedInAt: new Date() },
+  //       });
+  //     }
+  //   }
+  // }
 
   async login(loginDto: LoginDto) {
     try {
@@ -393,7 +393,7 @@ export class AuthService extends BaseService {
         throw new UnauthorizedException();
       }
 
-      await this.updateLastLoggedIn(data.access_token);
+      // await this.updateLastLoggedIn(data.access_token);
 
       return { token: data, user: { ...internalUser, ...profile.data } };
     } catch (error) {
