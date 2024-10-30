@@ -5,9 +5,10 @@ import { PrismaService } from 'src/services/prisma.service';
 import { CoingeckoModule } from 'src/services/coingecko/coingecko.module';
 import { ModulusModule } from 'src/services/modulus/modulus.module';
 import { SettingsModule } from 'src/modules/settings/settings.module';
+import { QuicknodeModule } from 'src/services/quicknode/quicknode.module';
 
 @Module({
-  imports: [CoingeckoModule, ModulusModule, SettingsModule],
+  imports: [CoingeckoModule, ModulusModule, QuicknodeModule, SettingsModule],
   controllers: [MarketController],
   providers: [MarketService, PrismaService],
   exports: [MarketService],

@@ -14,25 +14,20 @@ import { MoralisTokenInfo } from './wallet.interface';
 import { MoralisService } from 'src/services/moralis/moralis.service';
 import { MoralisTransaction } from 'src/services/moralis/moralis.type';
 import { SettingsService } from '../settings/settings.service';
+import { QuicknodeService } from 'src/services/quicknode/quicknode.service';
 
 @Injectable()
 export class WalletService {
   constructor(
     private readonly modulusService: ModulusService,
+    private readonly quicknodeService: QuicknodeService,
     private readonly moralisService: MoralisService,
     private readonly settingsService: SettingsService,
   ) {}
 
   async getSafeAddressBalances(safeAddress: string) {
     try {
-      const url = `https://deep-index.moralis.io/api/v2.2/${safeAddress}/erc20?chain=${HelperProvider.getNetworkName()}`;
-      const headers = {
-        accept: 'application/json',
-        'X-API-Key': ConstantProvider.MORALIS_API_KEY,
-      };
-      const tokenBalanceResponse = await axios.get<MoralisTokenInfo[]>(url, {
-        headers,
-      });
+      const tokenBalanceResponse = await this.quicknodeService.getAddressTokenBalances(safeAddress, 1, 1000);
 
       const data = await this.settingsService.getApiSettings();
       const { data: coinStatsData } = await this.modulusService.getCoinStats();
@@ -44,7 +39,7 @@ export class WalletService {
       return data.supportedAssets.map((_asset) => {
         const asset = _asset!;
         const stats = coinStatsData.data[asset.shortName.toLowerCase()];
-        const tokenBalance = tokenBalanceResponse.data.find(
+        const tokenBalance = tokenBalanceResponse.find(
           (x) => x.symbol.toLowerCase() === asset.shortName.toLowerCase(),
         );
 

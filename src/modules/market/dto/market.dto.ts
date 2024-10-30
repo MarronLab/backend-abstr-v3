@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsNumber } from 'class-validator';
+import { IsOptional, IsNumber, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class SparklineIn7dDto {
@@ -183,6 +183,13 @@ class CoingeckoMarketData {
   })
   sparkline_in_7d: SparklineIn7dDto;
 }
+
+export class ForexQueryDto {
+  @ApiProperty()
+  @IsString()
+  baseCurrency: string;
+}
+
 
 export class TrendingMarketDataResponseDto {
   @ApiProperty()
