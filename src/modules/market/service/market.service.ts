@@ -293,7 +293,7 @@ export class MarketService extends BaseService {
 
   async getForexExchange(queryParams: ForexQueryDto) {
     try {
-      return await this.quicknodeService.getExchangeRate(queryParams.baseCurrency);
+      return await this.quicknodeService.getExchangeRate(queryParams.baseCurrency, queryParams.rates);
     } catch (error) {
       this.handleError(error);
     }

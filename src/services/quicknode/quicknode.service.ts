@@ -37,7 +37,7 @@ export class QuicknodeService {
     }
   }
 
-  async getExchangeRate(baseCurrency = "USD") {
+  async getExchangeRate(baseCurrency = "USD", rates = ["EUR", "GBP", "JPY", "AUD", "CAD"]) {
     try {
       const response = await this.httpService.axiosRef.post<ExchangeRatesResponse>(
         ``,
@@ -45,7 +45,7 @@ export class QuicknodeService {
           jsonrpc: "2.0",
           id: 1,
           method: "forex_getExchangeRate",
-          params: [baseCurrency, ["EUR", "GBP", "JPY", "AUD", "CAD"]],
+          params: [baseCurrency, rates],
         },
       );
 

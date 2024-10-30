@@ -132,7 +132,7 @@ export class MarketController {
 
   @Get('forex-exchange')
   @ApiOperation({
-    summary: 'This endpoint allows you to query forex',
+    summary: 'This endpoint allows you to query forex API',
   })
   async getForexExchange(@Query() query: ForexQueryDto) {
     const response = await this.marketService.getForexExchange(query);

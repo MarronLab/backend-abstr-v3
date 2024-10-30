@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsNumber, IsString } from 'class-validator';
+import { IsOptional, IsNumber, IsString, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class SparklineIn7dDto {
@@ -188,6 +188,13 @@ export class ForexQueryDto {
   @ApiProperty()
   @IsString()
   baseCurrency: string;
+
+  @ApiProperty({
+    type: [String],
+    description: 'List of exchange rates for different currencies',
+  })
+  @IsArray()
+  rates: string[];
 }
 
 
