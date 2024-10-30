@@ -232,16 +232,13 @@ export class SafeService extends BaseService {
         },
       );
 
-      const op = JSON.parse(config.safeOp);
-
       const owner2Signature = await signSafeOp(
         platformSigner,
         this.safeGlobalConfig.erc4337module,
-        op,
+        safeOp,
         this.safeGlobalConfig.chainId,
       );
       console.log(platformSigner,
-        op,
         this.safeGlobalConfig.erc4337module,
         safeOp,
         this.safeGlobalConfig.chainId,)

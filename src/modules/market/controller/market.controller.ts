@@ -25,6 +25,7 @@ import {
   TrendingMarketDataResponseDto,
   TopGainerLoserDataResponseDto,
   PaginationQueryDto,
+  ForexQueryDto,
 } from '../dto/market.dto';
 import { SingleCoinGeckoDataResponseDto } from '../dto/singlecoinResponse.dto';
 import { RecentAddedCoinsResponseDto } from '../dto/recentaddedcoinResponse.dto';
@@ -126,6 +127,15 @@ export class MarketController {
   @ApiMarketDataQueries()
   async getRecentAddedCoins(@Query() query: PaginationQueryDto) {
     const response = await this.marketService.getRecentAddedCoins(query);
+    return response;
+  }
+
+  @Get('forex-exchange')
+  @ApiOperation({
+    summary: 'This endpoint allows you to query forex',
+  })
+  async getForexExchange(@Query() query: ForexQueryDto) {
+    const response = await this.marketService.getForexExchange(query);
     return response;
   }
 }

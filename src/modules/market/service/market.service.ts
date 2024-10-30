@@ -21,12 +21,14 @@ import {
   TopGainerLoserResponseDto,
   TopGainerLoserDataResponseDto,
   PaginationQueryDto,
+  ForexQueryDto,
 } from '../dto/market.dto';
 
 import { RecentAddedCoinDto } from '../dto/recentaddedcoinResponse.dto';
 
 import { paginate } from 'src/utils/pagination';
 import { CoinGeckoResponseType } from '@prisma/client';
+import { QuicknodeService } from 'src/services/quicknode/quicknode.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MarketService extends BaseService {
@@ -66,6 +68,7 @@ export class MarketService extends BaseService {
     private readonly coingeckoService: CoingeckoService,
     private readonly modulusService: ModulusService,
     private readonly prismaService: PrismaService,
+    private readonly quicknodeService: QuicknodeService,
     private readonly settingsService: SettingsService,
     @Inject(REQUEST) req: Request,
   ) {
@@ -283,6 +286,14 @@ export class MarketService extends BaseService {
       const results = await this.processAndSaveNewCoins(filteredRecentCoins);
 
       return this.paginateData(results, queryParams);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getForexExchange(queryParams: ForexQueryDto) {
+    try {
+      return await this.quicknodeService.getExchangeRate(queryParams.baseCurrency);
     } catch (error) {
       this.handleError(error);
     }

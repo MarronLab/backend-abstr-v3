@@ -7,10 +7,12 @@ import { ModulusModule } from 'src/services/modulus/modulus.module';
 import { MoralisModule } from 'src/services/moralis/moralis.module';
 import { UserModule } from '../user/module/user.module';
 import { SettingsModule } from '../settings/settings.module';
+import { QuicknodeModule } from 'src/services/quicknode/quicknode.module';
 
 @Module({
   imports: [
     ModulusModule,
+    QuicknodeModule,
     AuthModule,
     MoralisModule,
     UserModule,
