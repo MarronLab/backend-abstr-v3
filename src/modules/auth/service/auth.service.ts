@@ -85,6 +85,15 @@ export class AuthService extends BaseService {
   //   }
   // }
 
+  async isUserRegistered(
+    walletAddress: string,
+  ): Promise<{ isUserRegistered: boolean }> {
+    const user = await this.getClient().user.findUnique({
+      where: { userAddress: walletAddress },
+    });
+    return { isUserRegistered: !!user };
+  }
+
   async login(loginDto: LoginDto) {
     try {
       const nonce = loginDto.nonce.trim();

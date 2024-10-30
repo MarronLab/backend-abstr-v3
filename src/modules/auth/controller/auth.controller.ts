@@ -9,6 +9,7 @@ import {
   Get,
   Put,
   UseGuards,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import {
@@ -64,6 +65,16 @@ export class AuthController {
   async login(@Body() account: LoginDto) {
     const response = await this.authService.login(account);
     return response;
+  }
+
+  @Get('registration-status/:walletAddress')
+  @ApiOperation({ summary: 'Check User Registration status' })
+  @ApiOkResponse({
+    description: 'Returns true if user is registered, false otherwise',
+    schema: { type: 'boolean' },
+  })
+  async isUserRegistered(@Param('walletAddress') walletAddress: string) {
+    return await this.authService.isUserRegistered(walletAddress);
   }
 
   @Post('register')
