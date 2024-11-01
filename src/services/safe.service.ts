@@ -57,10 +57,10 @@ export class SafeService extends BaseService {
 
   async generateSafeAddress({
     userAddress,
-    modulusCustomerEmail,
+    userEmail,
   }: {
     userAddress: string;
-    modulusCustomerEmail?: string;
+    userEmail?: string;
   }) {
     const safe = await Safe4337.withSigner(userAddress, this.safeGlobalConfig);
 
@@ -100,7 +100,7 @@ export class SafeService extends BaseService {
         timezone: userSettings.timezone,
         currency: userSettings.currency,
         language: userSettings.language,
-        modulusCustomerEmail: modulusCustomerEmail ? modulusCustomerEmail : '',
+        userEmail: userEmail,
       },
     });
 

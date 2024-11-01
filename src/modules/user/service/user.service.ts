@@ -44,7 +44,6 @@ export class UserService extends BaseService {
     try {
       return await this.safeService.generateSafeAddress({
         userAddress: generateSafeAddressDto.userAddress,
-        // modulusCustomerEmail: generateSafeAddressDto.modulusCustomerEmail,
       });
     } catch (error) {
       throw new InternalServerErrorException(error);
@@ -91,7 +90,7 @@ export class UserService extends BaseService {
           publicID: true,
           lastLoggedInAt: true,
           autoLogoutDuration: true,
-          modulusCustomerEmail: true,
+          userEmail: true,
         },
       });
     } catch (error) {

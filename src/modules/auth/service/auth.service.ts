@@ -73,12 +73,12 @@ export class AuthService extends BaseService {
 
   //   if (profile.data.status === 'Success') {
   //     const internalUser = await this.getClient().user.findUnique({
-  //       where: { modulusCustomerEmail: profile.data.data.email },
+  //       where: { userEmail: profile.data.data.email },
   //     });
 
   //     if (internalUser) {
   //       await this.getClient().user.update({
-  //         where: { modulusCustomerEmail: internalUser.modulusCustomerEmail },
+  //         where: { userEmail: internalUser.userEmail },
   //         data: { lastLoggedInAt: new Date() },
   //       });
   //     }
@@ -104,6 +104,8 @@ export class AuthService extends BaseService {
         where: { userAddress: loginDto.address },
       });
 
+      const safeAddress = internalUser?.safeAddress;
+
       if (!internalUser) {
         throw new NotFoundException('User not found');
       }
@@ -120,8 +122,8 @@ export class AuthService extends BaseService {
       }
 
       const payload = {
-        sub: internalUser.userAddress,
-        username: internalUser.safeAddress,
+        userAddress: internalUser.userAddress,
+        safeAddress: internalUser.safeAddress,
       };
 
       // const { data } = await this.modulusService.login(
@@ -162,6 +164,7 @@ export class AuthService extends BaseService {
       const access_token = await this.jwtService.signAsync(payload);
       return {
         access_token: access_token,
+        safeAddress: safeAddress,
       };
     } catch (error) {
       console.log(error);

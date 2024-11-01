@@ -260,6 +260,7 @@ export class OrderService extends BaseService {
       console.log({ UpdatedBuyOrders: data?.Event?.UpdatedBuyOrders });
       console.log({ UpdatedSellOrders: data?.Event?.UpdatedSellOrders });
       console.log({ NewTrades: data?.Event?.NewTrades });
+      console.log(user, "user")
 
       // if (data.ErrorReason !== 100) {
       //   throw new UnprocessableEntityException(data.ErrorReason);
@@ -329,7 +330,7 @@ export class OrderService extends BaseService {
 
     const filterCriteria: Record<string, any> = {
       ...this.createOrderFilter(pair, sideEnum),
-      modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+      userAddress: user.internalData.userAddress,
     };
 
     try {

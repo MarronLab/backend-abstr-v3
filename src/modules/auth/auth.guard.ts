@@ -22,7 +22,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      this.modulusService.removeBearerToken();
+      // this.modulusService.removeBearerToken();
       throw new UnauthorizedException();
     }
 
@@ -30,13 +30,11 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
-      request['user'] = payload;
-
       // this.modulusService.setBearerToken(token);
 
       // const payload = await this.modulusService.validateBearerToken();
 
-      // if ('Message' in payload.data) {
+      // if ('Message' in payload1.data) {
       //   throw new UnauthorizedException();
       // }
 
@@ -71,6 +69,9 @@ export class AuthGuard implements CanActivate {
       // }
 
       // request['user'] = { ...user.data.data, internalData: internalUser };
+      request['user'] = {
+        payload,
+      };
     } catch (error) {
       throw new UnauthorizedException();
     }
