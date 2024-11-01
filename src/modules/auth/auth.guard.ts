@@ -44,9 +44,10 @@ export class AuthGuard implements CanActivate {
       //   throw new UnauthorizedException();
       // }
 
-      // const internalUser = await this.userService.getInternalUserProfile(
-      //   user.data.data.firstName,
-      // );
+      const internalUser = await this.userService.getInternalUserProfile(
+        '',
+        payload.userAddress,
+      );
 
       // if (!internalUser) {
       //   throw new UnauthorizedException();
@@ -71,6 +72,7 @@ export class AuthGuard implements CanActivate {
       // request['user'] = { ...user.data.data, internalData: internalUser };
       request['user'] = {
         payload,
+        internalData: internalUser,
       };
     } catch (error) {
       throw new UnauthorizedException();

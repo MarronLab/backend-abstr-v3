@@ -72,10 +72,12 @@ export class UserService extends BaseService {
     }
   }
 
-  async getInternalUserProfile(userId: string) {
+  async getInternalUserProfile(userId: string, userAddress?: string) {
     try {
-      return await this.getClient().user.findUnique({
-        where: { id: userId },
+      return await this.getClient().user.findFirst({
+        where: {
+          OR: [{ id: userId }, ...(userAddress ? [{ userAddress }] : [])],
+        },
         select: {
           id: true,
           language: true,
