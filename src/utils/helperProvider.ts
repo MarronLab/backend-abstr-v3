@@ -43,6 +43,8 @@ class HelperProvider {
         return 'polygon';
       case 8453:
         return 'base';
+      case 84532:
+        return 'base sepolia';
       default:
         throw Error('Network name not found');
     }

@@ -7,7 +7,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ModulusService } from 'src/services/modulus/modulus.service';
-import { SafeService } from 'src/services/safe.service';
+import { SafeService } from 'src/services/safe/safe.service';
 import { CoingeckoService } from 'src/services/coingecko/coingecko.service';
 import GenerateSafeAddressDto from '../dto/generate-safe-address.dto';
 import { BaseService } from 'src/common/base.service';
