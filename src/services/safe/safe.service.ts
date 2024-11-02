@@ -238,18 +238,20 @@ export class SafeService extends BaseService {
         safeOp,
         this.safeGlobalConfig.chainId,
       );
-      console.log(platformSigner,
+      console.log(
+        platformSigner,
         this.safeGlobalConfig.erc4337module,
         safeOp,
-        this.safeGlobalConfig.chainId,)
-      console.log({ owner2Signature })
+        this.safeGlobalConfig.chainId,
+      );
+      console.log({ owner2Signature });
       if (config.userSignature && owner2Signature) {
         const signature = buildSignatureBytes([
           config.userSignature,
           owner2Signature,
         ]);
 
-        console.log({ signature })
+        console.log({ signature });
 
         const userOps = buildUserOperationFromSafeUserOperation({
           safeOp,
@@ -258,7 +260,9 @@ export class SafeService extends BaseService {
 
         return userOps;
       } else {
-        throw new UnprocessableEntityException('Unable to compute the user operations');
+        throw new UnprocessableEntityException(
+          'Unable to compute the user operations',
+        );
       }
     } catch (error) {
       console.error(error);
@@ -267,10 +271,10 @@ export class SafeService extends BaseService {
 
   async generateSafeAddress({
     userAddress,
-    modulusCustomerEmail,
+    userEmail,
   }: {
     userAddress: string;
-    modulusCustomerEmail: string;
+    userEmail?: string;
   }) {
     const { initCode, safeAddress, isSafeDeployed } = await this.getSafeAddress(
       { userAddress },
@@ -278,18 +282,10 @@ export class SafeService extends BaseService {
 
     const user = await this.getClient().user.findFirst({
       where: {
-        OR: [
-          {
-            modulusCustomerEmail: {
-              mode: 'insensitive',
-              equals: modulusCustomerEmail,
-            },
-            userAddress: {
-              mode: 'insensitive',
-              equals: userAddress,
-            },
-          },
-        ],
+        userAddress: {
+          mode: 'insensitive',
+          equals: userAddress,
+        },
       },
     });
 
@@ -310,7 +306,7 @@ export class SafeService extends BaseService {
       data: {
         userAddress,
         safeAddress,
-        modulusCustomerEmail,
+        userEmail: userEmail,
         publicID: nanoid(),
         timezone: userSettings.timezone,
         currency: userSettings.currency,

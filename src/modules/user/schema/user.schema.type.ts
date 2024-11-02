@@ -34,7 +34,7 @@ export type GetProfileResponseSchemaType = {
   username: string | null;
   safeAddress: string;
   userAddress: string;
-  modulusCustomerEmail: string;
+  userEmail: string;
   emailNewsletter: boolean;
   emailTradeUpdates: boolean;
   emailAnnouncements: boolean;

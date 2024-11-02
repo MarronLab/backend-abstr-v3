@@ -97,15 +97,13 @@ export class WalletController {
     @Query() walletPerformanceDto: WalletPerformanceDto,
     @Req() req: Request,
   ) {
-    const modulusCustomerEmail: string = (req.user as ProfileData)?.internalData
-      .modulusCustomerEmail;
+    const userId: string = (req.user as ProfileData)?.internalData.id;
 
-    if (!modulusCustomerEmail) {
+    if (!userId) {
       throw new UnauthorizedException('Unauthorized user');
     }
 
-    const internalUser =
-      await this.userService.getInternalUserProfile(modulusCustomerEmail);
+    const internalUser = await this.userService.getInternalUserProfile(userId);
     if (!internalUser) {
       throw new UnauthorizedException('Unauthorized user');
     }
@@ -137,14 +135,12 @@ export class WalletController {
     type: WalletNetworthResponseDto,
   })
   async networth(@Req() req: Request) {
-    const modulusCustomerEmail: string = (req.user as ProfileData)?.internalData
-      .modulusCustomerEmail;
-    if (!modulusCustomerEmail) {
+    const userId: string = (req.user as ProfileData)?.internalData.id;
+    if (!userId) {
       throw new UnauthorizedException('Unauthorized user');
     }
 
-    const internalUser =
-      await this.userService.getInternalUserProfile(modulusCustomerEmail);
+    const internalUser = await this.userService.getInternalUserProfile(userId);
     if (!internalUser) {
       throw new UnauthorizedException('Unauthorized user');
     }

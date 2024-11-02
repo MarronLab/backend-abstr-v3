@@ -11,14 +11,14 @@ export default class GenerateSafeAddressDto {
   @IsString()
   userAddress: string;
 
-  @ApiProperty({
-    description: 'The modulus email',
-    required: true,
-  })
-  @IsDefined()
-  @IsNotEmpty()
-  @IsEmail()
-  modulusCustomerEmail: string;
+  // @ApiProperty({
+  //   description: 'The user email',
+  //   required: false,
+  // })
+  // @IsDefined()
+  // @IsNotEmpty()
+  // @IsEmail()
+  // userEmail: string;
 }
 
 export class GenerateSafeAddressResponseDto {
