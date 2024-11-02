@@ -1,4 +1,5 @@
-import { BigNumberish, BytesLike, JsonRpcSigner } from 'ethers';
+import { BigNumberish, BytesLike } from 'ethers';
+import { SafeSignature } from './safe4337/utils/execution';
 
 export interface OrderPostDataI {
   maker: string;
@@ -104,14 +105,14 @@ export interface SafeUserOperation {
   entryPoint: string;
 }
 
-export interface BuildSafeOperation {
+export interface BuildSafeOperationI {
   to: string;
   value: BigNumberish;
   data: string;
   nonce: BigNumberish;
   userAddress: string;
   safeAddress: string;
-  userSigner: JsonRpcSigner;
+  userSignature: SafeSignature;
   isInitCode: boolean;
 }
 

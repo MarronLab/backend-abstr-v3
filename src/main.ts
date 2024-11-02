@@ -9,7 +9,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { UserActivityInterceptor } from './common/user-activity.interceptor';
 import { ValidationPipe } from '@nestjs/common';
-import { TransactionInterceptor } from './common/transaction.interceptor';
 import { PrismaService } from './services/prisma.service';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import { JsonParseMiddleware } from './utils/JsonParseMiddleware';

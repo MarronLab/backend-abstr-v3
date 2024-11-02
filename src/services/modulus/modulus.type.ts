@@ -381,7 +381,7 @@ export type ProfileData = {
     currency: string | null;
     id: string;
     safeAddress: string;
-    modulusCustomerEmail: string;
+    userEmail: string;
     userAddress: string;
     username: string | null;
     publicID: string;
