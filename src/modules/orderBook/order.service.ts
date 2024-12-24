@@ -230,6 +230,11 @@ export class OrderService extends BaseService {
   async createOrder(createOrderDto: CreateOrderDto, user: ProfileData) {
     try {
       const orderId = Math.floor(Date.now() / 1000);
+      const userId = Array.from(user.internalData.id).reduce(
+        (sum, char) => sum + char.charCodeAt(0),
+        0,
+      );
+
       const params = {
         CurrencyPair: createOrderDto.CurrencyPair,
         Size: createOrderDto.Size,
@@ -241,12 +246,12 @@ export class OrderService extends BaseService {
         StopPrice: 0,
         TrailingAmount: 0,
         OrderID: orderId,
-        UserID: user.customerID,
+        UserID: userId,
         ExtraData: JSON.parse(createOrderDto.ExtraData),
       };
 
       console.log({ params });
-      console.log({ ExtraData: params.ExtraData });
+      console.log({ ExtraData: createOrderDto.ExtraData });
 
       //@TODO: extract http call to it own service
       const modulusOrderResponse = await axios.post<SubmitOrderResponse>(

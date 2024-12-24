@@ -17,7 +17,7 @@ import { mockStats } from './mockStats';
 
 @Injectable()
 export class SettingsService {
-  private readonly NETWORK = 'Base';
+  private readonly NETWORK = 'Binance Smart Chain';
 
   constructor(
     private readonly modulusService: ModulusService,
