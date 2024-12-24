@@ -44,13 +44,13 @@ export class UserActivityInterceptor extends TransactionInterceptor {
 
     return next.handle().pipe(
       concatMap(async (value) => {
-        data.response = JSON.stringify(value);
+        data.response = JSON.stringify(value) || {};
         data.success = true;
 
         if (user) {
           const internalUser = await prisma.user.findFirst({
             where: {
-              modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+              userEmail: user.internalData.userEmail,
             },
           });
           data.userId = internalUser ? internalUser.id : undefined;
@@ -69,7 +69,7 @@ export class UserActivityInterceptor extends TransactionInterceptor {
         if (user) {
           const internalUser = await prisma.user.findFirst({
             where: {
-              modulusCustomerEmail: user.internalData.modulusCustomerEmail,
+              userEmail: user.internalData.userEmail,
             },
           });
 

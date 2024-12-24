@@ -43,6 +43,8 @@ class HelperProvider {
         return 'polygon';
       case 8453:
         return 'base';
+      case 84532:
+        return 'base sepolia';
       default:
         throw Error('Network name not found');
     }
@@ -50,8 +52,8 @@ class HelperProvider {
 
   static getSignMessage = (nonce: string) => {
     return `
-        Welcome to Maroon!
-Click to sign in and accept the Maroon Terms of Service and Privacy Policy.
+        Welcome to Yamata!
+Click to sign in and accept the Yamata Terms of Service and Privacy Policy.
 This request will not trigger a blockchain transaction or cost any gas fees.
 Expiry at: ${nonce}
         `;
